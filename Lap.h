@@ -13,9 +13,14 @@ class Lap
 {
 public:
 		Lap(const QStringList& telemetryDataNames);
+
+		// Telemetry
 		void addTelemetryData(float distance, const QVector<float>& values);
 		void clearTelemetry();
+		QVector<float> distances() const;
+		QVector<float> telemetry(int index) const;
 
+		// Metadata
 		int track = -1;
 		int session_type = -1;
 		int trackTemp = 0;
@@ -33,6 +38,7 @@ public:
 		float sector2Time = 0;
 		float sector3Time = 0;
 
+		// Saving - Loading
 		void save(const QString& filename) const;
 		void load(const QString& filename);
 		static Lap fromFile(const QString& filename);

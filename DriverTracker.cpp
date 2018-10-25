@@ -21,6 +21,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 {
 	Q_UNUSED(header)
 	const auto& driverData = data.m_carTelemetryData[_driverIndex];
+
+	if (driverData.m_gear < 0)
+		_isLapRecorded = false; //Rear gear
+
 	auto values = {float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime};
 	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
@@ -48,11 +52,12 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 			_currentLap->save(filePath);
 			++_currentLapNum;
-			qDebug() << "LAP Recorded : " << dataDirectory.dirName();
+			_currentLap->clearTelemetry();
+			qDebug() << "LAP Recorded : " << driverDataDirectory.dirName();
 		}
 
 
-		qDebug() << "LAP Started : " << dataDirectory.dirName();
+		qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 		// A new lap started
 		_currentLap->track = _currentSessionData.m_trackId;
@@ -65,6 +70,12 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
 
 		_isLapRecorded = true;
+	}
+	else if (lapData.m_lapDistance <= _previousLapData.m_lapDistance and _isLapRecorded)
+	{
+		// Flashback
+		qDebug() << "Flashback" << lapData.m_lapDistance;
+		_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
 	}
 
 	if (lapData.m_pitStatus > 0)

@@ -20,6 +20,43 @@ void Lap::clearTelemetry()
 	_telemetry.clear();
 }
 
+QVector<float> Lap::distances() const
+{
+	return _distances;
+}
+
+QVector<float> Lap::telemetry(int index) const
+{
+	QVector<float> data;
+	for (const auto& dataPoint : _telemetry)
+	{
+		data << dataPoint[index];
+	}
+
+	return data;
+}
+
+QStringList Lap::availableTelemetry() const
+{
+	return _telemetryNames;
+}
+
+void Lap::removeTelemetryFrom(float distance)
+{
+	if (!_distances.isEmpty())
+	{
+		auto d = _distances.last();
+		while (d > distance)
+		{
+			_distances.removeLast();
+			_telemetry.removeLast();
+			if (_distances.isEmpty())
+				break;
+			d = _distances.last();
+		}
+	}
+}
+
 void Lap::save(const QString &filename) const
 {
 	QFile file(filename);
@@ -44,7 +81,7 @@ void Lap::save(const QString &filename) const
 void Lap::load(const QString &filename)
 {
 	QFile file(filename);
-	if (file.open(QIODevice::WriteOnly))
+	if (file.open(QIODevice::ReadOnly))
 	{
 		QDataStream in(&file);
 		in.setByteOrder(QDataStream::LittleEndian);

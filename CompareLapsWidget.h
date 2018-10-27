@@ -5,6 +5,7 @@
 
 #include <QCheckBox>
 #include <QWidget>
+#include <QChartView>
 
 namespace Ui {
 	class CompareLapsWidget;
@@ -23,15 +24,20 @@ public:
 	void setLaps(const QVector<Lap>& laps);
 	void clearVariables();
 
+	void createVariables(const QStringList& variables);
+
 private:
 	Ui::CompareLapsWidget *ui;
 	LapsTableModel* _lapModel;
-	QHash<QString, QCheckBox*> _variableCheckboxes;
+	QList<QCheckBox*> _variableCheckboxes;
+	QList<QtCharts::QChartView*> _variablesCharts;
+	QStringList _variables;
 
 private slots:
 	void addLaps();
 	void clearLaps();
 	void updateLaps();
+	void variableChecked(bool value);
 };
 
 #endif // COMPARELAPSWIDGET_H

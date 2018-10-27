@@ -48,6 +48,7 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 		if (_variables != newVariables)
 			createVariables(newVariables);
 
+		QList<QColor> colors;
 		int varIndex = 0;
 		for (auto chartView: _variablesCharts)
 		{
@@ -68,6 +69,7 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 				}
 
 				chartView->chart()->addSeries(series);
+				colors << series->color();
 			}
 
 			chartView->chart()->createDefaultAxes();
@@ -75,6 +77,8 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 
 			++varIndex;
 		}
+
+		_lapModel->setColors(colors);
 	}
 	else
 	{

@@ -2,10 +2,12 @@
 
 #include <QVariant>
 #include <QModelIndex>
+#include <QPixmap>
+
+#include <QtDebug>
 
 LapsTableModel::LapsTableModel()
 {
-
 }
 
 QVariant LapsTableModel::data(const QModelIndex &index, int role) const
@@ -17,6 +19,8 @@ QVariant LapsTableModel::data(const QModelIndex &index, int role) const
 
 	if (role == Qt::DisplayRole)
 		return lap.description();
+	else if (role == Qt::DecorationRole)
+		return _colors.value(index.row());
 
 	return QVariant();
 }
@@ -47,6 +51,12 @@ void LapsTableModel::clear()
 	_laps.clear();
 	endResetModel();
 	emit lapsChanged();
+}
+
+void LapsTableModel::setColors(const QList<QColor> &colors)
+{
+	_colors = colors;
+	emit dataChanged(QModelIndex(), QModelIndex());
 }
 
 const QVector<Lap> &LapsTableModel::getLaps() const

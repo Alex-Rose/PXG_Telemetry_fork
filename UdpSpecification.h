@@ -35,6 +35,7 @@ public:
 	QString track(int index) const {return tracks.value(index);}
 	QString weather(int index) const {return weathers.value(index);}
 	QString session_type(int index) const {return sessions.value(index);}
+	QString tyre(int index) const {return tyres.value(index);}
 
 private:
 	UdpSpecification();
@@ -44,6 +45,7 @@ private:
 	QStringList tracks;
 	QStringList weathers;
 	QStringList sessions;
+	QStringList tyres;
 };
 
 struct PacketHeader

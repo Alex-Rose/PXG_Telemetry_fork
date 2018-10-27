@@ -2,6 +2,7 @@
 #include "Lap.h"
 
 #include <QTime>
+#include <QtGlobal>
 
 const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "Gear", "Time"};
 
@@ -28,6 +29,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	auto values = {float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime};
 	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
+	_currentLap->maxSpeed = qMax(_currentLap->maxSpeed, int(driverData.m_speed));
 }
 
 void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &data)
@@ -68,6 +70,8 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->recordDate = QDateTime::currentDateTime();
 		_currentLap->invalid = lapData.m_currentLapInvalid;
 		_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
+		_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
+		_currentLap->maxSpeed = 0;
 
 		_isLapRecorded = true;
 	}

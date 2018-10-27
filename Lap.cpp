@@ -12,7 +12,8 @@ QString Lap::description() const
 {
 	auto time = QTime(0, 0).addMSecs(int(double(lapTime) * 1000.0)).toString("m:ss.zzz");
 	auto team = UdpSpecification::instance()->team(driver.m_teamId);
-	return driver.m_name + " " + team + " - " + time;
+	auto tyre = UdpSpecification::instance()->tyre(tyreCompound);
+	return driver.m_name + " " + team + " - " + tyre + " - " + time;
 }
 
 void Lap::addTelemetryData(float distance, const QVector<float> &values)
@@ -76,7 +77,7 @@ void Lap::save(const QString &filename) const
 		out << track << session_type << trackTemp << airTemp << weather << invalid << driver
 			<< recordDate << averageStartTyreWear << averageEndTyreWear << setup << comment
 			<< lapTime << sector1Time << sector2Time << sector3Time
-			<< _telemetryNames << _distances << _telemetry;
+			<< _telemetryNames << _distances << _telemetry << tyreCompound << maxSpeed;
 
 		qDebug() << "LAP saved " << filename;
 	}
@@ -98,7 +99,7 @@ void Lap::load(const QString &filename)
 		in  >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver
 			>> recordDate >> averageStartTyreWear >> averageEndTyreWear >> setup >> comment
 			>> lapTime >> sector1Time >> sector2Time >> sector3Time
-			>> _telemetryNames >> _distances >> _telemetry;
+			>> _telemetryNames >> _distances >> _telemetry >> tyreCompound >> maxSpeed;
 	}
 }
 

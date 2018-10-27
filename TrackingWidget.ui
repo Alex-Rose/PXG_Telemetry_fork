@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>408</width>
-    <height>401</height>
+    <width>478</width>
+    <height>546</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -267,7 +267,7 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>69</width>
+       <width>104</width>
        <height>20</height>
       </size>
      </property>
@@ -294,11 +294,18 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>69</width>
+       <width>104</width>
        <height>20</height>
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="7" column="0" colspan="3">
+    <widget class="QPlainTextEdit" name="logTextEdit">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0" colspan="3">
     <widget class="QLabel" name="lblStatus">
@@ -311,19 +318,6 @@
       <string>Status</string>
      </property>
     </widget>
-   </item>
-   <item row="7" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

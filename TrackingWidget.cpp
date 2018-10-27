@@ -2,6 +2,7 @@
 #include "ui_TrackingWidget.h"
 
 #include <QFileDialog>
+#include <QDateTime>
 
 TrackingWidget::TrackingWidget(QWidget *parent) :
 	QWidget(parent),
@@ -58,6 +59,21 @@ void TrackingWidget::setStatus(const QString &status, bool trackingInProgress)
 	ui->btnTrack->setText(_trackingInProgress ? "Stop" : "Start");
 	ui->driverWidget->setEnabled(!trackingInProgress);
 	ui->btnBrowse->setEnabled(!trackingInProgress);
+}
+
+void TrackingWidget::logText(const QString &text)
+{
+	ui->logTextEdit->appendPlainText("\n");
+	ui->logTextEdit->appendPlainText(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss :"));
+	ui->logTextEdit->appendPlainText(text);
+	++_nbLogLines;
+
+	if (_nbLogLines > 100)
+	{
+		QString text = ui->logTextEdit->toPlainText();
+		auto firstEolIndex = text.indexOf('\n');
+		ui->logTextEdit->setPlainText(text.mid(firstEolIndex + 1));
+	}
 }
 
 void TrackingWidget::startStop()

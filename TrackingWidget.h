@@ -30,12 +30,14 @@ public slots:
 	void setSession(const QString& sessionName);
 	void setDrivers(const QStringList& drivers);
 	void setStatus(const QString& status, bool trackingInProgress);
+	void logText(const QString& text);
 
 private:
 	Ui::TrackingWidget *ui;
 
 	QList<QCheckBox*> _driverCheckBoxes;
 	bool _trackingInProgress = false;
+	int _nbLogLines = 0;
 
 private slots:
 	void startStop();

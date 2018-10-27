@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QWidget>
 #include <QChartView>
+#include <QToolBar>
 
 namespace Ui {
 	class CompareLapsWidget;
@@ -32,12 +33,17 @@ private:
 	QList<QCheckBox*> _variableCheckboxes;
 	QList<QtCharts::QChartView*> _variablesCharts;
 	QStringList _variables;
+	QToolBar* _toolbar;
+
+	void initActions();
 
 private slots:
 	void addLaps();
 	void clearLaps();
 	void updateLaps();
 	void variableChecked(bool value);
+	void home();
+	void distanceZoomChanged(qreal min, qreal max);
 };
 
 #endif // COMPARELAPSWIDGET_H

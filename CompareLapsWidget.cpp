@@ -14,6 +14,12 @@ CompareLapsWidget::CompareLapsWidget(QWidget *parent) :
 	ui(new Ui::CompareLapsWidget)
 {
 	ui->setupUi(this);
+
+	_toolbar = new QToolBar(this);
+	ui->graphLayout->insertStretch(0);
+	ui->graphLayout->insertWidget(0, _toolbar);
+	initActions();
+
 	_lapModel = new LapsTableModel();
 	ui->lapsTableView->setModel(_lapModel);
 	connect(ui->btnAddLaps, &QPushButton::clicked, this, &CompareLapsWidget::addLaps);
@@ -21,6 +27,12 @@ CompareLapsWidget::CompareLapsWidget(QWidget *parent) :
 	connect(_lapModel, &LapsTableModel::lapsChanged, this, &CompareLapsWidget::updateLaps);
 
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
+}
+
+void CompareLapsWidget::initActions()
+{
+	auto homeAction = _toolbar->addAction("Home", this, &CompareLapsWidget::home);
+	homeAction->setShortcut(Qt::Key_Escape);
 }
 
 CompareLapsWidget::~CompareLapsWidget()
@@ -59,26 +71,15 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 			}
 
 			chartView->chart()->createDefaultAxes();
+			connect(chartView->chart()->axisX(), SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
 
 			++varIndex;
 		}
 	}
-}
-
-void CompareLapsWidget::clearVariables()
-{
-	for (auto it = _variableCheckboxes.constBegin(); it != _variableCheckboxes.constEnd(); ++it)
+	else
 	{
-		delete *it;
+		clearVariables();
 	}
-
-	for (auto it = _variablesCharts.constBegin(); it != _variablesCharts.constEnd(); ++it)
-	{
-		delete *it;
-	}
-
-	_variableCheckboxes.clear();
-	_variablesCharts.clear();
 }
 
 void CompareLapsWidget::createVariables(const QStringList &variables)
@@ -105,11 +106,29 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 		view->setSizePolicy(pol);
 		_variablesCharts << view;
 		view->setVisible(checkbox->isChecked());
+		view->setRubberBand(QChartView::HorizontalRubberBand);
 
 		ui->graphLayout->addWidget(view);
 
 		++varIndex;
 	}
+}
+
+void CompareLapsWidget::clearVariables()
+{
+	for (auto it = _variableCheckboxes.constBegin(); it != _variableCheckboxes.constEnd(); ++it)
+	{
+		delete *it;
+	}
+
+	for (auto it = _variablesCharts.constBegin(); it != _variablesCharts.constEnd(); ++it)
+	{
+		delete *it;
+	}
+
+	_variableCheckboxes.clear();
+	_variablesCharts.clear();
+	_variables.clear();
 }
 
 void CompareLapsWidget::addLaps()
@@ -142,5 +161,23 @@ void CompareLapsWidget::variableChecked(bool value)
 	if (chartView)
 	{
 		chartView->setVisible(value);
+	}
+}
+
+void CompareLapsWidget::home()
+{
+	for (auto chartView : _variablesCharts)
+		chartView->chart()->zoomReset();
+}
+
+void CompareLapsWidget::distanceZoomChanged(qreal min, qreal max)
+{
+	auto chart = qobject_cast<QChart*>(sender());
+	for (auto chartView : _variablesCharts)
+	{
+		if (chart != chartView->chart())
+		{
+			chartView->chart()->axisX()->setRange(min, max);
+		}
 	}
 }

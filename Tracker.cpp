@@ -4,37 +4,51 @@
 
 Tracker::Tracker()
 {
-	_dataDirectory = QDir("/Users/trabillard/Documents");
-	_dataDirectory.mkdir("F1TelemetryData");
-	_dataDirectory.cd("F1TelemetryData");
+	_dataDirectory = QDir();
+	_sessionDirectory = _dataDirectory;
+}
+
+void Tracker::setDataDirectory(const QString& dirPath)
+{
+	auto newDir = QDir(dirPath);
+	if (newDir != _dataDirectory)
+	{
+		QDir().mkpath(dirPath);
+		_dataDirectory = QDir(dirPath);
+		_lastStartedSessionUID = 0;
+		qDebug() << "Data Directory: " << _dataDirectory.absolutePath();
+	}
 }
 
 void Tracker::start()
 {
 	if (hasSession())
 	{
-		auto trackName = UdpSpecification::instance()->track(_session.m_trackId);
-		auto type = UdpSpecification::instance()->session_type(_session.m_sessionType);
+		if (_lastStartedSessionUID != _header.m_sessionUID)
+		{
+			auto trackName = UdpSpecification::instance()->track(_session.m_trackId);
+			auto type = UdpSpecification::instance()->session_type(_session.m_sessionType);
 
-		auto dirName = trackName + " - " + type + " - " + QDateTime::currentDateTime().toString("yyyyMMdd hhmmss");
-		_dataDirectory.mkdir(dirName);
+			auto dirName = trackName + " - " + type + " - " + QDateTime::currentDateTime().toString("yyyyMMdd hhmmss");
+			_dataDirectory.mkdir(dirName);
 
-		qDebug() << _dataDirectory.absolutePath();
+			_sessionDirectory = _dataDirectory;
+			_sessionDirectory.cd(dirName);
+		}
 
-		auto subDir = _dataDirectory;
-		subDir.cd(dirName);
 		for (auto& driver : _trackedDrivers) {
-			driver.init(subDir);
+			driver.init(_sessionDirectory);
 		}
 
 		qDebug() << "TRACKING...";
-		emit statusChanged("Tracking", true);
+		emit statusChanged("Tracking in progress...", true);
 		_isRunning = true;
+		_lastStartedSessionUID = _header.m_sessionUID;
 	}
 	else
 	{
 		qDebug() << "Waiting for a session ...";
-		emit statusChanged("Waiting for a session", true);
+		emit statusChanged("Waiting for a session...", true);
 		_autoStart = true;
 	}
 }
@@ -120,15 +134,15 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 {
 	auto do_start = !hasSession() and _autoStart;
 
+	if (header.m_sessionUID != _header.m_sessionUID)
+	{
+		emit sessionChanged(sessionName(data));
+		_hasParticipants = false;
+	}
+
 	_session = data;
 	_header = header;
 
-	if (_sessionUuid != _header.m_sessionUID)
-	{
-		emit sessionChanged(sessionName(data));
-		_sessionUuid = _header.m_sessionUID;
-		_hasParticipants = false;
-	}
 
 	if (do_start)
 		start();

@@ -1,6 +1,8 @@
 #include "TrackingWidget.h"
 #include "ui_TrackingWidget.h"
 
+#include <QFileDialog>
+
 TrackingWidget::TrackingWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::TrackingWidget)
@@ -11,6 +13,7 @@ TrackingWidget::TrackingWidget(QWidget *parent) :
 				 << ui->driver8  << ui->driver9  << ui->driver10  << ui->driver11  << ui->driver12  << ui->driver13  << ui->driver14
 				 << ui->driver15  << ui->driver16  << ui->driver17  << ui->driver18  << ui->driver19  << ui->driver20;
 	connect(ui->btnTrack, &QPushButton::clicked, this, &TrackingWidget::startStop);
+	connect(ui->btnBrowse, &QPushButton::clicked, this, &TrackingWidget::browseDataDirectory);
 	setStatus("", false);
 	setDrivers({});
 	setSession("");
@@ -19,6 +22,20 @@ TrackingWidget::TrackingWidget(QWidget *parent) :
 TrackingWidget::~TrackingWidget()
 {
 	delete ui;
+}
+
+void TrackingWidget::saveSettings(QSettings *settings)
+{
+	settings->beginGroup("Tracking");
+	settings->setValue("dataDirectory", ui->leDataDir->text());
+	settings->endGroup();
+}
+
+void TrackingWidget::loadSettings(QSettings *settings)
+{
+	settings->beginGroup("Tracking");
+	ui->leDataDir->setText(settings->value("dataDirectory").toString());
+	settings->endGroup();
 }
 
 void TrackingWidget::setSession(const QString &sessionName)
@@ -39,6 +56,8 @@ void TrackingWidget::setStatus(const QString &status, bool trackingInProgress)
 	ui->lblStatus->setText(status);
 	_trackingInProgress = trackingInProgress;
 	ui->btnTrack->setText(_trackingInProgress ? "Stop" : "Start");
+	ui->driverWidget->setEnabled(!trackingInProgress);
+	ui->btnBrowse->setEnabled(!trackingInProgress);
 }
 
 void TrackingWidget::startStop()
@@ -57,4 +76,15 @@ void TrackingWidget::startStop()
 	{
 		emit stopStracking();
 	}
+}
+
+void TrackingWidget::browseDataDirectory()
+{
+	auto directory = QFileDialog::getExistingDirectory(this, "Data directory", ui->leDataDir->text());
+	ui->leDataDir->setText(directory);
+}
+
+QString TrackingWidget::getDataDirectory() const
+{
+	return ui->leDataDir->text();
 }

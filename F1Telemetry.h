@@ -25,7 +25,11 @@ private:
 	F1Listener* _listener;
 	Tracker* _tracker;
 
-	void participant(const PacketHeader& header, const PacketParticipantsData& participants);
+	void loadSettings();
+	void saveSetings();
+
+protected:
+	void closeEvent(QCloseEvent* event);
 
 private slots:
 	void startTracking(bool trackPlayer, const QVector<int>& trackedDriverIds);

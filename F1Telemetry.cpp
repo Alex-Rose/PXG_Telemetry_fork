@@ -15,6 +15,8 @@ F1Telemetry::F1Telemetry(QWidget *parent) :
 	connect(_tracker, &Tracker::statusChanged, ui->trackingWidget, &TrackingWidget::setStatus);
 	connect(ui->trackingWidget, &TrackingWidget::startTracking, this, &F1Telemetry::startTracking);
 	connect(ui->trackingWidget, &TrackingWidget::stopStracking, _tracker, &Tracker::stop);
+
+	loadSettings();
 }
 
 F1Telemetry::~F1Telemetry()
@@ -22,35 +24,23 @@ F1Telemetry::~F1Telemetry()
 	delete ui;
 }
 
-void F1Telemetry::participant(const PacketHeader &header, const PacketParticipantsData &participants)
+void F1Telemetry::loadSettings()
 {
-	auto player = participants.m_participants[header.m_playerCarIndex];
-	QString text = "Driver: ";
-	text += player.m_name;
-	text += " ";
-	text += QString::number(player.m_aiControlled);
-	text += "\nNumber of cars ";
-	text += QString::number(participants.m_numCars);
-	if (participants.m_numCars > 1)
-	{
-		text += "\n\nOther Drivers:\n ";
-		for (auto i = 0; i < participants.m_numCars; ++i)
-		{
-			if (i != header.m_playerCarIndex)
-			{
-				auto driver = participants.m_participants[i];
-				text += driver.m_name;
-				text += " (";
-				text += QString::number(driver.m_driverId);
-				text += " - ";
-				text += QString::number(driver.m_teamId);
-				text += ")\n";
-			}
-		}
-	}
-//	ui->plainTextEdit->setPlainText(text);
+	QSettings settings;
+	ui->trackingWidget->loadSettings(&settings);
 }
 
+void F1Telemetry::saveSetings()
+{
+	QSettings settings;
+	ui->trackingWidget->saveSettings(&settings);
+}
+
+void F1Telemetry::closeEvent(QCloseEvent *event)
+{
+	saveSetings();
+	QMainWindow::closeEvent(event);
+}
 
 void F1Telemetry::startTracking(bool trackPlayer, const QVector<int> &trackedDriverIds)
 {
@@ -59,6 +49,7 @@ void F1Telemetry::startTracking(bool trackPlayer, const QVector<int> &trackedDri
 		_tracker->trackPlayer();
 	for (auto id : trackedDriverIds)
 		_tracker->trackDriver(id);
+	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
 	_tracker->start();
 }
 

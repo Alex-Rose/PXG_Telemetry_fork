@@ -2,6 +2,7 @@
 #define TRACKINGWIDGET_H
 
 #include <QCheckBox>
+#include <QSettings>
 #include <QWidget>
 
 namespace Ui {
@@ -20,6 +21,11 @@ public:
 	explicit TrackingWidget(QWidget *parent = nullptr);
 	~TrackingWidget();
 
+	void saveSettings(QSettings* settings);
+	void loadSettings(QSettings* settings);
+
+	QString getDataDirectory() const;
+
 public slots:
 	void setSession(const QString& sessionName);
 	void setDrivers(const QStringList& drivers);
@@ -33,6 +39,7 @@ private:
 
 private slots:
 	void startStop();
+	void browseDataDirectory();
 
 };
 

@@ -20,6 +20,7 @@ public:
 	Tracker();
 	virtual ~Tracker() override {}
 
+	void setDataDirectory(const QString& dirPath);
 	void trackDriver(int index);
 	void trackPlayer();
 	void untrackDriver(int index);
@@ -33,6 +34,7 @@ public slots:
 
 private:
 	QDir _dataDirectory;
+	QDir _sessionDirectory;
 	QVector<DriverTracker> _trackedDrivers;
 	bool _isRunning = false;
 	bool _autoStart = false;
@@ -40,7 +42,7 @@ private:
 	bool _hasParticipants = false;
 	PacketSessionData _session;
 	PacketHeader _header;
-	quint64 _sessionUuid = 0;
+	quint64 _lastStartedSessionUID = 0;
 
 	// F1PacketInterface interface
 	void telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data) override;

@@ -28,11 +28,13 @@ void Tracker::start()
 		}
 
 		qDebug() << "TRACKING...";
+		emit statusChanged("Tracking", true);
 		_isRunning = true;
 	}
 	else
 	{
 		qDebug() << "Waiting for a session ...";
+		emit statusChanged("Waiting for a session", true);
 		_autoStart = true;
 	}
 }
@@ -40,6 +42,8 @@ void Tracker::start()
 void Tracker::stop()
 {
 	_isRunning = false;
+	_autoStart = false;
+	emit statusChanged("", false);
 }
 
 void Tracker::trackDriver(int index)
@@ -69,10 +73,10 @@ void Tracker::clearTrackedDrivers()
 	_trackedDrivers.clear();
 }
 
-QStringList Tracker::availableDrivers() const
+QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const
 {
 	QStringList names;
-	for (auto& driver : _participants.m_participants) {
+	for (auto& driver : data.m_participants) {
 		names << QString(driver.m_name);
 	}
 
@@ -82,6 +86,14 @@ QStringList Tracker::availableDrivers() const
 bool Tracker::hasSession() const
 {
 	return _header.isValid();
+}
+
+QString Tracker::sessionName(const PacketSessionData &data) const
+{
+	auto trackName = UdpSpecification::instance()->track(data.m_trackId);
+	auto sessionType = UdpSpecification::instance()->session_type(data.m_sessionType);
+
+	return trackName + " " + sessionType;
 }
 
 void Tracker::telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data)
@@ -110,6 +122,13 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 
 	_session = data;
 	_header = header;
+
+	if (_sessionUuid != _header.m_sessionUID)
+	{
+		emit sessionChanged(sessionName(data));
+		_sessionUuid = _header.m_sessionUID;
+		_hasParticipants = false;
+	}
 
 	if (do_start)
 		start();
@@ -145,6 +164,12 @@ void Tracker::statusData(const PacketHeader &header, const PacketCarStatusData &
 void Tracker::participant(const PacketHeader &header, const PacketParticipantsData &data)
 {
 	_participants = data;
+
+	if (!_hasParticipants)
+	{
+		emit driverChanged(availableDrivers(data));
+		_hasParticipants = true;
+	}
 
 	if (!_isRunning)
 		return;

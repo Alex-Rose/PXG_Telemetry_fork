@@ -19,6 +19,9 @@ public:
 		void clearTelemetry();
 		QVector<float> distances() const;
 		QVector<float> telemetry(int index) const;
+		QStringList availableTelemetry() const;
+
+		void removeTelemetryFrom(float distance);
 
 		// Metadata
 		int track = -1;

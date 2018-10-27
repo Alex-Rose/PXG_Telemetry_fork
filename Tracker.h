@@ -7,23 +7,29 @@
 #include <QDir>
 #include <QVector>
 
-class Tracker : public F1PacketInterface
+class Tracker : public QObject, public F1PacketInterface
 {
+	Q_OBJECT
+
+signals:
+	void sessionChanged(const QString& name);
+	void driverChanged(const QStringList& drivers);
+	void statusChanged(const QString& status, bool isTracking);
+
 public:
 	Tracker();
 	virtual ~Tracker() override {}
-
-	void start();
-	void stop();
 
 	void trackDriver(int index);
 	void trackPlayer();
 	void untrackDriver(int index);
 	void clearTrackedDrivers();
 
-	QStringList availableDrivers() const;
-
 	bool hasSession() const;
+
+public slots:
+	void start();
+	void stop();
 
 private:
 	QDir _dataDirectory;
@@ -31,8 +37,10 @@ private:
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;
+	bool _hasParticipants = false;
 	PacketSessionData _session;
 	PacketHeader _header;
+	quint64 _sessionUuid = 0;
 
 	// F1PacketInterface interface
 	void telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data) override;
@@ -41,6 +49,9 @@ private:
 	void setupData(const PacketHeader &header, const PacketCarSetupData &data) override;
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
+
+	QString sessionName(const PacketSessionData &data) const;
+	QStringList availableDrivers(const PacketParticipantsData &data) const;
 };
 
 #endif // TRACKER_H

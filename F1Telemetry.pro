@@ -31,7 +31,8 @@ SOURCES += \
     UdpSpecification.cpp \
     Tracker.cpp \
     DriverTracker.cpp \
-    Lap.cpp
+    Lap.cpp \
+    TrackingWidget.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -39,10 +40,17 @@ HEADERS += \
     UdpSpecification.h \
     Tracker.h \
     DriverTracker.h \
-    Lap.h
+    Lap.h \
+    TrackingWidget.h
 
 FORMS += \
-        F1Telemetry.ui
+        F1Telemetry.ui \
+    TrackingWidget.ui
+
+
+RESOURCES += \
+    F1Telemetry.qrc
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

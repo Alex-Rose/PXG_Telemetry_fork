@@ -3,6 +3,7 @@
 
 #include "F1Listener.h"
 
+#include <QCheckBox>
 #include <QMainWindow>
 
 namespace Ui {
@@ -27,8 +28,7 @@ private:
 	void participant(const PacketHeader& header, const PacketParticipantsData& participants);
 
 private slots:
-	void startTrack();
-	void showDrivers();
+	void startTracking(bool trackPlayer, const QVector<int>& trackedDriverIds);
 };
 
 #endif // F1TELEMETRY_H

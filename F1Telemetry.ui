@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>726</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,20 +16,22 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QPlainTextEdit" name="plainTextEdit"/>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnShowDrivers">
-      <property name="text">
-       <string>Participants</string>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true"/>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnTrack">
-      <property name="text">
-       <string>Track</string>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
       </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="TrackingWidget" name="trackingWidget">
+       <attribute name="title">
+        <string>Tracking</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout"/>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -39,7 +41,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>726</width>
      <height>22</height>
     </rect>
    </property>
@@ -55,6 +57,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>TrackingWidget</class>
+   <extends>QWidget</extends>
+   <header>TrackingWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

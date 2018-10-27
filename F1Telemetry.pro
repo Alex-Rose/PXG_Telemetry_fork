@@ -32,7 +32,9 @@ SOURCES += \
     Tracker.cpp \
     DriverTracker.cpp \
     Lap.cpp \
-    TrackingWidget.cpp
+    TrackingWidget.cpp \
+    CompareLapsWidget.cpp \
+    LapsTableModel.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -41,11 +43,14 @@ HEADERS += \
     Tracker.h \
     DriverTracker.h \
     Lap.h \
-    TrackingWidget.h
+    TrackingWidget.h \
+    CompareLapsWidget.h \
+    LapsTableModel.h
 
 FORMS += \
         F1Telemetry.ui \
-    TrackingWidget.ui
+    TrackingWidget.ui \
+    CompareLapsWidget.ui
 
 
 RESOURCES += \

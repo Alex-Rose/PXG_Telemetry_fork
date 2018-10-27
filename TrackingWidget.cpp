@@ -36,6 +36,7 @@ void TrackingWidget::loadSettings(QSettings *settings)
 {
 	settings->beginGroup("Tracking");
 	ui->leDataDir->setText(settings->value("dataDirectory").toString());
+	QDir::setCurrent(settings->value("dataDirectory").toString());
 	settings->endGroup();
 }
 
@@ -98,6 +99,7 @@ void TrackingWidget::browseDataDirectory()
 {
 	auto directory = QFileDialog::getExistingDirectory(this, "Data directory", ui->leDataDir->text());
 	ui->leDataDir->setText(directory);
+	QDir::setCurrent(directory);
 }
 
 QString TrackingWidget::getDataDirectory() const

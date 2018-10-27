@@ -24,13 +24,19 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="TrackingWidget" name="trackingWidget">
        <attribute name="title">
         <string>Tracking</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout"/>
+      </widget>
+      <widget class="CompareLapsWidget" name="compareLapsWidget">
+       <attribute name="title">
+        <string>Compare Laps</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </widget>
      </widget>
     </item>
@@ -62,6 +68,12 @@
    <class>TrackingWidget</class>
    <extends>QWidget</extends>
    <header>TrackingWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CompareLapsWidget</class>
+   <extends>QWidget</extends>
+   <header>CompareLapsWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

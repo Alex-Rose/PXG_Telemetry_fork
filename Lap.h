@@ -12,7 +12,9 @@
 class Lap
 {
 public:
-		Lap(const QStringList& telemetryDataNames);
+		Lap(const QStringList& telemetryDataNames = {});
+
+		QString description() const;
 
 		// Telemetry
 		void addTelemetryData(float distance, const QVector<float>& values);

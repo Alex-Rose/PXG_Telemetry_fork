@@ -77,7 +77,8 @@ void Lap::save(const QString &filename) const
 		out << track << session_type << trackTemp << airTemp << weather << invalid << driver
 			<< recordDate << averageStartTyreWear << averageEndTyreWear << setup << comment
 			<< lapTime << sector1Time << sector2Time << sector3Time
-			<< _telemetryNames << _distances << _telemetry << tyreCompound << maxSpeed;
+			<< _telemetryNames << _distances << _telemetry
+			<< tyreCompound << maxSpeed << maxSpeedErsMode;
 
 		qDebug() << "LAP saved " << filename;
 	}
@@ -99,7 +100,8 @@ void Lap::load(const QString &filename)
 		in  >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver
 			>> recordDate >> averageStartTyreWear >> averageEndTyreWear >> setup >> comment
 			>> lapTime >> sector1Time >> sector2Time >> sector3Time
-			>> _telemetryNames >> _distances >> _telemetry >> tyreCompound >> maxSpeed;
+			>> _telemetryNames >> _distances >> _telemetry
+			>> tyreCompound >> maxSpeed >> maxSpeedErsMode;
 	}
 }
 

@@ -42,6 +42,7 @@ UdpSpecification::UdpSpecification()
 	weathers = QStringList({"Clear", "Light Cloud", "Overcast", "Light Rain", "Heavy Rain", "Storm"});
 	sessions = QStringList({"Unknown", "FP1", "FP2", "FP3", "Short FP", "Q1", "Q2", "Q3", "Short Q", "OSQ", "R1", "R2", "Time Trial"});
 	tyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet"});
+	ersModes = QStringList({"None", "Low", "Medium", "High", "Overtake", "Hotlap"});
 }
 
 QDataStream &operator>>(QDataStream &in, PacketHeader &packet)

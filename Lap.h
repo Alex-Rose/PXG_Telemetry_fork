@@ -43,7 +43,8 @@ public:
 		float sector2Time = 0;
 		float sector3Time = 0;
 		int maxSpeed = 0;
-		int tyreCompound = 0;
+		int maxSpeedErsMode = 0;
+		int tyreCompound = -1;
 
 		// Saving - Loading
 		void save(const QString& filename) const;

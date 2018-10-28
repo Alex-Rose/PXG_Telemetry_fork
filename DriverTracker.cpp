@@ -29,7 +29,11 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	auto values = {float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime};
 	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
-	_currentLap->maxSpeed = qMax(_currentLap->maxSpeed, int(driverData.m_speed));
+	if (_currentLap->maxSpeed < int(driverData.m_speed))
+	{
+		_currentLap->maxSpeed = int(driverData.m_speed);
+		_currentLap->maxSpeedErsMode = _currentStatusData.m_ersDeployMode;
+	}
 }
 
 void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &data)

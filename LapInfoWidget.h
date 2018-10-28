@@ -1,6 +1,8 @@
 #ifndef LAPINFOWIDGET_H
 #define LAPINFOWIDGET_H
 
+#include "Lap.h"
+
 #include <QWidget>
 
 namespace Ui {
@@ -14,6 +16,8 @@ class LapInfoWidget : public QWidget
 public:
 	explicit LapInfoWidget(QWidget *parent = nullptr);
 	~LapInfoWidget();
+
+	void setLap(const Lap& lap);
 
 private:
 	Ui::LapInfoWidget *ui;

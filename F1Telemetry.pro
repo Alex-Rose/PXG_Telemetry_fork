@@ -34,7 +34,8 @@ SOURCES += \
     Lap.cpp \
     TrackingWidget.cpp \
     CompareLapsWidget.cpp \
-    LapsTableModel.cpp
+    LapsTableModel.cpp \
+    LapInfoWidget.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -45,12 +46,14 @@ HEADERS += \
     Lap.h \
     TrackingWidget.h \
     CompareLapsWidget.h \
-    LapsTableModel.h
+    LapsTableModel.h \
+    LapInfoWidget.h
 
 FORMS += \
         F1Telemetry.ui \
     TrackingWidget.ui \
-    CompareLapsWidget.ui
+    CompareLapsWidget.ui \
+    LapInfoWidget.ui
 
 
 RESOURCES += \

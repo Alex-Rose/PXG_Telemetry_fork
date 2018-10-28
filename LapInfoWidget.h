@@ -18,6 +18,7 @@ public:
 	~LapInfoWidget();
 
 	void setLap(const Lap& lap);
+	void clear();
 
 private:
 	Ui::LapInfoWidget *ui;

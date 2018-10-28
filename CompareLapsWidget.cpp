@@ -25,6 +25,7 @@ CompareLapsWidget::CompareLapsWidget(QWidget *parent) :
 	connect(ui->btnAddLaps, &QPushButton::clicked, this, &CompareLapsWidget::addLaps);
 	connect(ui->btnClear, &QPushButton::clicked, this, &CompareLapsWidget::clearLaps);
 	connect(_lapModel, &LapsTableModel::lapsChanged, this, &CompareLapsWidget::updateLaps);
+	connect(ui->lapsTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &CompareLapsWidget::lapSelected);
 
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
 }
@@ -97,7 +98,7 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 		auto checkbox = new QCheckBox(var, this);
 		connect(checkbox, &QCheckBox::toggled, this, &CompareLapsWidget::variableChecked);
 		_variableCheckboxes << checkbox;
-		ui->variableLayout->insertWidget(_variableCheckboxes.count() - 1, checkbox);
+		ui->variableLayout->insertWidget(_variableCheckboxes.count(), checkbox);
 
 		auto chart = new QChart();
 		chart->legend()->hide();
@@ -150,6 +151,7 @@ void CompareLapsWidget::addLaps()
 void CompareLapsWidget::clearLaps()
 {
 	_lapModel->clear();
+	ui->lapInfo->clear();
 }
 
 void CompareLapsWidget::updateLaps()
@@ -184,4 +186,11 @@ void CompareLapsWidget::distanceZoomChanged(qreal min, qreal max)
 			chartView->chart()->axisX()->setRange(min, max);
 		}
 	}
+}
+
+void CompareLapsWidget::lapSelected(const QModelIndex& current, const QModelIndex& previous)
+{
+	Q_UNUSED(previous);
+	const auto& lap = _lapModel->getLaps().value(current.row());
+	ui->lapInfo->setLap(lap);
 }

@@ -44,6 +44,7 @@ private slots:
 	void variableChecked(bool value);
 	void home();
 	void distanceZoomChanged(qreal min, qreal max);
+	void lapSelected(const QModelIndex &current, const QModelIndex &previous);
 };
 
 #endif // COMPARELAPSWIDGET_H

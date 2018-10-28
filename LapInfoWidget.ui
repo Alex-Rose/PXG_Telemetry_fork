@@ -14,10 +14,19 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="verticalSpacing">
-    <number>3</number>
+   <property name="leftMargin">
+    <number>0</number>
    </property>
-   <item row="1" column="1">
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="2" column="1">
     <widget class="QTreeWidget" name="treeWidget">
      <property name="alternatingRowColors">
       <bool>true</bool>
@@ -41,6 +50,13 @@
        <string notr="true">2</string>
       </property>
      </column>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Lap Data</string>
+     </property>
     </widget>
    </item>
   </layout>

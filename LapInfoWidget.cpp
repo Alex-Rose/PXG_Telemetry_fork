@@ -24,6 +24,9 @@ void LapInfoWidget::setLap(const Lap &lap)
 	auto sessionType = UdpSpecification::instance()->session_type(lap.session_type);
 	new QTreeWidgetItem(ui->treeWidget, {"Track", track + QString(" (%1)").arg(sessionType)});
 
+	auto compound = UdpSpecification::instance()->tyre(lap.tyreCompound);
+	new QTreeWidgetItem(ui->treeWidget, {"Compound", compound});
+
 	auto weather = UdpSpecification::instance()->weather(lap.weather);
 	auto weatherItem = new QTreeWidgetItem(ui->treeWidget, {"Weather", weather});
 	new QTreeWidgetItem(weatherItem, {"Air Temp.", QString::number(lap.airTemp) + "°C"});
@@ -37,12 +40,14 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(timeItem, {"Sector 1", s1time});
 	new QTreeWidgetItem(timeItem, {"Sector 2", s2time});
 	new QTreeWidgetItem(timeItem, {"Sector 3", s3time});
+	timeItem->setExpanded(true);
 
 	auto maxSpeedItem = new QTreeWidgetItem(ui->treeWidget, {"Max Speed", QString::number(lap.maxSpeed) + "km/h"});
 	auto ersMode = UdpSpecification::instance()->ersMode(lap.maxSpeedErsMode);
 	new QTreeWidgetItem(maxSpeedItem, {"ERS Mode", ersMode});
 	auto fuelMix = UdpSpecification::instance()->fuelMix(lap.maxSpeedFuelMix);
 	new QTreeWidgetItem(maxSpeedItem, {"Fuel Mix", fuelMix});
+	maxSpeedItem->setExpanded(true);
 
 	auto lapWear = lap.averageEndTyreWear - lap.averageStartTyreWear;
 	auto tyreWearItem = new QTreeWidgetItem(ui->treeWidget, {"Tyre wear", QString::number(lapWear) + "%"});
@@ -77,4 +82,11 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(setupItem, {"Fuel Load", QString::number(lap.setup.m_fuelLoad) + "kg"});
 
 	new QTreeWidgetItem(ui->treeWidget, {"Record Date", lap.recordDate.toString("dd/MM/yyyy hh:mm:ss")});
+
+	ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+}
+
+void LapInfoWidget::clear()
+{
+	ui->treeWidget->clear();
 }

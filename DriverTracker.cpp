@@ -61,7 +61,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 			_currentLap->save(filePath);
 			++_currentLapNum;
-			_currentLap->clearTelemetry();
 			qDebug() << "LAP Recorded : " << driverDataDirectory.dirName();
 		}
 
@@ -69,6 +68,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 		// A new lap started
+		_currentLap->clearTelemetry();
 		_currentLap->track = _currentSessionData.m_trackId;
 		_currentLap->session_type = _currentSessionData.m_sessionType;
 		_currentLap->trackTemp = _currentSessionData.m_trackTemperature;

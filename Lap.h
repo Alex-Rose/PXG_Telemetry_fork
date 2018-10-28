@@ -46,8 +46,8 @@ public:
 		int maxSpeedErsMode = -1;
 		int maxSpeedFuelMix = -1;
 		int tyreCompound = -1;
-		int fuelOnStart = 0;
-		int fuelOnEnd = 0;
+		double fuelOnStart = 0;
+		double fuelOnEnd = 0;
 
 		// Saving - Loading
 		void save(const QString& filename) const;

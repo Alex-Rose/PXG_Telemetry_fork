@@ -34,7 +34,7 @@
       </widget>
       <widget class="CompareLapsWidget" name="compareLapsWidget">
        <attribute name="title">
-        <string>Compare Laps</string>
+        <string>Analyse Laps</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </widget>

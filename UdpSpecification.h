@@ -37,6 +37,7 @@ public:
 	QString session_type(int index) const {return sessions.value(index);}
 	QString tyre(int index) const {if (index < 0) return "Unknown"; return tyres.value(index);}
 	QString ersMode(int index) const {if (index < 0) return "Unknown"; return ersModes.value(index);}
+	QString fuelMix(int index) const {if (index < 0) return "Unknown"; return fuelMixes.value(index);}
 
 private:
 	UdpSpecification();
@@ -48,6 +49,7 @@ private:
 	QStringList sessions;
 	QStringList tyres;
 	QStringList ersModes;
+	QStringList fuelMixes;
 };
 
 struct PacketHeader

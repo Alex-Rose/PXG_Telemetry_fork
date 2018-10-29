@@ -4,13 +4,15 @@
 #include <QFileDialog>
 #include <QDateTime>
 #include <QNetworkInterface>
+#include <QMessageBox>
 
 TrackingWidget::TrackingWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::TrackingWidget)
 {
 	ui->setupUi(this);
-	ui->lblIP->setText("Local IP address: " + getLocalIpAddress());
+	ui->lblIP->setText(getLocalIpAddress());
+	ui->lblPort->setText("20777");
 
 	_driverCheckBoxes << ui->driver1 << ui->driver2 << ui->driver3 << ui->driver4  << ui->driver5  << ui->driver6  << ui->driver7
 				 << ui->driver8  << ui->driver9  << ui->driver10  << ui->driver11  << ui->driver12  << ui->driver13  << ui->driver14
@@ -86,12 +88,24 @@ QString TrackingWidget::getLocalIpAddress() const
 		if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
 			 return address.toString();
 	}
+
+	return "Unknown";
 }
 
 void TrackingWidget::startStop()
 {
 	if (!_trackingInProgress)
 	{
+		if (ui->leDataDir->text().isEmpty())
+		{
+			browseDataDirectory();
+			if (ui->leDataDir->text().isEmpty())
+			{
+				QMessageBox::critical(this, "Missing data directory", "A data directory where the laps will be stored must be selected.");
+				return;
+			}
+		}
+
 		QVector<int> trackedId;
 		for (auto i = 0; i < _driverCheckBoxes.count(); ++i)
 		{

@@ -119,6 +119,20 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 	}
 }
 
+void CompareLapsWidget::saveSettings(QSettings *settings)
+{
+	settings->beginGroup("LapComparison");
+	settings->setValue("splitterState", ui->splitter->saveState());
+	settings->endGroup();
+}
+
+void CompareLapsWidget::loadSettings(QSettings *settings)
+{
+	settings->beginGroup("LapComparison");
+	ui->splitter->restoreState(settings->value("splitterState").toByteArray());
+	settings->endGroup();
+}
+
 void CompareLapsWidget::clearVariables()
 {
 	for (auto it = _variableCheckboxes.constBegin(); it != _variableCheckboxes.constEnd(); ++it)

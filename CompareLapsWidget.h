@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QChartView>
 #include <QToolBar>
+#include <QSettings>
 
 namespace Ui {
 	class CompareLapsWidget;
@@ -24,8 +25,10 @@ public:
 
 	void setLaps(const QVector<Lap>& laps);
 	void clearVariables();
-
 	void createVariables(const QStringList& variables);
+
+	void saveSettings(QSettings* settings);
+	void loadSettings(QSettings* settings);
 
 private:
 	Ui::CompareLapsWidget *ui;

@@ -3,12 +3,14 @@
 
 #include <QFileDialog>
 #include <QDateTime>
+#include <QNetworkInterface>
 
 TrackingWidget::TrackingWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::TrackingWidget)
 {
 	ui->setupUi(this);
+	ui->lblIP->setText("Local IP address: " + getLocalIpAddress());
 
 	_driverCheckBoxes << ui->driver1 << ui->driver2 << ui->driver3 << ui->driver4  << ui->driver5  << ui->driver6  << ui->driver7
 				 << ui->driver8  << ui->driver9  << ui->driver10  << ui->driver11  << ui->driver12  << ui->driver13  << ui->driver14
@@ -74,6 +76,15 @@ void TrackingWidget::logText(const QString &text)
 		QString text = ui->logTextEdit->toPlainText();
 		auto firstEolIndex = text.indexOf('\n');
 		ui->logTextEdit->setPlainText(text.mid(firstEolIndex + 1));
+	}
+}
+
+QString TrackingWidget::getLocalIpAddress() const
+{
+	for (const auto &address: QNetworkInterface::allAddresses())
+	{
+		if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
+			 return address.toString();
 	}
 }
 

@@ -39,6 +39,8 @@ private:
 	bool _trackingInProgress = false;
 	int _nbLogLines = 0;
 
+	QString getLocalIpAddress() const;
+
 private slots:
 	void startStop();
 	void browseDataDirectory();

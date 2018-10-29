@@ -24,6 +24,21 @@ void Tracker::start()
 {
 	if (hasSession())
 	{
+		if (_addPlayerTrackingOnStart)
+		{
+			auto playerAlreadyTracked = false;
+			for (auto& driver: _trackedDrivers)
+			{
+				if (driver.getDriverIndex() == _header.m_playerCarIndex)
+				{
+					playerAlreadyTracked = true;
+					break;
+				}
+			}
+			if (!playerAlreadyTracked)
+				trackDriver(_header.m_playerCarIndex);
+		}
+
 		if (_lastStartedSessionUID != _header.m_sessionUID)
 		{
 			auto trackName = UdpSpecification::instance()->track(_session.m_trackId);
@@ -68,8 +83,7 @@ void Tracker::trackDriver(int index)
 
 void Tracker::trackPlayer()
 {
-	if (_header.isValid())
-		trackDriver(_header.m_playerCarIndex);
+	_addPlayerTrackingOnStart = true;
 }
 
 void Tracker::untrackDriver(int index)
@@ -85,6 +99,7 @@ void Tracker::untrackDriver(int index)
 void Tracker::clearTrackedDrivers()
 {
 	_trackedDrivers.clear();
+	_addPlayerTrackingOnStart = false;
 }
 
 QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const

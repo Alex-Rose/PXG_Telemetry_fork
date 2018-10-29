@@ -36,6 +36,7 @@ private:
 	QDir _dataDirectory;
 	QDir _sessionDirectory;
 	QVector<DriverTracker> _trackedDrivers;
+	bool _addPlayerTrackingOnStart = false;
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;

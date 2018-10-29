@@ -39,6 +39,7 @@ private:
 	int _currentLapNum = 0;
 
 	bool finishLineCrossed(const LapData& data) const;
+	bool flashbackDetected(const LapData& data) const;
 	double averageTyreWear(const CarStatusData& carStatus) const;
 };
 

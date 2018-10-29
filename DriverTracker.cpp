@@ -43,13 +43,29 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	Q_UNUSED(header)
 	const auto& lapData = data.m_lapData[_driverIndex];
 
-	if (finishLineCrossed(lapData))
+	if (_isLapRecorded && flashbackDetected(lapData))
+	{
+		// Flashback
+		if (lapData.m_lapDistance <= _previousLapData.m_lapDistance && lapData.m_lapDistance >= 0)
+		{
+			_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
+			qDebug() << "Flashback" << lapData.m_lapDistance << driverDataDirectory.dirName();
+		}
+		else
+		{
+			// Flashback on the start line
+			_currentLap->clearTelemetry();
+			_isLapRecorded = false;
+			qDebug() << "Flashback - Lap restarted : " << driverDataDirectory.dirName();
+		}
+	}
+	else if (finishLineCrossed(lapData))
 	{
 		if (_isLapRecorded and driverDirDefined)
 		{
 			// A tracked lap ended
 			_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
-			_currentLap->fuelOnEnd = _currentStatusData.m_fuelInTank;
+			_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 			_currentLap->lapTime = lapData.m_lastLapTime;
 			_currentLap->sector1Time = _previousLapData.m_sector1Time;
 			_currentLap->sector2Time = _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
@@ -78,16 +94,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->invalid = lapData.m_currentLapInvalid;
 		_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
 		_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
-		_currentLap->fuelOnStart = _currentStatusData.m_fuelInTank;
+		_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 		_currentLap->maxSpeed = 0;
 
 		_isLapRecorded = true;
-	}
-	else if (lapData.m_lapDistance <= _previousLapData.m_lapDistance and _isLapRecorded)
-	{
-		// Flashback
-		qDebug() << "Flashback" << lapData.m_lapDistance;
-		_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
 	}
 
 	if (lapData.m_pitStatus > 0)
@@ -135,7 +145,12 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
 	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200))
-		&& data.m_lapDistance < 200 && data.m_lapDistance > 0;
+			&& data.m_lapDistance < 200 && data.m_lapDistance > 0;
+}
+
+bool DriverTracker::flashbackDetected(const LapData &data) const
+{
+	return data.m_totalDistance < _previousLapData.m_totalDistance;
 }
 
 double DriverTracker::averageTyreWear(const CarStatusData &carStatus) const

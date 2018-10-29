@@ -89,10 +89,10 @@ public:
 	float       m_bestLapTime = 0;           // Best lap time of the session in seconds
 	float       m_sector1Time = 0;           // Sector 1 time in seconds
 	float       m_sector2Time = 0;           // Sector 2 time in seconds
-	float       m_lapDistance = 0;           // Distance vehicle is around current lap in metres – could
-										 // be negative if line hasn’t been crossed yet
-	float       m_totalDistance = 0;         // Total distance travelled in session in metres – could
-										 // be negative if line hasn’t been crossed yet
+	float       m_lapDistance = -999999;     // Distance vehicle is around current lap in metres – could
+											 // be negative if line hasn’t been crossed yet
+	float       m_totalDistance = -999999;   // Total distance travelled in session in metres – could
+											 // be negative if line hasn’t been crossed yet
 	float       m_safetyCarDelta;        // Delta in seconds for safety car
 	quint8       m_carPosition;           // Car race position
 	quint8       m_currentLapNum;         // Current lap number

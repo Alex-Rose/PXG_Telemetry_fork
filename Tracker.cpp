@@ -153,6 +153,9 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 	{
 		emit sessionChanged(sessionName(data));
 		_hasParticipants = false;
+
+		if (header.m_sessionUID == 0 && _isRunning)
+			do_start = true;
 	}
 
 	_session = data;

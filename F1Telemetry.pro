@@ -8,7 +8,7 @@ QT       += charts core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = F1Telemetry
+TARGET = "PXG F1 Telemetry"
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -58,6 +58,8 @@ FORMS += \
 
 RESOURCES += \
     F1Telemetry.qrc
+
+ICON = Ressources/F1Telemetry.icns
 
 
 # Default rules for deployment.

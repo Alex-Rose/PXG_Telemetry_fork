@@ -1,3 +1,7 @@
 <RCC>
     <qresource prefix="/tabIcons"/>
+    <qresource prefix="/icon"/>
+    <qresource prefix="/">
+        <file>Ressources/F1Telemetry.png</file>
+    </qresource>
 </RCC>

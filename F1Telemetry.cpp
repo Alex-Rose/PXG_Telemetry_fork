@@ -6,6 +6,7 @@ F1Telemetry::F1Telemetry(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::F1Telemetry)
 {
+	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
 	ui->setupUi(this);
 	_tracker = new Tracker();
 	_listener = new F1Listener(_tracker, this);

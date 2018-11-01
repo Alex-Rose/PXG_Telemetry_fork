@@ -54,6 +54,7 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 		int varIndex = 0;
 		for (auto chartView: _variablesCharts)
 		{
+			chartView->chart()->removeAllSeries();
 			for (auto& lap : laps)
 			{
 				auto series = new QLineSeries();
@@ -169,7 +170,7 @@ void CompareLapsWidget::clearVariables()
 
 void CompareLapsWidget::addLaps()
 {
-	auto files = QFileDialog::getOpenFileNames(this, "Select some laps to compare", "", "*.f1lap");
+	auto files = QFileDialog::getOpenFileNames(this, "Select some laps to compare", "", "*.f1lap", nullptr, QFileDialog::DontUseNativeDialog);
 
 	QVector<Lap> laps;
 	for (auto file : files)

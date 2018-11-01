@@ -44,7 +44,7 @@ void Tracker::start()
 			auto trackName = UdpSpecification::instance()->track(_session.m_trackId);
 			auto type = UdpSpecification::instance()->session_type(_session.m_sessionType);
 
-			auto dirName = trackName + " - " + type + " - " + QDateTime::currentDateTime().toString("yyyyMMdd hhmmss");
+			auto dirName = trackName + " " + type + " - " + QDateTime::currentDateTime().toString("yyyy.MM.dd hh'h'mm");
 			_dataDirectory.mkdir(dirName);
 
 			_sessionDirectory = _dataDirectory;

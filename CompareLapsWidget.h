@@ -24,6 +24,7 @@ public:
 	~CompareLapsWidget();
 
 	void setLaps(const QVector<Lap>& laps);
+	void setLapsVisibility(const QVector<bool>& visibility);
 	void clearVariables();
 	void createVariables(const QStringList& variables);
 
@@ -44,6 +45,7 @@ private slots:
 	void addLaps();
 	void clearLaps();
 	void updateLaps();
+	void updateLapsVisibilities();
 	void variableChecked(bool value);
 	void home();
 	void distanceZoomChanged(qreal min, qreal max);

@@ -25,6 +25,7 @@ CompareLapsWidget::CompareLapsWidget(QWidget *parent) :
 	connect(ui->btnAddLaps, &QPushButton::clicked, this, &CompareLapsWidget::addLaps);
 	connect(ui->btnClear, &QPushButton::clicked, this, &CompareLapsWidget::clearLaps);
 	connect(_lapModel, &LapsTableModel::lapsChanged, this, &CompareLapsWidget::updateLaps);
+	connect(_lapModel, &LapsTableModel::visibilityChanged, this, &CompareLapsWidget::updateLapsVisibilities);
 	connect(ui->lapsTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &CompareLapsWidget::lapSelected);
 
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
@@ -84,6 +85,22 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 	else
 	{
 		clearVariables();
+	}
+}
+
+void CompareLapsWidget::setLapsVisibility(const QVector<bool> &visibility)
+{
+	for (auto chartView: _variablesCharts)
+	{
+		auto it = visibility.constBegin();
+		for (auto serie: chartView->chart()->series())
+		{
+			if (it == visibility.constEnd())
+				break;
+
+			serie->setVisible(*it);
+			++it;
+		}
 	}
 }
 
@@ -171,6 +188,12 @@ void CompareLapsWidget::clearLaps()
 void CompareLapsWidget::updateLaps()
 {
 	setLaps(_lapModel->getLaps());
+	setLapsVisibility(_lapModel->getVisibility());
+}
+
+void CompareLapsWidget::updateLapsVisibilities()
+{
+	setLapsVisibility(_lapModel->getVisibility());
 }
 
 void CompareLapsWidget::variableChecked(bool value)

@@ -3,7 +3,10 @@
 #include "ui_CompareLapsWidget.h"
 
 #include <QFileDialog>
+#include <QGraphicsProxyWidget>
 #include <QLineSeries>
+#include <QValueAxis>
+#include <QtDebug>
 
 using namespace QtCharts;
 
@@ -42,6 +45,72 @@ CompareLapsWidget::~CompareLapsWidget()
 	delete ui;
 }
 
+QList<QColor> CompareLapsWidget::reloadVariableSeries(QChart* chart, const QVector<Lap>& laps, int varIndex, bool diff)
+{
+	QList<QColor> colors;
+
+	const Lap& refLap = laps.first();
+
+	chart->removeAllSeries();
+	for (auto& lap : laps)
+	{
+		auto series = new QLineSeries();
+		series->setName(lap.description());
+
+		const auto& distances = lap.distances();
+		const auto& values = lap.telemetry(varIndex);
+		const auto& refDist = refLap.distances();
+		const auto& ref = refLap.telemetry(varIndex);
+		auto itDistance = distances.constBegin();
+		auto itValues = values.constBegin();
+		auto itRef = ref.constBegin();
+		auto itRefDist = refDist.constBegin();
+		while (itDistance != distances.constEnd() && itValues != values.constEnd() && itRef != ref.constEnd() && itRefDist != refDist.constEnd())
+		{
+			auto value = double(*itValues);
+			auto distance = double(*itDistance);
+			if (diff)
+			{
+				while (double(*itRefDist) < distance && itRefDist != refDist.constEnd())
+				{
+					++itRef;
+					++itRefDist;
+				}
+				if (double(*itRefDist) < distance)
+					break;
+
+				auto refValue = double(*itRef);
+				auto refDist = double(*itRefDist);
+				if (refDist > distance && itRef != ref.constBegin())
+				{
+					// Linear interpolation
+					auto prevRefValue = double(*(itRef - 1));
+					auto prevDistance = double(*(itRefDist - 1));
+					refValue = prevRefValue + (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
+				}
+				else if (itRef == ref.constBegin())
+				{
+					++itValues;
+					++itDistance;
+					continue;
+				}
+				value -= refValue;
+			}
+			series->append(distance, value);
+			++itValues;
+			++itDistance;
+		}
+
+		chart->addSeries(series);
+		colors << series->color();
+	}
+
+	chart->createDefaultAxes();
+	connect(chart->axisX(), SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+
+	return colors;
+}
+
 void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 {
 	if (!laps.isEmpty())
@@ -54,29 +123,8 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 		int varIndex = 0;
 		for (auto chartView: _variablesCharts)
 		{
-			chartView->chart()->removeAllSeries();
-			for (auto& lap : laps)
-			{
-				auto series = new QLineSeries();
-				series->setName(lap.description());
-
-				const auto& distances = lap.distances();
-				const auto& values = lap.telemetry(varIndex);
-				auto itDistance = distances.constBegin();
-				auto itValues = values.constBegin();
-				while (itDistance != distances.constEnd() && itValues != values.constEnd())
-				{
-					series->append(double(*itDistance), double(*itValues));
-					++itValues;
-					++itDistance;
-				}
-
-				chartView->chart()->addSeries(series);
-				colors << series->color();
-			}
-
-			chartView->chart()->createDefaultAxes();
-			connect(chartView->chart()->axisX(), SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
+			colors = reloadVariableSeries(chartView->chart(), laps, varIndex, isDiff);
 
 			++varIndex;
 		}
@@ -119,13 +167,24 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 		ui->variableLayout->insertWidget(_variableCheckboxes.count(), checkbox);
 
 		auto chart = new QChart();
+		chart->setMargins(QMargins());
+		chart->setContentsMargins(0, 0, 0, 0);
 		chart->legend()->hide();
 		chart->setTitle(var);
+
+		auto diffProxy = new QGraphicsProxyWidget(chart);
+		auto diffCheck = new QCheckBox("Diff");
+//		diffCheck->setStyleSheet(QString("background-color: white; color: black"));
+		diffProxy->setWidget(diffCheck);
+		_diffCheckboxes << diffCheck;
+		connect(diffCheck, &QCheckBox::toggled, this, &CompareLapsWidget::changeVariableDiff);
+		diffProxy->setPos(QPoint(12, 9));
 
 		QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		pol.setVerticalStretch(1);
 
 		auto view = new QChartView(chart, this);
+		chart->setMargins(QMargins());
 		view->setSizePolicy(pol);
 		_variablesCharts << view;
 		view->setVisible(checkbox->isChecked());
@@ -165,6 +224,7 @@ void CompareLapsWidget::clearVariables()
 
 	_variableCheckboxes.clear();
 	_variablesCharts.clear();
+	_diffCheckboxes.clear();
 	_variables.clear();
 }
 
@@ -231,4 +291,17 @@ void CompareLapsWidget::lapSelected(const QModelIndex& current, const QModelInde
 	Q_UNUSED(previous);
 	const auto& lap = _lapModel->getLaps().value(current.row());
 	ui->lapInfo->setLap(lap);
+}
+
+void CompareLapsWidget::changeVariableDiff(bool value)
+{
+	auto diffCheckbox = qobject_cast<QCheckBox*>(sender());
+	auto varIndex = _diffCheckboxes.indexOf(diffCheckbox);
+	auto chartView = _variablesCharts.value(varIndex, nullptr);
+	auto prevAxis = qobject_cast<QValueAxis*>(chartView->chart()->axisX());
+	auto prevMin = prevAxis->min();
+	auto prevMax = prevAxis->max();
+	reloadVariableSeries(chartView->chart(), _lapModel->getLaps(), varIndex, value);
+	auto newAxis = qobject_cast<QValueAxis*>(chartView->chart()->axisX());
+	newAxis->setRange(prevMin, prevMax);
 }

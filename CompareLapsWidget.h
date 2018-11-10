@@ -35,11 +35,13 @@ private:
 	Ui::CompareLapsWidget *ui;
 	LapsTableModel* _lapModel;
 	QList<QCheckBox*> _variableCheckboxes;
+	QList<QCheckBox*> _diffCheckboxes;
 	QList<QtCharts::QChartView*> _variablesCharts;
 	QStringList _variables;
 	QToolBar* _toolbar;
 
 	void initActions();
+	QList<QColor> reloadVariableSeries(QtCharts::QChart *chart, const QVector<Lap> &laps, int varIndex, bool diff);
 
 private slots:
 	void addLaps();
@@ -50,6 +52,7 @@ private slots:
 	void home();
 	void distanceZoomChanged(qreal min, qreal max);
 	void lapSelected(const QModelIndex &current, const QModelIndex &previous);
+	void changeVariableDiff(bool value);
 };
 
 #endif // COMPARELAPSWIDGET_H

@@ -6,6 +6,8 @@
 #include <QNetworkInterface>
 #include <QMessageBox>
 
+const auto MAX_LOG_LINES = 100;
+
 TrackingWidget::TrackingWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::TrackingWidget)
@@ -22,6 +24,8 @@ TrackingWidget::TrackingWidget(QWidget *parent) :
 	setStatus("", false);
 	setDrivers({});
 	setSession("");
+
+	Logger::instance()->setInterface(this);
 }
 
 TrackingWidget::~TrackingWidget()
@@ -66,18 +70,17 @@ void TrackingWidget::setStatus(const QString &status, bool trackingInProgress)
 	ui->btnBrowse->setEnabled(!trackingInProgress);
 }
 
-void TrackingWidget::logText(const QString &text)
+void TrackingWidget::log(const QString &text)
 {
-	ui->logTextEdit->appendPlainText("\n");
-	ui->logTextEdit->appendPlainText(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss :"));
-	ui->logTextEdit->appendPlainText(text);
+	ui->logTextEdit->appendPlainText(QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss: ").append(text));
 	++_nbLogLines;
 
-	if (_nbLogLines > 100)
+	if (_nbLogLines > MAX_LOG_LINES)
 	{
 		QString text = ui->logTextEdit->toPlainText();
 		auto firstEolIndex = text.indexOf('\n');
 		ui->logTextEdit->setPlainText(text.mid(firstEolIndex + 1));
+		--_nbLogLines;
 	}
 }
 

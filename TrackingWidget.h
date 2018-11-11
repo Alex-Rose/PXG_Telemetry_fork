@@ -5,11 +5,13 @@
 #include <QSettings>
 #include <QWidget>
 
+#include "Logger.h"
+
 namespace Ui {
 	class TrackingWidget;
 }
 
-class TrackingWidget : public QWidget
+class TrackingWidget : public QWidget, public LogInterface
 {
 	Q_OBJECT
 
@@ -19,7 +21,7 @@ signals:
 
 public:
 	explicit TrackingWidget(QWidget *parent = nullptr);
-	~TrackingWidget();
+	virtual ~TrackingWidget() override;
 
 	void saveSettings(QSettings* settings);
 	void loadSettings(QSettings* settings);
@@ -30,7 +32,7 @@ public slots:
 	void setSession(const QString& sessionName);
 	void setDrivers(const QStringList& drivers);
 	void setStatus(const QString& status, bool trackingInProgress);
-	void logText(const QString& text);
+	virtual void log(const QString& text) override;
 
 private:
 	Ui::TrackingWidget *ui;

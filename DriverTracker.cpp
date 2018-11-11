@@ -1,5 +1,6 @@
 #include "DriverTracker.h"
 #include "Lap.h"
+#include "Logger.h"
 
 #include <QTime>
 #include <QtGlobal>
@@ -49,14 +50,12 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		if (lapData.m_lapDistance <= _previousLapData.m_lapDistance && lapData.m_lapDistance >= 0)
 		{
 			_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
-			qDebug() << "Flashback" << lapData.m_lapDistance << driverDataDirectory.dirName();
 		}
 		else
 		{
 			// Flashback on the start line
 			_currentLap->clearTelemetry();
 			_isLapRecorded = false;
-			qDebug() << "Flashback - Lap restarted : " << driverDataDirectory.dirName();
 		}
 	}
 	else if (finishLineCrossed(lapData))
@@ -77,7 +76,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 			_currentLap->save(filePath);
 			++_currentLapNum;
-			qDebug() << "LAP Recorded : " << driverDataDirectory.dirName();
+			Logger::instance()->log(QString("Lap recorded: ").append(driverDataDirectory.dirName()));
 		}
 
 

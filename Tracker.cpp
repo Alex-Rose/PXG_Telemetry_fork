@@ -1,4 +1,5 @@
 #include "Tracker.h"
+#include "Logger.h"
 
 #include <QDateTime>
 
@@ -55,14 +56,14 @@ void Tracker::start()
 			driver.init(_sessionDirectory);
 		}
 
-		qDebug() << "TRACKING...";
+		Logger::instance()->log("TRACKING...");
 		emit statusChanged("Tracking in progress...", true);
 		_isRunning = true;
 		_lastStartedSessionUID = _header.m_sessionUID;
 	}
 	else
 	{
-		qDebug() << "Waiting for a session ...";
+		Logger::instance()->log("Waiting for a session ...");
 		emit statusChanged("Waiting for a session...", true);
 		_autoStart = true;
 	}
@@ -70,6 +71,7 @@ void Tracker::start()
 
 void Tracker::stop()
 {
+	Logger::instance()->log("Stopped");
 	_isRunning = false;
 	_autoStart = false;
 	emit statusChanged("", false);
@@ -155,7 +157,10 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 		_hasParticipants = false;
 
 		if (_isRunning)
+		{
+			Logger::instance()->log("Session changed");
 			do_start = true;
+		}
 	}
 
 	_session = data;

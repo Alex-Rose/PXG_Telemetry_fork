@@ -68,8 +68,8 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 			_currentLap->lapTime = lapData.m_lastLapTime;
 			_currentLap->sector1Time = _previousLapData.m_sector1Time;
-			_currentLap->sector2Time = _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
-			_currentLap->sector3Time = lapData.m_lastLapTime - _previousLapData.m_sector2Time;
+			_currentLap->sector2Time = _previousLapData.m_sector2Time;
+			_currentLap->sector3Time = lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
 
 			auto lapTime = QTime(0, 0).addMSecs(int(double(lapData.m_lastLapTime) * 1000.0)).toString("m.ss.zzz");
 

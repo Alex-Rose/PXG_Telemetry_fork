@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QGraphicsProxyWidget>
 #include <QLineSeries>
+#include <QMenu>
 #include <QValueAxis>
 #include <QtDebug>
 
@@ -25,6 +26,8 @@ CompareLapsWidget::CompareLapsWidget(QWidget *parent) :
 
 	_lapModel = new LapsTableModel();
 	ui->lapsTableView->setModel(_lapModel);
+	ui->lapsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui->lapsTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 	connect(ui->btnAddLaps, &QPushButton::clicked, this, &CompareLapsWidget::addLaps);
 	connect(ui->btnClear, &QPushButton::clicked, this, &CompareLapsWidget::clearLaps);
 	connect(_lapModel, &LapsTableModel::lapsChanged, this, &CompareLapsWidget::updateLaps);
@@ -38,6 +41,15 @@ void CompareLapsWidget::initActions()
 {
 	auto homeAction = _toolbar->addAction("Home", this, &CompareLapsWidget::home);
 	homeAction->setShortcut(Qt::Key_Escape);
+
+	ui->lapsTableView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui->lapsTableView, &QTableView::customContextMenuRequested, this, &CompareLapsWidget::lapsTableContextMenu);
+
+	_lapsContextMenu = new QMenu(this);
+	auto setRefAction = _lapsContextMenu->addAction("Define as reference lap (R)");
+	setRefAction->setShortcut(Qt::Key_R);
+	connect(setRefAction, &QAction::triggered, this, &CompareLapsWidget::changeReferenceLap);
+	addAction(setRefAction);
 }
 
 CompareLapsWidget::~CompareLapsWidget()
@@ -49,7 +61,9 @@ QList<QColor> CompareLapsWidget::reloadVariableSeries(QChart* chart, const QVect
 {
 	QList<QColor> colors;
 
-	const Lap& refLap = laps.first();
+	auto refLap = _lapModel->getReferenceLap();
+	if (!refLap)
+		return colors;
 
 	chart->removeAllSeries();
 	for (auto& lap : laps)
@@ -59,8 +73,8 @@ QList<QColor> CompareLapsWidget::reloadVariableSeries(QChart* chart, const QVect
 
 		const auto& distances = lap.distances();
 		const auto& values = lap.telemetry(varIndex);
-		const auto& refDist = refLap.distances();
-		const auto& ref = refLap.telemetry(varIndex);
+		const auto& refDist = refLap->distances();
+		const auto& ref = refLap->telemetry(varIndex);
 		auto itDistance = distances.constBegin();
 		auto itValues = values.constBegin();
 		auto itRef = ref.constBegin();
@@ -106,7 +120,7 @@ QList<QColor> CompareLapsWidget::reloadVariableSeries(QChart* chart, const QVect
 	}
 
 	chart->createDefaultAxes();
-	connect(chart->axisX(), SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
 
 	return colors;
 }
@@ -173,8 +187,7 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 		chart->setTitle(var);
 
 		auto diffProxy = new QGraphicsProxyWidget(chart);
-		auto diffCheck = new QCheckBox("Diff");
-//		diffCheck->setStyleSheet(QString("background-color: white; color: black"));
+		auto diffCheck = new QCheckBox("Diff with reference lap");
 		diffProxy->setWidget(diffCheck);
 		_diffCheckboxes << diffCheck;
 		connect(diffCheck, &QCheckBox::toggled, this, &CompareLapsWidget::changeVariableDiff);
@@ -281,7 +294,7 @@ void CompareLapsWidget::distanceZoomChanged(qreal min, qreal max)
 	{
 		if (chart != chartView->chart())
 		{
-			chartView->chart()->axisX()->setRange(min, max);
+			chartView->chart()->axes(Qt::Horizontal)[0]->setRange(min, max);
 		}
 	}
 }
@@ -298,10 +311,29 @@ void CompareLapsWidget::changeVariableDiff(bool value)
 	auto diffCheckbox = qobject_cast<QCheckBox*>(sender());
 	auto varIndex = _diffCheckboxes.indexOf(diffCheckbox);
 	auto chartView = _variablesCharts.value(varIndex, nullptr);
-	auto prevAxis = qobject_cast<QValueAxis*>(chartView->chart()->axisX());
+	auto prevAxis = qobject_cast<QValueAxis*>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	auto prevMin = prevAxis->min();
 	auto prevMax = prevAxis->max();
 	reloadVariableSeries(chartView->chart(), _lapModel->getLaps(), varIndex, value);
-	auto newAxis = qobject_cast<QValueAxis*>(chartView->chart()->axisX());
+	auto newAxis = qobject_cast<QValueAxis*>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	newAxis->setRange(prevMin, prevMax);
+}
+
+void CompareLapsWidget::lapsTableContextMenu(const QPoint &pos)
+{
+	auto currentIndex = ui->lapsTableView->currentIndex();
+	if (currentIndex.isValid())
+	{
+		_lapsContextMenu->exec(ui->lapsTableView->mapToGlobal(pos));
+	}
+}
+
+void CompareLapsWidget::changeReferenceLap()
+{
+	auto currentIndex = ui->lapsTableView->currentIndex();
+	if (currentIndex.isValid())
+	{
+		_lapModel->setReferenceLapIndex(currentIndex.row());
+		updateLaps();
+	}
 }

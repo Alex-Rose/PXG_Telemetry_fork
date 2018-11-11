@@ -39,6 +39,7 @@ private:
 	QList<QtCharts::QChartView*> _variablesCharts;
 	QStringList _variables;
 	QToolBar* _toolbar;
+	QMenu* _lapsContextMenu;
 
 	void initActions();
 	QList<QColor> reloadVariableSeries(QtCharts::QChart *chart, const QVector<Lap> &laps, int varIndex, bool diff);
@@ -53,6 +54,8 @@ private slots:
 	void distanceZoomChanged(qreal min, qreal max);
 	void lapSelected(const QModelIndex &current, const QModelIndex &previous);
 	void changeVariableDiff(bool value);
+	void lapsTableContextMenu(const QPoint& pos);
+	void changeReferenceLap();
 };
 
 #endif // COMPARELAPSWIDGET_H

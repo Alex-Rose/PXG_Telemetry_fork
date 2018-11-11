@@ -27,13 +27,17 @@ public:
 
 	void setColors(const QList<QColor>& colors);
 
+	void setReferenceLapIndex(int index);
+
 	const QVector<Lap>& getLaps() const;
 	const QVector<bool>& getVisibility() const;
+	const Lap* getReferenceLap() const;
 
 private:
 	QVector<Lap> _laps;
 	QVector<bool> _visibility;
 	QList<QColor> _colors;
+	int _referenceLapIndex = -1;
 
 };
 

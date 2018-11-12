@@ -317,6 +317,7 @@ void CompareLapsWidget::changeVariableDiff(bool value)
 	reloadVariableSeries(chartView->chart(), _lapModel->getLaps(), varIndex, value);
 	auto newAxis = qobject_cast<QValueAxis*>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	newAxis->setRange(prevMin, prevMax);
+	setLapsVisibility(_lapModel->getVisibility());
 }
 
 void CompareLapsWidget::lapsTableContextMenu(const QPoint &pos)

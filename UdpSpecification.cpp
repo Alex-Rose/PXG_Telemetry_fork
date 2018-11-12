@@ -58,13 +58,15 @@ QDataStream &operator>>(QDataStream &in, ParticipantData &packet)
 {
 	in >> packet.m_aiControlled >> packet.m_driverId >> packet.m_teamId >> packet.m_raceNumber >> packet.m_nationality;
 	packet.m_name.clear();
+	char name[48];
 	for (auto i = 0; i < 48; ++i)
 	{
-		quint8 c;
+		qint8 c;
 		in >> c;
-		if (c != 0)
-			packet.m_name.append(QChar(c));
+		name[i] = c;
 	}
+
+	packet.m_name = QString::fromUtf8(name);
 
 	return in;
 }
@@ -75,9 +77,9 @@ QDataStream &operator<<(QDataStream &out, const ParticipantData &packet)
 	for (auto i = 0; i < 48; ++i)
 	{
 		if (i < packet.m_name.count())
-			out << (quint8)(packet.m_name[i].toLatin1());
+			out << quint8(packet.m_name[i].toLatin1());
 		else
-			out << (quint8)0;
+			out << quint8(0);
 	}
 
 	return out;

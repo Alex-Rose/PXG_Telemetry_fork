@@ -54,6 +54,17 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(tyreWearItem, {"Start", QString::number(lap.averageStartTyreWear) + "%"});
 	new QTreeWidgetItem(tyreWearItem, {"End", QString::number(lap.averageEndTyreWear) + "%"});
 
+	auto averageTemp = (lap.innerTemperatures.frontLeft.mean + lap.innerTemperatures.frontRight.mean + lap.innerTemperatures.rearLeft.mean + lap.innerTemperatures.rearRight.mean) / 4.0;
+	auto averageDev = (lap.innerTemperatures.frontLeft.deviation + lap.innerTemperatures.frontRight.deviation + lap.innerTemperatures.rearLeft.deviation + lap.innerTemperatures.rearRight.deviation) / 4.0;
+
+	auto tempItem = new QTreeWidgetItem(ui->treeWidget, {"Tyre Temperature", QString::number(averageTemp) + "°C (+/- " + QString::number(averageDev) + "°C)"});
+	new QTreeWidgetItem(tempItem, {"Front Left", QString::number(lap.innerTemperatures.frontLeft.mean) + "°C (+/- " + QString::number(lap.innerTemperatures.frontLeft.deviation) + "°C)"});
+	new QTreeWidgetItem(tempItem, {"Front Right", QString::number(lap.innerTemperatures.frontRight.mean) + "°C (+/- " + QString::number(lap.innerTemperatures.frontRight.deviation) + "°C)"});
+	new QTreeWidgetItem(tempItem, {"Rear Left", QString::number(lap.innerTemperatures.rearLeft.mean) + "°C (+/- " + QString::number(lap.innerTemperatures.rearLeft.deviation) + "°C)"});
+	new QTreeWidgetItem(tempItem, {"Rear Right", QString::number(lap.innerTemperatures.rearRight.mean) + "°C (+/- " + QString::number(lap.innerTemperatures.rearRight.deviation) + "°C)"});
+	tempItem->setExpanded(true);
+
+
 	auto lapFuel = lap.fuelOnEnd - lap.fuelOnStart;
 	auto fuelItem = new QTreeWidgetItem(ui->treeWidget, {"Fuel Consumption", QString::number(lapFuel) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"Start", QString::number(lap.fuelOnStart) + "kg"});
@@ -88,7 +99,8 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(setupItem, {"Ballast", QString::number(lap.setup.m_ballast)});
 	new QTreeWidgetItem(setupItem, {"Fuel Load", QString::number(lap.setup.m_fuelLoad) + "kg"});
 
-	new QTreeWidgetItem(ui->treeWidget, {"Record Date", lap.recordDate.toString("dd/MM/yyyy hh:mm:ss")});
+	auto recordItem = new QTreeWidgetItem(ui->treeWidget, {"Record Date", lap.recordDate.toString("dd/MM/yyyy hh:mm:ss")});
+	new QTreeWidgetItem(recordItem, {"Flashback", lap.hasFlashback ? "Yes" : "No"});
 
 	ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }

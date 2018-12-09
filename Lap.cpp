@@ -27,6 +27,11 @@ void Lap::clearTelemetry()
 	_distances.clear();
 	_telemetry.clear();
 	ers.clear();
+	innerTemperatures.frontLeft.clear();
+	innerTemperatures.frontRight.clear();
+	innerTemperatures.rearLeft.clear();
+	innerTemperatures.rearRight.clear();
+	hasFlashback = false;
 }
 
 QVector<float> Lap::distances() const
@@ -80,7 +85,7 @@ void Lap::save(const QString &filename) const
 			<< lapTime << sector1Time << sector2Time << sector3Time
 			<< _telemetryNames << _distances << _telemetry
 			<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
-			<< ers << energy << harvestedEnergy << deployedEnergy;
+			<< ers << energy << harvestedEnergy << deployedEnergy << innerTemperatures << hasFlashback;
 
 		qDebug() << "LAP saved " << filename;
 	}
@@ -104,7 +109,7 @@ void Lap::load(const QString &filename)
 			>> lapTime >> sector1Time >> sector2Time >> sector3Time
 			>> _telemetryNames >> _distances >> _telemetry
 			>> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
-			>> ers >> energy >> harvestedEnergy >> deployedEnergy;
+			>> ers >> energy >> harvestedEnergy >> deployedEnergy >> innerTemperatures >> hasFlashback;
 	}
 }
 

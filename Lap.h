@@ -2,6 +2,7 @@
 #define LAP_H
 
 #include "Ers.h"
+#include "Tyres.h"
 #include "UdpSpecification.h"
 
 #include <QDateTime>
@@ -53,6 +54,8 @@ public:
 		double energy = 0;
 		double harvestedEnergy = 0;
 		double deployedEnergy = 0;
+		TyresData<TemperatureData> innerTemperatures;
+		bool hasFlashback = false;
 
 		// Saving - Loading
 		void save(const QString& filename) const;

@@ -31,6 +31,12 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime};
 	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
 
+	_currentLap->innerTemperatures.frontLeft.addValue(driverData.m_tyresInnerTemperature[0]);
+	_currentLap->innerTemperatures.frontRight.addValue(driverData.m_tyresInnerTemperature[1]);
+	_currentLap->innerTemperatures.rearLeft.addValue(driverData.m_tyresInnerTemperature[2]);
+	_currentLap->innerTemperatures.rearRight.addValue(driverData.m_tyresInnerTemperature[3]);
+
+
 	if (_currentLap->maxSpeed < int(driverData.m_speed))
 	{
 		_currentLap->maxSpeed = int(driverData.m_speed);
@@ -51,6 +57,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		{
 			_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
 			_currentLap->ers.removeDistance(_currentStatusData.m_ersDeployMode, _previousLapData.m_lapDistance - lapData.m_lapDistance);
+			_currentLap->hasFlashback = true;
 		}
 		else
 		{

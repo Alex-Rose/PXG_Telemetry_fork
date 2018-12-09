@@ -44,5 +44,5 @@ QDataStream &operator<<(QDataStream &out, const ErsData &data)
 QDataStream &operator>>(QDataStream &in, ErsData &data)
 {
 	in >> data.distancesPerMode;
-	return int;
+	return in;
 }

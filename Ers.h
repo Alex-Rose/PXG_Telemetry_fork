@@ -12,9 +12,8 @@ public:
 	QMap<int, double> distancesPerMode;
 
 	void addValue(int mode, double lapDistance);
+	void finalize(double lapDistance);
 	void clear();
-
-	void removeDistance(int mode, double distance);
 
 private:
 	int _currentMode = -1;

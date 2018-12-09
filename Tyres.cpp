@@ -1,7 +1,7 @@
 #include "Tyres.h"
 #include <cmath>
 
-#define square(x) (x * x)
+#define square(x) ((x) * (x))
 
 TemperatureData::TemperatureData()
 {
@@ -10,14 +10,17 @@ TemperatureData::TemperatureData()
 
 void TemperatureData::addValue(double temp)
 {
-	auto n = nb_value + 1;
+	auto n = double(nb_value + 1);
 	auto new_mean = (temp  + ((n - 1) * mean)) / n;
-	auto new_var = ((n - 2) * variance + (n - 1) * square(mean - new_mean) + square(temp - new_mean)) / n - 1;
-
+	auto new_var = 0.0;
+	if (n >= 2)
+	{
+		new_var = ((n - 2) / (n - 1)) * variance + square(temp - new_mean) / (n - 1);
+	}
 	++nb_value;
 	mean = new_mean;
 	variance = new_var;
-	deviation = sqrt(variance);
+	deviation = sqrt(abs(variance));
 }
 
 void TemperatureData::clear()

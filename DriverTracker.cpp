@@ -31,10 +31,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime};
 	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
 
-	_currentLap->innerTemperatures.frontLeft.addValue(driverData.m_tyresInnerTemperature[0]);
-	_currentLap->innerTemperatures.frontRight.addValue(driverData.m_tyresInnerTemperature[1]);
-	_currentLap->innerTemperatures.rearLeft.addValue(driverData.m_tyresInnerTemperature[2]);
-	_currentLap->innerTemperatures.rearRight.addValue(driverData.m_tyresInnerTemperature[3]);
+	_currentLap->innerTemperatures.rearLeft.addValue(driverData.m_tyresInnerTemperature[0]);
+	_currentLap->innerTemperatures.rearRight.addValue(driverData.m_tyresInnerTemperature[1]);
+	_currentLap->innerTemperatures.frontLeft.addValue(driverData.m_tyresInnerTemperature[2]);
+	_currentLap->innerTemperatures.frontRight.addValue(driverData.m_tyresInnerTemperature[3]);
 
 
 	if (_currentLap->maxSpeed < int(driverData.m_speed))
@@ -56,7 +56,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		if (lapData.m_lapDistance <= _previousLapData.m_lapDistance && lapData.m_lapDistance >= 0)
 		{
 			_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
-			_currentLap->ers.removeDistance(_currentStatusData.m_ersDeployMode, _previousLapData.m_lapDistance - lapData.m_lapDistance);
 			_currentLap->nbFlashback += 1;
 		}
 		else
@@ -72,10 +71,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		{
 			// A tracked lap ended
 			_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
-			_currentLap->startTyreWear.frontLeft = _currentStatusData.m_tyresWear[0];
-			_currentLap->startTyreWear.frontRight = _currentStatusData.m_tyresWear[1];
-			_currentLap->startTyreWear.rearLeft = _currentStatusData.m_tyresWear[2];
-			_currentLap->startTyreWear.rearRight = _currentStatusData.m_tyresWear[3];
+			_currentLap->endTyreWear.rearLeft = _currentStatusData.m_tyresWear[0];
+			_currentLap->endTyreWear.rearRight = _currentStatusData.m_tyresWear[1];
+			_currentLap->endTyreWear.frontLeft = _currentStatusData.m_tyresWear[2];
+			_currentLap->endTyreWear.frontRight = _currentStatusData.m_tyresWear[3];
 			_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 			_currentLap->lapTime = lapData.m_lastLapTime;
 			_currentLap->sector1Time = _previousLapData.m_sector1Time;
@@ -85,6 +84,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentLap->harvestedEnergy = _currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK;
 			_currentLap->deployedEnergy = _currentStatusData.m_ersDeployedThisLap;
 			_currentLap->trackDistance = _currentSessionData.m_trackLength;
+			_currentLap->ers.finalize(double(_currentSessionData.m_trackLength));
 
 			auto lapTime = QTime(0, 0).addMSecs(int(double(lapData.m_lastLapTime) * 1000.0)).toString("m.ss.zzz");
 
@@ -108,14 +108,13 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->recordDate = QDateTime::currentDateTime();
 		_currentLap->invalid = lapData.m_currentLapInvalid;
 		_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
-		_currentLap->endTyreWear.frontLeft = _currentStatusData.m_tyresWear[0];
-		_currentLap->endTyreWear.frontRight = _currentStatusData.m_tyresWear[1];
-		_currentLap->endTyreWear.rearLeft = _currentStatusData.m_tyresWear[2];
-		_currentLap->endTyreWear.rearRight = _currentStatusData.m_tyresWear[3];
+		_currentLap->startTyreWear.rearLeft = _currentStatusData.m_tyresWear[0];
+		_currentLap->startTyreWear.rearRight = _currentStatusData.m_tyresWear[1];
+		_currentLap->startTyreWear.frontLeft = _currentStatusData.m_tyresWear[2];
+		_currentLap->startTyreWear.frontRight = _currentStatusData.m_tyresWear[3];
 		_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
 		_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 		_currentLap->maxSpeed = 0;
-		_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));
 
 		_isLapRecorded = true;
 	}
@@ -123,6 +122,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	if (lapData.m_pitStatus > 0)
 		_isLapRecorded = false;
 
+	_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));
 	_previousLapData = LapData(lapData);
 }
 

@@ -24,9 +24,6 @@ void LapInfoWidget::setLap(const Lap &lap)
 	auto sessionType = UdpSpecification::instance()->session_type(lap.session_type);
 	new QTreeWidgetItem(ui->treeWidget, {"Track", track + QString(" (%1)").arg(sessionType)});
 
-	auto compound = UdpSpecification::instance()->tyre(lap.tyreCompound);
-	new QTreeWidgetItem(ui->treeWidget, {"Compound", compound});
-
 	auto weather = UdpSpecification::instance()->weather(lap.weather);
 	auto weatherItem = new QTreeWidgetItem(ui->treeWidget, {"Weather", weather});
 	new QTreeWidgetItem(weatherItem, {"Air Temp.", QString::number(lap.airTemp) + "°C"});
@@ -49,6 +46,9 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(maxSpeedItem, {"Fuel Mix", fuelMix});
 	maxSpeedItem->setExpanded(true);
 
+	auto compound = UdpSpecification::instance()->tyre(lap.tyreCompound);
+	new QTreeWidgetItem(ui->treeWidget, {"Tyre Compound", compound});
+
 	auto lapWear = lap.averageEndTyreWear - lap.averageStartTyreWear;
 	auto tyreWearItem = new QTreeWidgetItem(ui->treeWidget, {"Tyre wear", QString::number(lapWear) + "%"});
 	new QTreeWidgetItem(tyreWearItem, {"Start", QString::number(lap.averageStartTyreWear) + "%"});
@@ -56,7 +56,6 @@ void LapInfoWidget::setLap(const Lap &lap)
 
 	auto averageTemp = (lap.innerTemperatures.frontLeft.mean + lap.innerTemperatures.frontRight.mean + lap.innerTemperatures.rearLeft.mean + lap.innerTemperatures.rearRight.mean) / 4.0;
 	auto averageDev = (lap.innerTemperatures.frontLeft.deviation + lap.innerTemperatures.frontRight.deviation + lap.innerTemperatures.rearLeft.deviation + lap.innerTemperatures.rearRight.deviation) / 4.0;
-
 	auto tempItem = new QTreeWidgetItem(ui->treeWidget, {"Tyre Temperature", QString::number(averageTemp) + "°C (+/- " + QString::number(averageDev) + "°C)"});
 	new QTreeWidgetItem(tempItem, {"Front Left", QString::number(lap.innerTemperatures.frontLeft.mean) + "°C (+/- " + QString::number(lap.innerTemperatures.frontLeft.deviation) + "°C)"});
 	new QTreeWidgetItem(tempItem, {"Front Right", QString::number(lap.innerTemperatures.frontRight.mean) + "°C (+/- " + QString::number(lap.innerTemperatures.frontRight.deviation) + "°C)"});
@@ -66,7 +65,7 @@ void LapInfoWidget::setLap(const Lap &lap)
 
 
 	auto lapFuel = lap.fuelOnEnd - lap.fuelOnStart;
-	auto fuelItem = new QTreeWidgetItem(ui->treeWidget, {"Fuel Consumption", QString::number(lapFuel) + "kg"});
+	auto fuelItem = new QTreeWidgetItem(ui->treeWidget, {"Fuel Consumption", QString::number(qAbs(lapFuel)) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"Start", QString::number(lap.fuelOnStart) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"End", QString::number(lap.fuelOnEnd) + "kg"});
 
@@ -74,7 +73,10 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(ersItem, {"Deployed", QString::number(lap.deployedEnergy) + "J"});
 	new QTreeWidgetItem(ersItem, {"Harvested", QString::number(lap.harvestedEnergy) + "J"});
 	for (auto it = lap.ers.distancesPerMode.constBegin(); it != lap.ers.distancesPerMode.constEnd(); ++it)
-		new QTreeWidgetItem(ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(int(it.value())) + "m"});
+	{
+		auto percentage = it.value() / lap.trackDistance;
+		new QTreeWidgetItem(ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(percentage, 'g', 2) + "%"});
+	}
 	ersItem->setExpanded(true);
 
 	auto setupItem = new QTreeWidgetItem(ui->treeWidget, {"Setup", ""});
@@ -100,7 +102,7 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(setupItem, {"Fuel Load", QString::number(lap.setup.m_fuelLoad) + "kg"});
 
 	auto recordItem = new QTreeWidgetItem(ui->treeWidget, {"Record Date", lap.recordDate.toString("dd/MM/yyyy hh:mm:ss")});
-	new QTreeWidgetItem(recordItem, {"Flashback", lap.hasFlashback ? "Yes" : "No"});
+	new QTreeWidgetItem(recordItem, {"Flashbacks", QString::number(lap.nbFlashback)});
 
 	ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }

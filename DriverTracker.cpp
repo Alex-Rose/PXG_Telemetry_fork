@@ -57,7 +57,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		{
 			_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
 			_currentLap->ers.removeDistance(_currentStatusData.m_ersDeployMode, _previousLapData.m_lapDistance - lapData.m_lapDistance);
-			_currentLap->hasFlashback = true;
+			_currentLap->nbFlashback += 1;
 		}
 		else
 		{
@@ -80,6 +80,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentLap->energy = _currentStatusData.m_ersStoreEnergy;
 			_currentLap->harvestedEnergy = _currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK;
 			_currentLap->deployedEnergy = _currentStatusData.m_ersDeployedThisLap;
+			_currentLap->trackDistance = _currentSessionData.m_trackLength;
 
 			auto lapTime = QTime(0, 0).addMSecs(int(double(lapData.m_lastLapTime) * 1000.0)).toString("m.ss.zzz");
 

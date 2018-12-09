@@ -55,7 +55,8 @@ public:
 		double harvestedEnergy = 0;
 		double deployedEnergy = 0;
 		TyresData<TemperatureData> innerTemperatures;
-		bool hasFlashback = false;
+		int nbFlashback = 0;
+		double trackDistance = 0;
 
 		// Saving - Loading
 		void save(const QString& filename) const;

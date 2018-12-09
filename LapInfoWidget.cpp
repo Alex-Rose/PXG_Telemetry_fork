@@ -51,8 +51,11 @@ void LapInfoWidget::setLap(const Lap &lap)
 
 	auto lapWear = lap.averageEndTyreWear - lap.averageStartTyreWear;
 	auto tyreWearItem = new QTreeWidgetItem(ui->treeWidget, {"Tyre wear", QString::number(lapWear) + "%"});
-	new QTreeWidgetItem(tyreWearItem, {"Start", QString::number(lap.averageStartTyreWear) + "%"});
-	new QTreeWidgetItem(tyreWearItem, {"End", QString::number(lap.averageEndTyreWear) + "%"});
+	new QTreeWidgetItem(tyreWearItem, {"Average", QString::number(lap.averageStartTyreWear) + "% -> " + QString::number(lap.averageEndTyreWear) + "%"});
+	new QTreeWidgetItem(tyreWearItem, {"Front Left", QString::number(lap.startTyreWear.frontLeft) + "% -> " + QString::number(lap.endTyreWear.frontLeft) + "%"});
+	new QTreeWidgetItem(tyreWearItem, {"Front Right", QString::number(lap.startTyreWear.frontRight) + "% -> " + QString::number(lap.endTyreWear.frontRight) + "%"});
+	new QTreeWidgetItem(tyreWearItem, {"Rear Left", QString::number(lap.startTyreWear.rearLeft) + "% -> " + QString::number(lap.endTyreWear.rearLeft) + "%"});
+	new QTreeWidgetItem(tyreWearItem, {"Rear Right", QString::number(lap.startTyreWear.rearRight) + "% -> " + QString::number(lap.endTyreWear.rearRight) + "%"});
 
 	auto averageTemp = (lap.innerTemperatures.frontLeft.mean + lap.innerTemperatures.frontRight.mean + lap.innerTemperatures.rearLeft.mean + lap.innerTemperatures.rearRight.mean) / 4.0;
 	auto averageDev = (lap.innerTemperatures.frontLeft.deviation + lap.innerTemperatures.frontRight.deviation + lap.innerTemperatures.rearLeft.deviation + lap.innerTemperatures.rearRight.deviation) / 4.0;

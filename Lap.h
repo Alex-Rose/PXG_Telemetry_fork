@@ -38,6 +38,8 @@ public:
 		QDateTime recordDate;
 		double averageStartTyreWear = 0;
 		double averageEndTyreWear = 0;
+		TyresData<double> startTyreWear;
+		TyresData<double> endTyreWear;
 		CarSetupData setup;
 		QString comment;
 		float lapTime = 0;

@@ -72,6 +72,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		{
 			// A tracked lap ended
 			_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
+			_currentLap->startTyreWear.frontLeft = _currentStatusData.m_tyresWear[0];
+			_currentLap->startTyreWear.frontRight = _currentStatusData.m_tyresWear[1];
+			_currentLap->startTyreWear.rearLeft = _currentStatusData.m_tyresWear[2];
+			_currentLap->startTyreWear.rearRight = _currentStatusData.m_tyresWear[3];
 			_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 			_currentLap->lapTime = lapData.m_lastLapTime;
 			_currentLap->sector1Time = _previousLapData.m_sector1Time;
@@ -104,6 +108,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->recordDate = QDateTime::currentDateTime();
 		_currentLap->invalid = lapData.m_currentLapInvalid;
 		_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
+		_currentLap->endTyreWear.frontLeft = _currentStatusData.m_tyresWear[0];
+		_currentLap->endTyreWear.frontRight = _currentStatusData.m_tyresWear[1];
+		_currentLap->endTyreWear.rearLeft = _currentStatusData.m_tyresWear[2];
+		_currentLap->endTyreWear.rearRight = _currentStatusData.m_tyresWear[3];
 		_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
 		_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 		_currentLap->maxSpeed = 0;

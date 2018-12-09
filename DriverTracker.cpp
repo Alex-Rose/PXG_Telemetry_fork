@@ -50,6 +50,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		if (lapData.m_lapDistance <= _previousLapData.m_lapDistance && lapData.m_lapDistance >= 0)
 		{
 			_currentLap->removeTelemetryFrom(lapData.m_lapDistance);
+			_currentLap->ers.removeDistance(_currentStatusData.m_ersDeployMode, _previousLapData.m_lapDistance - lapData.m_lapDistance);
 		}
 		else
 		{
@@ -69,6 +70,9 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentLap->sector1Time = _previousLapData.m_sector1Time;
 			_currentLap->sector2Time = _previousLapData.m_sector2Time;
 			_currentLap->sector3Time = lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+			_currentLap->energy = _currentStatusData.m_ersStoreEnergy;
+			_currentLap->harvestedEnergy = _currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK;
+			_currentLap->deployedEnergy = _currentStatusData.m_ersDeployedThisLap;
 
 			auto lapTime = QTime(0, 0).addMSecs(int(double(lapData.m_lastLapTime) * 1000.0)).toString("m.ss.zzz");
 
@@ -95,6 +99,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
 		_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 		_currentLap->maxSpeed = 0;
+		_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));
 
 		_isLapRecorded = true;
 	}

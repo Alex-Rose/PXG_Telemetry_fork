@@ -1,6 +1,7 @@
 #ifndef LAP_H
 #define LAP_H
 
+#include "Ers.h"
 #include "UdpSpecification.h"
 
 #include <QDateTime>
@@ -48,6 +49,10 @@ public:
 		int tyreCompound = -1;
 		double fuelOnStart = 0;
 		double fuelOnEnd = 0;
+		ErsData ers;
+		double energy = 0;
+		double harvestedEnergy = 0;
+		double deployedEnergy = 0;
 
 		// Saving - Loading
 		void save(const QString& filename) const;

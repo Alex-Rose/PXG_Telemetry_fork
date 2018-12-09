@@ -59,6 +59,13 @@ void LapInfoWidget::setLap(const Lap &lap)
 	new QTreeWidgetItem(fuelItem, {"Start", QString::number(lap.fuelOnStart) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"End", QString::number(lap.fuelOnEnd) + "kg"});
 
+	auto ersItem = new QTreeWidgetItem(ui->treeWidget, {"ERS Energy", QString::number(lap.energy) + "J"});
+	new QTreeWidgetItem(ersItem, {"Deployed", QString::number(lap.deployedEnergy) + "J"});
+	new QTreeWidgetItem(ersItem, {"Harvested", QString::number(lap.harvestedEnergy) + "J"});
+	for (auto it = lap.ers.distancesPerMode.constBegin(); it != lap.ers.distancesPerMode.constEnd(); ++it)
+		new QTreeWidgetItem(ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(int(it.value())) + "m"});
+	ersItem->setExpanded(true);
+
 	auto setupItem = new QTreeWidgetItem(ui->treeWidget, {"Setup", ""});
 	new QTreeWidgetItem(setupItem, {"Font Wing", QString::number(lap.setup.m_frontWing)});
 	new QTreeWidgetItem(setupItem, {"Read Wing", QString::number(lap.setup.m_rearWing)});

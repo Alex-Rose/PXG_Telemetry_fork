@@ -36,7 +36,10 @@ SOURCES += \
     CompareLapsWidget.cpp \
     LapsTableModel.cpp \
     LapInfoWidget.cpp \
-    Logger.cpp
+    Logger.cpp \
+    Stint.cpp \
+    Tyres.cpp \
+    Ers.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -49,7 +52,10 @@ HEADERS += \
     CompareLapsWidget.h \
     LapsTableModel.h \
     LapInfoWidget.h \
-    Logger.h
+    Logger.h \
+    Stint.h \
+    Tyres.h \
+    Ers.h
 
 FORMS += \
         F1Telemetry.ui \

@@ -251,6 +251,7 @@ void CompareLapsWidget::addLaps()
 		laps.append(Lap::fromFile(file));
 	}
 	_lapModel->addLaps(laps);
+	ui->lapsTableView->setCurrentIndex(_lapModel->index(_lapModel->rowCount() - files.count(), 0));
 }
 
 void CompareLapsWidget::clearLaps()

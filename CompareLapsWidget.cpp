@@ -9,9 +9,14 @@
 #include <QValueAxis>
 #include <QtDebug>
 
+#include <cmath>
+
 using namespace QtCharts;
 
 const int LEFT_PANEL_DEFAULT_WIDTH = 250;
+
+const int MAX_NB_ROWS_OF_VARIABLE = 6;
+
 
 CompareLapsWidget::CompareLapsWidget(QWidget *parent) :
 	QWidget(parent),
@@ -173,12 +178,21 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 
 	_variables = variables;
 	int varIndex = 0;
+	int maxVarRows = fmax(ceil(_variables.count() / 2.0), MAX_NB_ROWS_OF_VARIABLE);
+	auto varCurrentRow = 0;
+	auto varCurrentCol = 0;
 	for (auto var: _variables)
 	{
 		auto checkbox = new QCheckBox(var, this);
 		connect(checkbox, &QCheckBox::toggled, this, &CompareLapsWidget::variableChecked);
 		_variableCheckboxes << checkbox;
-		ui->variableLayout->insertWidget(_variableCheckboxes.count(), checkbox);
+		ui->variableLayout->addWidget(checkbox, varCurrentRow,varCurrentCol);
+		++varCurrentRow;
+		if (varCurrentRow >= maxVarRows)
+		{
+			varCurrentRow = 0;
+			varCurrentCol += 1;
+		}
 
 		auto chart = new QChart();
 		chart->setMargins(QMargins());
@@ -207,6 +221,7 @@ void CompareLapsWidget::createVariables(const QStringList &variables)
 
 		++varIndex;
 	}
+	ui->variableLayout->setColumnStretch(1, 1);
 }
 
 void CompareLapsWidget::saveSettings(QSettings *settings)

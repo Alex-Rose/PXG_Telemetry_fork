@@ -5,7 +5,9 @@
 #include <QTime>
 #include <QtGlobal>
 
-const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "Gear", "Time"};
+const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "Gear", "Time",
+									 "Front Left Tyre Temperature", "Front Right Tyre Temperature",
+									 "Rear Left Tyre Temperature.", "Rear Left Tyre Temperature."};
 
 DriverTracker::DriverTracker(int driverIndex) : _driverIndex(driverIndex)
 {
@@ -28,7 +30,9 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		_isLapRecorded = false; //Rear gear
 
 	auto values = {float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
-					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime};
+					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime,
+				  float(driverData.m_tyresSurfaceTemperature[2]), float(driverData.m_tyresSurfaceTemperature[3]),
+				  float(driverData.m_tyresSurfaceTemperature[0]), float(driverData.m_tyresSurfaceTemperature[1])};
 	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
 
 	_currentLap->innerTemperatures.rearLeft.addValue(driverData.m_tyresInnerTemperature[0]);

@@ -2,6 +2,7 @@
 #define LAP_H
 
 #include "Ers.h"
+#include "TelemetryData.h"
 #include "Tyres.h"
 #include "UdpSpecification.h"
 
@@ -11,19 +12,12 @@
 
 
 
-class Lap
+class Lap : public TelemetryData
 {
 public:
 		Lap(const QStringList& telemetryDataNames = {});
 
 		QString description() const;
-
-		// Telemetry
-		void addTelemetryData(float distance, const QVector<float>& values);
-		void clearTelemetry();
-		QVector<float> distances() const;
-		QVector<float> telemetry(int index) const;
-		QStringList availableTelemetry() const;
 
 		void removeTelemetryFrom(float distance);
 
@@ -64,11 +58,6 @@ public:
 		void save(const QString& filename) const;
 		void load(const QString& filename);
 		static Lap fromFile(const QString& filename);
-
-private:
-	QVector<float> _distances;
-	QVector<QVector<float>> _telemetry;
-	QStringList _telemetryNames;
 };
 
 #endif // LAP_H

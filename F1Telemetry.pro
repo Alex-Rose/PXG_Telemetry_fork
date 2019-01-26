@@ -39,7 +39,8 @@ SOURCES += \
     Logger.cpp \
     Stint.cpp \
     Tyres.cpp \
-    Ers.cpp
+    Ers.cpp \
+    TelemetryData.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -55,7 +56,8 @@ HEADERS += \
     Logger.h \
     Stint.h \
     Tyres.h \
-    Ers.h
+    Ers.h \
+    TelemetryData.h
 
 FORMS += \
         F1Telemetry.ui \

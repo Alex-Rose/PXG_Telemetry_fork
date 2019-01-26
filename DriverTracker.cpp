@@ -33,7 +33,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime,
 				  float(driverData.m_tyresSurfaceTemperature[2]), float(driverData.m_tyresSurfaceTemperature[3]),
 				  float(driverData.m_tyresSurfaceTemperature[0]), float(driverData.m_tyresSurfaceTemperature[1])};
-	_currentLap->addTelemetryData(_previousLapData.m_lapDistance, values);
+	_currentLap->addData(_previousLapData.m_lapDistance, values);
 
 	_currentLap->innerTemperatures.rearLeft.addValue(driverData.m_tyresInnerTemperature[0]);
 	_currentLap->innerTemperatures.rearRight.addValue(driverData.m_tyresInnerTemperature[1]);
@@ -65,7 +65,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		else
 		{
 			// Flashback on the start line
-			_currentLap->clearTelemetry();
+			_currentLap->clearData();
 			_isLapRecorded = false;
 		}
 	}
@@ -103,7 +103,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 		// A new lap started
-		_currentLap->clearTelemetry();
+		_currentLap->clearData();
 		_currentLap->track = _currentSessionData.m_trackId;
 		_currentLap->session_type = _currentSessionData.m_sessionType;
 		_currentLap->trackTemp = _currentSessionData.m_trackTemperature;

@@ -3,9 +3,8 @@
 #include <QFile>
 #include <QtDebug>
 
-Lap::Lap(const QStringList &telemetryDataNames) : _telemetryNames(telemetryDataNames)
+Lap::Lap(const QStringList &telemetryDataNames) : TelemetryData(telemetryDataNames)
 {
-
 }
 
 QString Lap::description() const
@@ -16,57 +15,18 @@ QString Lap::description() const
 	return driver.m_name + " " + team + " - " + tyre + " - " + time;
 }
 
-void Lap::addTelemetryData(float distance, const QVector<float> &values)
-{
-	_distances.append(distance);
-	_telemetry.append(values);
-}
-
-void Lap::clearTelemetry()
-{
-	_distances.clear();
-	_telemetry.clear();
-	ers.clear();
-	innerTemperatures.frontLeft.clear();
-	innerTemperatures.frontRight.clear();
-	innerTemperatures.rearLeft.clear();
-	innerTemperatures.rearRight.clear();
-	nbFlashback = 0;
-}
-
-QVector<float> Lap::distances() const
-{
-	return _distances;
-}
-
-QVector<float> Lap::telemetry(int index) const
-{
-	QVector<float> data;
-	for (const auto& dataPoint : _telemetry)
-	{
-		data << dataPoint[index];
-	}
-
-	return data;
-}
-
-QStringList Lap::availableTelemetry() const
-{
-	return _telemetryNames;
-}
-
 void Lap::removeTelemetryFrom(float distance)
 {
-	if (!_distances.isEmpty())
+	if (!_xValues.isEmpty())
 	{
-		auto d = _distances.last();
+		auto d = _xValues.last();
 		while (d > distance)
 		{
-			_distances.removeLast();
-			_telemetry.removeLast();
-			if (_distances.isEmpty())
+			_xValues.removeLast();
+			_data.removeLast();
+			if (_xValues.isEmpty())
 				break;
-			d = _distances.last();
+			d = _xValues.last();
 		}
 	}
 }
@@ -82,9 +42,9 @@ void Lap::save(const QString &filename) const
 
 		out << track << session_type << trackTemp << airTemp << weather << invalid << driver
 			<< recordDate << averageStartTyreWear << averageEndTyreWear << setup << comment
-			<< lapTime << sector1Time << sector2Time << sector3Time
-			<< _telemetryNames << _distances << _telemetry
-			<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
+			<< lapTime << sector1Time << sector2Time << sector3Time;
+		TelemetryData::save(out);
+		out	<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
 			<< ers << energy << harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance
 			<< startTyreWear << endTyreWear;
 
@@ -107,9 +67,9 @@ void Lap::load(const QString &filename)
 
 		in  >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver
 			>> recordDate >> averageStartTyreWear >> averageEndTyreWear >> setup >> comment
-			>> lapTime >> sector1Time >> sector2Time >> sector3Time
-			>> _telemetryNames >> _distances >> _telemetry
-			>> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
+			>> lapTime >> sector1Time >> sector2Time >> sector3Time;
+		TelemetryData::load(in);
+		in  >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
 			>> ers >> energy >> harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance
 			>> startTyreWear >> endTyreWear;
 	}

@@ -5,30 +5,10 @@
 #include <QtDebug>
 
 
-Stint::Stint(const QStringList &dataNames) : _dataNames(dataNames)
+Stint::Stint(const QStringList &dataNames) : TelemetryData(dataNames)
 {
 }
 
-void Stint::addData(const QVector<double> &dataValues)
-{
-	_data.append(dataValues);
-}
-
-void Stint::clearData()
-{
-	_data.clear();
-}
-
-QVector<float> Stint::data(int index) const
-{
-	QVector<float> dataValues;
-	for (const auto& dataPoint : _data)
-	{
-		dataValues << dataPoint[index];
-	}
-
-	return dataValues;
-}
 
 void Stint::save(const QString &filename) const
 {
@@ -37,8 +17,9 @@ void Stint::save(const QString &filename) const
 	{
 		QDataStream out(&file);
 		out.setByteOrder(QDataStream::LittleEndian);
+		out.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
-		out << _dataNames << _data;
+		TelemetryData::save(out);
 
 		qDebug() << "STINT saved " << filename;
 	}
@@ -55,8 +36,9 @@ void Stint::load(const QString &filename)
 	{
 		QDataStream in(&file);
 		in.setByteOrder(QDataStream::LittleEndian);
+		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
-		in >> _dataNames >> _data;
+		TelemetryData::load(in);
 	}
 }
 

@@ -76,10 +76,10 @@ QList<QColor> CompareLapsWidget::reloadVariableSeries(QChart* chart, const QVect
 		auto series = new QLineSeries();
 		series->setName(lap.description());
 
-		const auto& distances = lap.distances();
-		const auto& values = lap.telemetry(varIndex);
-		const auto& refDist = refLap->distances();
-		const auto& ref = refLap->telemetry(varIndex);
+		const auto& distances = lap.xValues();
+		const auto& values = lap.data(varIndex);
+		const auto& refDist = refLap->xValues();
+		const auto& ref = refLap->data(varIndex);
 		auto itDistance = distances.constBegin();
 		auto itValues = values.constBegin();
 		auto itRef = ref.constBegin();
@@ -134,7 +134,7 @@ void CompareLapsWidget::setLaps(const QVector<Lap> &laps)
 {
 	if (!laps.isEmpty())
 	{
-		const auto& newVariables = laps.first().availableTelemetry();
+		const auto& newVariables = laps.first().availableData();
 		if (_variables != newVariables)
 			createVariables(newVariables);
 

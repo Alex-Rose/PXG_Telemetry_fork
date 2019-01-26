@@ -57,7 +57,7 @@ public:
 		// Saving - Loading
 		void save(const QString& filename) const;
 		void load(const QString& filename);
-		static Lap fromFile(const QString& filename);
+		static Lap* fromFile(const QString& filename);
 };
 
 #endif // LAP_H

@@ -10,6 +10,9 @@ class TelemetryData
 {
 public:
 	TelemetryData(const QStringList& dataNames = {});
+	virtual ~TelemetryData() {}
+
+	virtual QString description() const = 0;
 
 	void addData(double x, const QVector<float>& dataValues);
 	void clearData();

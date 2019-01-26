@@ -1,4 +1,5 @@
 #include "Stint.h"
+#include "UdpSpecification.h"
 
 #include <QFile>
 #include <QDataStream>
@@ -7,6 +8,14 @@
 
 Stint::Stint(const QStringList &dataNames) : TelemetryData(dataNames)
 {
+}
+
+QString Stint::description() const
+{
+	auto nbLap = QString::number(_data.count());
+	auto team = UdpSpecification::instance()->team(driver.m_teamId);
+	auto tyre = UdpSpecification::instance()->tyre(tyreCompound);
+	return driver.m_name + " " + team + " - " + tyre + " - " + nbLap + 'Laps';
 }
 
 
@@ -20,6 +29,7 @@ void Stint::save(const QString &filename) const
 		out.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
 		TelemetryData::save(out);
+		out << start << end << track << session_type << tyreCompound << driver;
 
 		qDebug() << "STINT saved " << filename;
 	}
@@ -39,13 +49,14 @@ void Stint::load(const QString &filename)
 		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
 		TelemetryData::load(in);
+		in >> start >> end >> track >> session_type >> tyreCompound >> driver;
 	}
 }
 
-Stint Stint::fromFile(const QString &filename)
+Stint *Stint::fromFile(const QString &filename)
 {
-	Stint lap;
-	lap.load(filename);
+	auto stint = new Stint;
+	stint->load(filename);
 
-	return lap;
+	return stint;
 }

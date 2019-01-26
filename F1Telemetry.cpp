@@ -2,6 +2,7 @@
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
+
 F1Telemetry::F1Telemetry(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::F1Telemetry)
@@ -64,5 +65,3 @@ void F1Telemetry::startTracking(bool trackPlayer, const QVector<int> &trackedDri
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
 	_tracker->start();
 }
-
-

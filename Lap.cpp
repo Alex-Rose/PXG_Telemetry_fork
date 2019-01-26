@@ -75,10 +75,10 @@ void Lap::load(const QString &filename)
 	}
 }
 
-Lap Lap::fromFile(const QString &filename)
+Lap* Lap::fromFile(const QString &filename)
 {
-	Lap lap;
-	lap.load(filename);
+	auto lap = new Lap;
+	lap->load(filename);
 
 	return lap;
 }

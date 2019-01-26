@@ -33,14 +33,14 @@ SOURCES += \
     DriverTracker.cpp \
     Lap.cpp \
     TrackingWidget.cpp \
-    CompareLapsWidget.cpp \
-    LapsTableModel.cpp \
-    LapInfoWidget.cpp \
     Logger.cpp \
     Stint.cpp \
     Tyres.cpp \
     Ers.cpp \
-    TelemetryData.cpp
+    TelemetryData.cpp \
+    TelemetryDataTableModel.cpp \
+    CompareTelemetryWidget.cpp \
+    CompareLapsWidget.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -50,20 +50,19 @@ HEADERS += \
     DriverTracker.h \
     Lap.h \
     TrackingWidget.h \
-    CompareLapsWidget.h \
-    LapsTableModel.h \
-    LapInfoWidget.h \
     Logger.h \
     Stint.h \
     Tyres.h \
     Ers.h \
-    TelemetryData.h
+    TelemetryData.h \
+    TelemetryDataTableModel.h \
+    CompareTelemetryWidget.h \
+    CompareLapsWidget.h
 
 FORMS += \
         F1Telemetry.ui \
     TrackingWidget.ui \
-    CompareLapsWidget.ui \
-    LapInfoWidget.ui
+    CompareTelemetryWidget.ui
 
 
 RESOURCES += \

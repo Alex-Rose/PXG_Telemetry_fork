@@ -40,7 +40,7 @@
       </widget>
       <widget class="CompareStintsWidget" name="compareStintsWidget">
        <attribute name="title">
-        <string>Analyse Stint</string>
+        <string>Analyse Stints</string>
        </attribute>
       </widget>
      </widget>

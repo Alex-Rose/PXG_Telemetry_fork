@@ -10,8 +10,8 @@ const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "
 									 "Front Left Tyre Temperature", "Front Right Tyre Temperature",
 									 "Rear Left Tyre Temperature.", "Rear Left Tyre Temperature."};
 
-const QStringList TELEMETRY_STINT_NAMES = {"Lap Times", "Average Tyre Wear", "Fuel", "Stored Energy",
-										   "Energy Deployed", "Energy Harvested",
+const QStringList TELEMETRY_STINT_NAMES = {"Lap Times (s)", "Average Tyre Wear (%)", "Fuel (kg)", "Stored Energy (kJ)",
+										   "Energy Deployed (kJ)", "Energy Harvested (kJ)",
 											"Front Left Tyre Temperature", "Front Right Tyre Temperature",
 											"Rear Left Tyre Temperature.", "Rear Left Tyre Temperature."};
 
@@ -106,6 +106,8 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentLap->save(filePath);
 			++_currentLapNum;
 			Logger::instance()->log(QString("Lap recorded: ").append(driverDataDirectory.dirName()));
+
+			addLapToStint(_currentLap);
 		}
 
 
@@ -113,6 +115,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 		// A new lap started
 		_currentLap->clearLapTelemetry();
+		_currentLap->lapTime = std::numeric_limits<float>::quiet_NaN();
 		_currentLap->track = _currentSessionData.m_trackId;
 		_currentLap->session_type = _currentSessionData.m_sessionType;
 		_currentLap->trackTemp = _currentSessionData.m_trackTemperature;
@@ -140,12 +143,15 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentStint->trackTemp = _currentLap->trackTemp;
 			_currentStint->airTemp = _currentLap->airTemp;
 			_currentStint->weather = _currentLap->weather;
-			_currentStint->startTyreWear = _currentLap->startTyreWear;
+			_currentStint->startTyreWear.frontLeft = _currentLap->startTyreWear.frontLeft;
+			_currentStint->startTyreWear.frontRight = _currentLap->startTyreWear.frontRight;
+			_currentStint->startTyreWear.rearLeft = _currentLap->startTyreWear.rearLeft;
+			_currentStint->startTyreWear.rearRight = _currentLap->startTyreWear.rearRight;
 			_currentStint->averageStartTyreWear = _currentLap->averageStartTyreWear;
 			_currentStint->start = QDateTime::currentDateTime();
-		}
 
-		addLapToStint(_currentLap);
+			addLapToStint(_currentLap);
+		}
 
 		_isLapRecorded = true;
 	}
@@ -156,7 +162,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 		if (_currentStint->countData() > 1)
 		{
-			auto fileName = "Stint " + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->countData() - 1) + "Laps.f1stint";
+			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps.f1stint";
 			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 			_currentStint->save(filePath);
 			++_currentStintNum;
@@ -172,13 +178,16 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 void DriverTracker::addLapToStint(Lap *lap)
 {
-	auto values = {lap->lapTime, float(lap->averageEndTyreWear), float(lap->fuelOnEnd), float(lap->energy),
-				   float(lap->deployedEnergy), float(lap->harvestedEnergy), float(lap->innerTemperatures.frontLeft.mean),
+	auto values = {lap->lapTime, float(lap->averageEndTyreWear), float(lap->fuelOnEnd), float(lap->energy / 1000.0),
+				   float(lap->deployedEnergy / 1000.0), float(lap->harvestedEnergy / 1000.0), float(lap->innerTemperatures.frontLeft.mean),
 				   float(lap->innerTemperatures.frontRight.mean), float(lap->innerTemperatures.rearLeft.mean),
 				   float(lap->innerTemperatures.rearRight.mean)};
 	_currentStint->addData(_currentStint->countData(), values);
 	_currentStint->end = QDateTime::currentDateTime();
-	_currentStint->endTyreWear = lap->endTyreWear;
+	_currentStint->endTyreWear.frontLeft = _currentLap->endTyreWear.frontLeft;
+	_currentStint->endTyreWear.frontRight = _currentLap->endTyreWear.frontRight;
+	_currentStint->endTyreWear.rearLeft = _currentLap->endTyreWear.rearLeft;
+	_currentStint->endTyreWear.rearRight = _currentLap->endTyreWear.rearRight;
 	_currentStint->averageEndTyreWear = _currentLap->averageEndTyreWear;
 }
 

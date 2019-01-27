@@ -16,6 +16,8 @@ public:
 
 	QString description() const;
 
+	int nbLaps() const;
+
 	// Saving - Loading
 	void save(const QString& filename) const;
 	void load(const QString& filename);

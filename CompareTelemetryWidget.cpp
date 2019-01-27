@@ -92,36 +92,42 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 		auto itRefDist = refDist.constBegin();
 		while (itDistance != distances.constEnd() && itValues != values.constEnd() && itRef != ref.constEnd() && itRefDist != refDist.constEnd())
 		{
-			auto value = double(*itValues);
-			auto distance = double(*itDistance);
-			if (diff)
+			if (!std::isnan(*itValues))
 			{
-				while (double(*itRefDist) < distance && itRefDist != refDist.constEnd())
+				auto value = double(*itValues);
+				auto distance = double(*itDistance);
+				if (diff)
 				{
-					++itRef;
-					++itRefDist;
-				}
-				if (double(*itRefDist) < distance)
-					break;
+					while (double(*itRefDist) < distance && itRefDist != refDist.constEnd())
+					{
+						++itRef;
+						++itRefDist;
+					}
+					if (double(*itRefDist) < distance)
+						break;
 
-				auto refValue = double(*itRef);
-				auto refDist = double(*itRefDist);
-				if (refDist > distance && itRef != ref.constBegin())
-				{
-					// Linear interpolation
-					auto prevRefValue = double(*(itRef - 1));
-					auto prevDistance = double(*(itRefDist - 1));
-					refValue = prevRefValue + (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
+					if (!std::isnan(*itRef))
+					{
+						auto refValue = double(*itRef);
+						auto refDist = double(*itRefDist);
+						if (refDist > distance && itRef != ref.constBegin())
+						{
+							// Linear interpolation
+							auto prevRefValue = double(*(itRef - 1));
+							auto prevDistance = double(*(itRefDist - 1));
+							refValue = prevRefValue + (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
+						}
+						else if (itRef == ref.constBegin())
+						{
+							++itValues;
+							++itDistance;
+							continue;
+						}
+						value -= refValue;
+					}
 				}
-				else if (itRef == ref.constBegin())
-				{
-					++itValues;
-					++itDistance;
-					continue;
-				}
-				value -= refValue;
+				series->append(distance, value);
 			}
-			series->append(distance, value);
 			++itValues;
 			++itDistance;
 		}
@@ -247,6 +253,7 @@ void CompareTelemetryWidget::loadSettings(QSettings *settings)
 void CompareTelemetryWidget::setDataName(const QString &name)
 {
 	ui->lblDataName->setText(name + " Data");
+	ui->btnAddLaps->setText("Add " + name + "s");
 }
 
 void CompareTelemetryWidget::clearVariables()

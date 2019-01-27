@@ -13,13 +13,13 @@ void CompareStintsWidget::browseData()
 {
 	auto files = QFileDialog::getOpenFileNames(this, "Select some stints to compare", "", "*.f1stint", nullptr, QFileDialog::DontUseNativeDialog);
 
-	QVector<TelemetryData*> laps;
+	QVector<TelemetryData*> stints;
 	for (auto file : files)
 	{
-		laps.append(Lap::fromFile(file));
+		stints.append(Stint::fromFile(file));
 	}
 
-	addTelemetryData(laps);
+	addTelemetryData(stints);
 }
 
 void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *data)
@@ -30,7 +30,7 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 
 	tree->clear();
 
-	new QTreeWidgetItem(tree, {"Stint", QString::number(stint->countData()) + " Laps"});
+	new QTreeWidgetItem(tree, {"Stint", QString::number(stint->nbLaps()) + " Laps"});
 
 	auto team = UdpSpecification::instance()->team(stint->driver.m_teamId);
 	new QTreeWidgetItem(tree, {"Driver", stint->driver.m_name + QString(" (%1)").arg(team)});

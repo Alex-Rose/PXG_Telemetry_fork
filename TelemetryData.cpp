@@ -20,6 +20,22 @@ void TelemetryData::clearData()
 	_data.clear();
 }
 
+bool TelemetryData::hasData() const
+{
+	return !_data.isEmpty();
+}
+
+int TelemetryData::countData() const
+{
+	return _data.count();
+}
+
+void TelemetryData::removeLastData()
+{
+	_xValues.removeLast();
+	_data.removeLast();
+}
+
 QVector<float> TelemetryData::xValues() const
 {
 	return _xValues;

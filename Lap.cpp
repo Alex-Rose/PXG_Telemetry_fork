@@ -15,6 +15,18 @@ QString Lap::description() const
 	return driver.m_name + " " + team + " - " + tyre + " - " + time;
 }
 
+void Lap::clearLapTelemetry()
+{
+	clearData();
+	ers.clear();
+	innerTemperatures.frontLeft.clear();
+	innerTemperatures.frontRight.clear();
+	innerTemperatures.rearLeft.clear();
+	innerTemperatures.rearRight.clear();
+	nbFlashback = 0;
+}
+
+
 void Lap::removeTelemetryFrom(float distance)
 {
 	if (!_xValues.isEmpty())
@@ -22,8 +34,7 @@ void Lap::removeTelemetryFrom(float distance)
 		auto d = _xValues.last();
 		while (d > distance)
 		{
-			_xValues.removeLast();
-			_data.removeLast();
+			removeLastData();
 			if (_xValues.isEmpty())
 				break;
 			d = _xValues.last();

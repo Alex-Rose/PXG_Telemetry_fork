@@ -16,6 +16,10 @@ public:
 
 	void addData(double x, const QVector<float>& dataValues);
 	void clearData();
+	void removeLastData();
+
+	bool hasData() const;
+	int countData() const;
 
 	QVector<float> xValues() const;
 	QStringList availableData() const {return _dataNames;}

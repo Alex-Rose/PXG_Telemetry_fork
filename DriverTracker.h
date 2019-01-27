@@ -6,6 +6,7 @@
 #include <QDir>
 
 class Lap;
+class Stint;
 
 
 class DriverTracker : public F1PacketInterface
@@ -36,11 +37,15 @@ private:
 	CarStatusData _currentStatusData;
 	bool _isLapRecorded = false;
 	Lap* _currentLap = nullptr;
+	Stint* _currentStint = nullptr;
 	int _currentLapNum = 0;
+	int _currentStintNum = 0;
 
 	bool finishLineCrossed(const LapData& data) const;
 	bool flashbackDetected(const LapData& data) const;
 	double averageTyreWear(const CarStatusData& carStatus) const;
+
+	void addLapToStint(Lap* lap);
 };
 
 #endif // DRIVERTRACKER_H

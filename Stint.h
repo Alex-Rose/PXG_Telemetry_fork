@@ -6,6 +6,7 @@
 #include <QDateTime>
 
 #include "TelemetryData.h"
+#include "Tyres.h"
 #include "UdpSpecification.h"
 
 class Stint : public TelemetryData
@@ -25,7 +26,12 @@ public:
 	int track = -1;
 	int session_type = -1;
 	int tyreCompound = -1;
+	int trackTemp = 0;
+	int airTemp = 0;
+	int weather = 0;
 	ParticipantData driver;
+	TyresData<double> startTyreWear;
+	TyresData<double> endTyreWear;
 };
 
 #endif // STINT_H

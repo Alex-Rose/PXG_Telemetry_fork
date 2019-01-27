@@ -19,6 +19,7 @@ public:
 
 		QString description() const;
 
+		void clearLapTelemetry();
 		void removeTelemetryFrom(float distance);
 
 		// Metadata

@@ -40,7 +40,8 @@ SOURCES += \
     TelemetryData.cpp \
     TelemetryDataTableModel.cpp \
     CompareTelemetryWidget.cpp \
-    CompareLapsWidget.cpp
+    CompareLapsWidget.cpp \
+    CompareStintsWidget.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -57,7 +58,8 @@ HEADERS += \
     TelemetryData.h \
     TelemetryDataTableModel.h \
     CompareTelemetryWidget.h \
-    CompareLapsWidget.h
+    CompareLapsWidget.h \
+    CompareStintsWidget.h
 
 FORMS += \
         F1Telemetry.ui \

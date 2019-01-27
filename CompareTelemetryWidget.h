@@ -53,7 +53,7 @@ protected slots:
 	virtual void browseData() {}
 
 protected:
-	virtual void fillInfoTree(QTreeWidget* tree, const TelemetryData* data) {Q_UNUSED(tree);}
+	virtual void fillInfoTree(QTreeWidget* tree, const TelemetryData* data) {Q_UNUSED(tree); Q_UNUSED(data);}
 
 private slots:
 	void clearData();

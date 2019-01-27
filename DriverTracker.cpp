@@ -141,6 +141,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentStint->airTemp = _currentLap->airTemp;
 			_currentStint->weather = _currentLap->weather;
 			_currentStint->startTyreWear = _currentLap->startTyreWear;
+			_currentStint->averageStartTyreWear = _currentLap->averageStartTyreWear;
 			_currentStint->start = QDateTime::currentDateTime();
 		}
 
@@ -178,6 +179,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->addData(_currentStint->countData(), values);
 	_currentStint->end = QDateTime::currentDateTime();
 	_currentStint->endTyreWear = lap->endTyreWear;
+	_currentStint->averageEndTyreWear = _currentLap->averageEndTyreWear;
 }
 
 void DriverTracker::sessionData(const PacketHeader &header, const PacketSessionData &data)

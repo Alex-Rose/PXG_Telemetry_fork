@@ -30,6 +30,8 @@ public:
 	int airTemp = 0;
 	int weather = 0;
 	ParticipantData driver;
+	double averageStartTyreWear = 0;
+	double averageEndTyreWear = 0;
 	TyresData<double> startTyreWear;
 	TyresData<double> endTyreWear;
 };

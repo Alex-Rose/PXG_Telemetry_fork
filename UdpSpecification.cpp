@@ -74,10 +74,11 @@ QDataStream &operator>>(QDataStream &in, ParticipantData &packet)
 QDataStream &operator<<(QDataStream &out, const ParticipantData &packet)
 {
 	out << packet.m_aiControlled << packet.m_driverId << packet.m_teamId << packet.m_raceNumber << packet.m_nationality;
+	auto codedName = packet.m_name.toUtf8();
 	for (auto i = 0; i < 48; ++i)
 	{
 		if (i < packet.m_name.count())
-			out << quint8(packet.m_name[i].toLatin1());
+			out << quint8(codedName[i]);
 		else
 			out << quint8(0);
 	}

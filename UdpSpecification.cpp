@@ -39,6 +39,7 @@ UdpSpecification::UdpSpecification()
 	tracks = QStringList({"Melbourne", "Paul Ricard", "Shanghai", "Sakir (Bahrain)", "Catalunya", "Monaco", "Montreal", "Silverstone", "Hockenheim",
 						 "Hungaroring", "Spa Francorchamp", "Monza", "Singapore", "Susuka", "Abu Dhabi", "Austin", "Interlagos", "Red Bull Ring", "Sochi",
 						 "Mexico", "Baku", "Sakhir Short", "Silverstone Short", "Austin Short", "Susuka Short"});
+	raceLaps = {58, 53, 56, 57, 59, 78, 70, 52, 67, 70, 44, 53, 61, 53, 55, 56, 71, 71, 53, 71, 51, 0, 0, 0, 0};
 	weathers = QStringList({"Clear", "Light Cloud", "Overcast", "Light Rain", "Heavy Rain", "Storm"});
 	sessions = QStringList({"Unknown", "FP1", "FP2", "FP3", "Short FP", "Q1", "Q2", "Q3", "Short Q", "OSQ", "R1", "R2", "Time Trial"});
 	tyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet"});

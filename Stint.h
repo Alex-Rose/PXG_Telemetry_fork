@@ -36,6 +36,9 @@ public:
 	double averageEndTyreWear = 0;
 	TyresData<double> startTyreWear;
 	TyresData<double> endTyreWear;
+	double averageLapTime = 0;
+	double fuelOnStart = 0;
+	double fuelOnEnd = 0;
 };
 
 #endif // STINT_H

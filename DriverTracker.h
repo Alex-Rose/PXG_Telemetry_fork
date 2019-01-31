@@ -38,8 +38,8 @@ private:
 	bool _isLapRecorded = false;
 	Lap* _currentLap = nullptr;
 	Stint* _currentStint = nullptr;
-	int _currentLapNum = 0;
-	int _currentStintNum = 0;
+	int _currentLapNum = 1;
+	int _currentStintNum = 1;
 
 	bool finishLineCrossed(const LapData& data) const;
 	bool flashbackDetected(const LapData& data) const;

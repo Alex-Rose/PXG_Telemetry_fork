@@ -20,7 +20,7 @@ QString Stint::description() const
 
 int Stint::nbLaps() const
 {
-	return countData() - 1;
+	return countData();
 }
 
 

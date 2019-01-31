@@ -67,7 +67,8 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 		if (_currentStint->countData() > 1)
 		{
-			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps.f1stint";
+			auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
+			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
 			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 			qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
 			_currentStint->save(filePath);
@@ -164,9 +165,8 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentStint->startTyreWear.rearLeft = _currentLap->startTyreWear.rearLeft;
 			_currentStint->startTyreWear.rearRight = _currentLap->startTyreWear.rearRight;
 			_currentStint->averageStartTyreWear = _currentLap->averageStartTyreWear;
+			_currentStint->fuelOnStart = _currentLap->fuelOnStart;
 			_currentStint->start = QDateTime::currentDateTime();
-
-			addLapToStint(_currentLap);
 		}
 
 		_isLapRecorded = true;
@@ -185,11 +185,13 @@ void DriverTracker::addLapToStint(Lap *lap)
 				   float(lap->innerTemperatures.rearRight.mean)};
 	_currentStint->addData(_currentStint->countData(), values);
 	_currentStint->end = QDateTime::currentDateTime();
-	_currentStint->endTyreWear.frontLeft = _currentLap->endTyreWear.frontLeft;
-	_currentStint->endTyreWear.frontRight = _currentLap->endTyreWear.frontRight;
-	_currentStint->endTyreWear.rearLeft = _currentLap->endTyreWear.rearLeft;
-	_currentStint->endTyreWear.rearRight = _currentLap->endTyreWear.rearRight;
-	_currentStint->averageEndTyreWear = _currentLap->averageEndTyreWear;
+	_currentStint->endTyreWear.frontLeft = lap->endTyreWear.frontLeft;
+	_currentStint->endTyreWear.frontRight = lap->endTyreWear.frontRight;
+	_currentStint->endTyreWear.rearLeft = lap->endTyreWear.rearLeft;
+	_currentStint->endTyreWear.rearRight = lap->endTyreWear.rearRight;
+	_currentStint->averageEndTyreWear = lap->averageEndTyreWear;
+	_currentStint->fuelOnEnd = _currentLap->fuelOnEnd;
+	_currentStint->averageLapTime = addMean(_currentStint->averageLapTime, double(lap->lapTime), _currentStint->nbLaps());
 }
 
 void DriverTracker::sessionData(const PacketHeader &header, const PacketSessionData &data)
@@ -220,7 +222,12 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 	{
 		auto team = UdpSpecification::instance()->team(driverData.m_teamId);
 		auto subDirName = driverData.m_name + " " + team;
-		dataDirectory.mkdir(subDirName);
+		if (dataDirectory.mkdir(subDirName))
+		{
+			// Reset the counter if a new directory is created
+			_currentLapNum = 1;
+			_currentStintNum = 1;
+		}
 		driverDataDirectory = dataDirectory;
 		driverDataDirectory.cd(subDirName);
 		qDebug() << driverDataDirectory.absolutePath();

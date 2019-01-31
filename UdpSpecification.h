@@ -38,6 +38,7 @@ public:
 	QString tyre(int index) const {if (index < 0) return "Unknown"; return tyres.value(index);}
 	QString ersMode(int index) const {if (index < 0) return "Unknown"; return ersModes.value(index);}
 	QString fuelMix(int index) const {if (index < 0) return "Unknown"; return fuelMixes.value(index);}
+	int nbRaceLaps(int trackIndex) const {if (trackIndex < 0) return 0; return raceLaps.value(trackIndex);}
 
 private:
 	UdpSpecification();
@@ -45,6 +46,7 @@ private:
 	QMap<PacketType, int> packetExpectedLengths;
 	QStringList teams;
 	QStringList tracks;
+	QList<int> raceLaps;
 	QStringList weathers;
 	QStringList sessions;
 	QStringList tyres;

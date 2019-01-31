@@ -3,6 +3,11 @@
 
 #define square(x) ((x) * (x))
 
+double addMean(double current_mean, double value_to_add, int nb_values)
+{
+	return (value_to_add  + ((nb_values - 1) * current_mean)) / nb_values;
+}
+
 TemperatureData::TemperatureData()
 {
 	clear();
@@ -11,7 +16,8 @@ TemperatureData::TemperatureData()
 void TemperatureData::addValue(double temp)
 {
 	auto n = double(nb_value + 1);
-	auto new_mean = (temp  + ((n - 1) * mean)) / n;
+
+	auto new_mean = addMean(mean, temp, n);
 	auto new_var = 0.0;
 	if (n >= 2)
 	{
@@ -42,3 +48,4 @@ QDataStream &operator<<(QDataStream &out, const TemperatureData &data)
 	out << data.mean << data.deviation << data.variance << data.nb_value;
 	return out;
 }
+

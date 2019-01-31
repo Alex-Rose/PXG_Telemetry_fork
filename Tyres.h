@@ -4,6 +4,9 @@
 #include <QDataStream>
 
 
+double addMean(double current_mean, double value_to_add, int nb_values);
+
+
 template<typename T>
 struct TyresData
 {

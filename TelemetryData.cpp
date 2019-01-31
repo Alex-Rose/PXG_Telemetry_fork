@@ -9,7 +9,7 @@ TelemetryData::TelemetryData(const QStringList &dataNames) : _dataNames(dataName
 {
 }
 
-void TelemetryData::addData(double x, const QVector<float> &dataValues)
+void TelemetryData::addData(float x, const QVector<float> &dataValues)
 {
 	_xValues.append(x);
 	_data.append(dataValues);
@@ -17,6 +17,7 @@ void TelemetryData::addData(double x, const QVector<float> &dataValues)
 
 void TelemetryData::clearData()
 {
+	_xValues.clear();
 	_data.clear();
 }
 

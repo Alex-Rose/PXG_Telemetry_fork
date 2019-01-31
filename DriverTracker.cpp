@@ -61,6 +61,22 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	Q_UNUSED(header)
 	const auto& lapData = data.m_lapData[_driverIndex];
 
+	if (lapData.m_pitStatus > 0)
+	{
+		_isLapRecorded = false;
+
+		if (_currentStint->countData() > 1)
+		{
+			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps.f1stint";
+			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
+			qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
+			_currentStint->save(filePath);
+			++_currentStintNum;
+			Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
+			_currentStint->clearData();
+		}
+	}
+
 	if (_isLapRecorded && flashbackDetected(lapData))
 	{
 		// Flashback
@@ -132,7 +148,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 		_currentLap->maxSpeed = 0;
 
-		if (!_currentStint->hasData())
+		if (!_currentStint->hasData() and driverDirDefined)
 		{
 			qDebug() << "STINT Started : " << driverDataDirectory.dirName();
 
@@ -154,21 +170,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		}
 
 		_isLapRecorded = true;
-	}
-
-	if (lapData.m_pitStatus > 0)
-	{
-		_isLapRecorded = false;
-
-		if (_currentStint->countData() > 1)
-		{
-			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps.f1stint";
-			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
-			_currentStint->save(filePath);
-			++_currentStintNum;
-			Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
-			_currentStint->clearData();
-		}
 	}
 
 	_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));
@@ -230,7 +231,7 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
 	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200))
-			&& data.m_lapDistance < 200 && data.m_lapDistance > 0;
+			&& data.m_lapDistance < 200 && data.m_lapDistance > 0 && data.m_pitStatus == 0;
 }
 
 bool DriverTracker::flashbackDetected(const LapData &data) const

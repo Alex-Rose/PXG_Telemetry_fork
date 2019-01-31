@@ -14,7 +14,7 @@ public:
 
 	virtual QString description() const = 0;
 
-	void addData(double x, const QVector<float>& dataValues);
+	void addData(float x, const QVector<float>& dataValues);
 	void clearData();
 	void removeLastData();
 

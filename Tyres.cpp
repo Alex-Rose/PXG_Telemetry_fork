@@ -8,6 +8,12 @@ double addMean(double current_mean, double value_to_add, int nb_values)
 	return (value_to_add  + ((nb_values - 1) * current_mean)) / nb_values;
 }
 
+float addMean(float current_mean, float value_to_add, int nb_values)
+{
+	return (value_to_add  + ((nb_values - 1) * current_mean)) / nb_values;
+}
+
+
 TemperatureData::TemperatureData()
 {
 	clear();

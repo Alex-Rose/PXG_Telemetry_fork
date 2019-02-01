@@ -46,7 +46,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	_currentLap->innerTemperatures.rearRight.addValue(driverData.m_tyresInnerTemperature[1]);
 	_currentLap->innerTemperatures.frontLeft.addValue(driverData.m_tyresInnerTemperature[2]);
 	_currentLap->innerTemperatures.frontRight.addValue(driverData.m_tyresInnerTemperature[3]);
-
+	_currentStint->innerTemperatures.rearLeft.addValue(driverData.m_tyresInnerTemperature[0]);
+	_currentStint->innerTemperatures.rearRight.addValue(driverData.m_tyresInnerTemperature[1]);
+	_currentStint->innerTemperatures.frontLeft.addValue(driverData.m_tyresInnerTemperature[2]);
+	_currentStint->innerTemperatures.frontRight.addValue(driverData.m_tyresInnerTemperature[3]);
 
 	if (_currentLap->maxSpeed < int(driverData.m_speed))
 	{
@@ -89,7 +92,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		else
 		{
 			// Flashback on the start line
-			_currentLap->clearLapTelemetry();
+			_currentLap->resetData();
 			_currentStint->removeLastData();
 			_isLapRecorded = false;
 		}
@@ -131,7 +134,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 		// A new lap started
-		_currentLap->clearLapTelemetry();
+		_currentLap->resetData();
 		_currentLap->lapTime = std::numeric_limits<float>::quiet_NaN();
 		_currentLap->track = _currentSessionData.m_trackId;
 		_currentLap->session_type = _currentSessionData.m_sessionType;
@@ -166,7 +169,9 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentStint->startTyreWear.rearRight = _currentLap->startTyreWear.rearRight;
 			_currentStint->averageStartTyreWear = _currentLap->averageStartTyreWear;
 			_currentStint->fuelOnStart = _currentLap->fuelOnStart;
-			_currentStint->start = QDateTime::currentDateTime();
+			_currentStint->setup = _currentLap->setup;
+			_currentStint->recordDate = QDateTime::currentDateTime();
+			_currentStint->trackDistance = _currentLap->trackDistance;
 		}
 
 		_isLapRecorded = true;
@@ -184,14 +189,25 @@ void DriverTracker::addLapToStint(Lap *lap)
 				   float(lap->innerTemperatures.frontRight.mean), float(lap->innerTemperatures.rearLeft.mean),
 				   float(lap->innerTemperatures.rearRight.mean)};
 	_currentStint->addData(_currentStint->countData(), values);
-	_currentStint->end = QDateTime::currentDateTime();
+	_currentStint->recordDate = QDateTime::currentDateTime();
 	_currentStint->endTyreWear.frontLeft = lap->endTyreWear.frontLeft;
 	_currentStint->endTyreWear.frontRight = lap->endTyreWear.frontRight;
 	_currentStint->endTyreWear.rearLeft = lap->endTyreWear.rearLeft;
 	_currentStint->endTyreWear.rearRight = lap->endTyreWear.rearRight;
 	_currentStint->averageEndTyreWear = lap->averageEndTyreWear;
 	_currentStint->fuelOnEnd = _currentLap->fuelOnEnd;
-	_currentStint->averageLapTime = addMean(_currentStint->averageLapTime, double(lap->lapTime), _currentStint->nbLaps());
+	_currentStint->lapTime = addMean(_currentStint->lapTime, lap->lapTime, _currentStint->nbLaps());
+	_currentStint->sector1Time = addMean(_currentStint->sector1Time, lap->sector1Time, _currentStint->nbLaps());
+	_currentStint->sector2Time = addMean(_currentStint->sector2Time, lap->sector2Time, _currentStint->nbLaps());
+	_currentStint->sector3Time = addMean(_currentStint->sector3Time, lap->sector3Time, _currentStint->nbLaps());
+	if (_currentStint->maxSpeed >= lap->maxSpeed)
+	{
+		_currentStint->maxSpeed = lap->maxSpeed;
+		_currentStint->maxSpeedErsMode = lap->maxSpeedErsMode;
+		_currentStint->maxSpeedFuelMix = lap->maxSpeedFuelMix;
+	}
+
+	_currentStint->nbFlashback += lap->nbFlashback;
 }
 
 void DriverTracker::sessionData(const PacketHeader &header, const PacketSessionData &data)

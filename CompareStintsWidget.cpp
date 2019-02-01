@@ -46,22 +46,23 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	new QTreeWidgetItem(tree, {"Tyre Compound", compound});
 
 	auto stintItem = new QTreeWidgetItem(tree, {"Stint", QString::number(stint->nbLaps()) + " Laps"});
-	auto time = QTime(0, 0).addMSecs(int(double(stint->averageLapTime) * 1000.0)).toString("m:ss.zzz");
+	auto time = QTime(0, 0).addMSecs(int(double(stint->lapTime) * 1000.0)).toString("m:ss.zzz");
 	new QTreeWidgetItem(stintItem, {"Average Lap Time", time});
+	auto s1time = QTime(0, 0).addMSecs(int(double(stint->sector1Time) * 1000.0)).toString("m:ss.zzz");
+	new QTreeWidgetItem(stintItem, {"Average Sector 1 Time", s1time});
+	auto s2time = QTime(0, 0).addMSecs(int(double(stint->sector2Time) * 1000.0)).toString("m:ss.zzz");
+	new QTreeWidgetItem(stintItem, {"Average Sector 2 Time", s2time});
+	auto s3time = QTime(0, 0).addMSecs(int(double(stint->sector3Time) * 1000.0)).toString("m:ss.zzz");
+	new QTreeWidgetItem(stintItem, {"Average Sector 3 Time", s3time});
 	stintItem->setExpanded(true);
 
+	auto tyreWearItem = tyreItem(tree, stint);
 	auto lapWear = stint->averageEndTyreWear - stint->averageStartTyreWear;
-	auto tyreWearItem = new QTreeWidgetItem(tree, {"Tyre wear", QString("%1% (%2% -> %3%)").arg(lapWear).arg(stint->averageStartTyreWear).arg(stint->averageEndTyreWear)});
-	auto frontLeftWear = stint->endTyreWear.frontLeft - stint->startTyreWear.frontLeft;
-	new QTreeWidgetItem(tyreWearItem, {"Front Left", QString("%1% (%2% -> %3%)").arg(frontLeftWear).arg(stint->startTyreWear.frontLeft).arg(stint->endTyreWear.frontLeft)});
-	auto frontRightWear = stint->endTyreWear.frontRight - stint->startTyreWear.frontRight;
-	new QTreeWidgetItem(tyreWearItem, {"Front Right", QString("%1% (%2% -> %3%)").arg(frontRightWear).arg(stint->startTyreWear.frontRight).arg(stint->endTyreWear.frontRight)});
-	auto rearLeftWear = stint->endTyreWear.rearLeft - stint->startTyreWear.rearLeft;
-	new QTreeWidgetItem(tyreWearItem, {"Rear Left", QString("%1% (%2% -> %3%)").arg(rearLeftWear).arg(stint->startTyreWear.rearLeft).arg(stint->endTyreWear.rearLeft)});
-	auto rearRightWear = stint->endTyreWear.rearRight - stint->startTyreWear.rearRight;
-	new QTreeWidgetItem(tyreWearItem, {"Rear Right", QString("%1% (%2% -> %3%)").arg(rearRightWear).arg(stint->startTyreWear.rearRight).arg(stint->endTyreWear.rearRight)});
 	new QTreeWidgetItem(tyreWearItem, {"Estimated Life (50%)", QString("%1 Laps").arg((stint->nbLaps() * 50.0) / lapWear, 0, 'f', 1)});
 	tyreWearItem->setExpanded(true);
+
+	auto tempItem = tyreTempItem(tree, stint);
+	tempItem->setExpanded(true);
 
 	auto fuel = stint->fuelOnStart - stint->fuelOnEnd;
 	auto fuelItem = new QTreeWidgetItem(tree, {"Average Fuel Consumption", QString::number(fuel / stint->nbLaps()) + "kg"});
@@ -75,7 +76,9 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	}
 	fuelItem->setExpanded(true);
 
-	new QTreeWidgetItem(tree, {"Record Date", stint->end.toString("dd/MM/yyyy hh:mm:ss")});
+	setupItem(tree, stint);
+
+	new QTreeWidgetItem(tree, {"Record Date", stint->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
 
 	tree->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }

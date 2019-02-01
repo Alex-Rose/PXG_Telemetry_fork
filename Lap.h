@@ -17,9 +17,9 @@ class Lap : public TelemetryData
 public:
 		Lap(const QStringList& telemetryDataNames = {});
 
-		QString description() const;
+		virtual QString description() const;
 
-		void clearLapTelemetry();
+		void resetData();
 		void removeTelemetryFrom(float distance);
 
 		// Metadata
@@ -59,6 +59,8 @@ public:
 		void save(const QString& filename) const;
 		void load(const QString& filename);
 		static Lap* fromFile(const QString& filename);
+
+
 };
 
 #endif // LAP_H

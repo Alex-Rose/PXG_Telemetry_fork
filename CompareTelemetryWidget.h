@@ -55,6 +55,10 @@ protected slots:
 protected:
 	virtual void fillInfoTree(QTreeWidget* tree, const TelemetryData* data) {Q_UNUSED(tree); Q_UNUSED(data);}
 
+	QTreeWidgetItem* setupItem(QTreeWidget* tree, const Lap* lap) const;
+	QTreeWidgetItem* tyreTempItem(QTreeWidget* tree, const Lap *lap) const;
+	QTreeWidgetItem* tyreItem(QTreeWidget* tree, const Lap* lap) const;
+
 private slots:
 	void clearData();
 	void updateData();

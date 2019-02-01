@@ -15,7 +15,7 @@ QString Lap::description() const
 	return driver.m_name + " " + team + " - " + tyre + " - " + time;
 }
 
-void Lap::clearLapTelemetry()
+void Lap::resetData()
 {
 	clearData();
 	ers.clear();

@@ -71,7 +71,7 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	auto nbRaceLap = UdpSpecification::instance()->nbRaceLaps(stint->track);
 	if (nbRaceLap > 0)
 	{
-		new QTreeWidgetItem(fuelItem, {"Estimated Race Load", QString::number(fuel * nbRaceLap) + "kg"});
+		new QTreeWidgetItem(fuelItem, {"Estimated Race Load", QString::number((fuel * nbRaceLap) / stint->nbLaps()) + "kg"});
 		new QTreeWidgetItem(fuelItem, {"Race Length", QString::number(nbRaceLap) + " Laps"});
 	}
 	fuelItem->setExpanded(true);

@@ -34,13 +34,13 @@
       </widget>
       <widget class="CompareLapsWidget" name="compareLapsWidget">
        <attribute name="title">
-        <string>Analyse Laps</string>
+        <string>Laps Analysis</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </widget>
       <widget class="CompareStintsWidget" name="compareStintsWidget">
        <attribute name="title">
-        <string>Analyse Stints</string>
+        <string>Stints Analysis</string>
        </attribute>
       </widget>
      </widget>

@@ -93,7 +93,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		{
 			// Flashback on the start line
 			_currentLap->resetData();
-			_currentStint->removeLastData();
 			_isLapRecorded = false;
 		}
 	}
@@ -188,7 +187,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 				   float(lap->deployedEnergy / 1000.0), float(lap->harvestedEnergy / 1000.0), float(lap->innerTemperatures.frontLeft.mean),
 				   float(lap->innerTemperatures.frontRight.mean), float(lap->innerTemperatures.rearLeft.mean),
 				   float(lap->innerTemperatures.rearRight.mean)};
-	_currentStint->addData(_currentStint->countData(), values);
+	_currentStint->addData(_currentStint->countData() + 1, values);
 	_currentStint->recordDate = QDateTime::currentDateTime();
 	_currentStint->endTyreWear.frontLeft = lap->endTyreWear.frontLeft;
 	_currentStint->endTyreWear.frontRight = lap->endTyreWear.frontRight;

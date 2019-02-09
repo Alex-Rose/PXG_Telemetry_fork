@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 
 	a.setOrganizationName("Pixelgames");
-	a.setApplicationName("F1Telemetry");
+	a.setApplicationName("PXG F1 Telemetry");
 
 	F1Telemetry w;
 	w.show();

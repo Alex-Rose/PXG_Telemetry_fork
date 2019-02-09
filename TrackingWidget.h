@@ -34,6 +34,8 @@ public slots:
 	void setStatus(const QString& status, bool trackingInProgress);
 	virtual void log(const QString& text) override;
 
+	void showQuickInstructions();
+
 private:
 	Ui::TrackingWidget *ui;
 

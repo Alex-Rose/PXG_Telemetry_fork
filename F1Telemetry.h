@@ -28,6 +28,8 @@ private:
 	void loadSettings();
 	void saveSetings();
 
+	void initMenu();
+
 protected:
 	void closeEvent(QCloseEvent* event);
 

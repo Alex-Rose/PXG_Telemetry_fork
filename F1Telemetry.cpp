@@ -2,6 +2,7 @@
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
+#include <QMessageBox>
 
 F1Telemetry::F1Telemetry(QWidget *parent) :
 	QMainWindow(parent),
@@ -20,6 +21,8 @@ F1Telemetry::F1Telemetry(QWidget *parent) :
 
 	resize(1400, 800);
 	loadSettings();
+
+	initMenu();
 }
 
 F1Telemetry::~F1Telemetry()
@@ -49,6 +52,19 @@ void F1Telemetry::saveSetings()
 	settings.setValue("windowGeometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	settings.setValue("tab", ui->tabWidget->currentIndex());
+}
+
+void F1Telemetry::initMenu()
+{
+	auto helpMenu = ui->menuBar->addMenu("&Help");
+
+	helpMenu->addAction("About &Qt", [=](){QMessageBox::aboutQt(this, qApp->applicationName());});
+
+	auto aboutText = qApp->applicationName() + QString("\n\nCompatible with F1 2018\n\nGNU GENERAL PUBLIC LICENSE, version 3");
+	helpMenu->addAction("About", [=](){QMessageBox::about(this, qApp->applicationName(), aboutText);});
+
+	helpMenu->addAction("Quick Instructions", ui->trackingWidget, &TrackingWidget::showQuickInstructions);
+
 }
 
 void F1Telemetry::closeEvent(QCloseEvent *event)

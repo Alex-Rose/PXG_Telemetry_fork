@@ -17,6 +17,17 @@ struct TyresData
 	T rearRight;
 };
 
+template<typename T>
+TyresData<T> operator-(const TyresData<T>& t1, const TyresData<T>& t2)
+{
+	auto res = t1;
+	res.frontLeft -= t2.frontLeft;
+	res.frontRight -= t2.frontRight;
+	res.rearLeft -= t2.rearLeft;
+	res.rearRight -= t2.rearRight;
+	return res;
+}
+
 class TemperatureData
 {
 public:
@@ -29,6 +40,7 @@ public:
 	double mean;
 	double deviation;
 	double variance;
+	double max;
 	int nb_value;
 };
 

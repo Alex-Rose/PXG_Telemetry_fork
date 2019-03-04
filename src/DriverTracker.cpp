@@ -68,7 +68,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	{
 		_isLapRecorded = false;
 
-		if (_currentStint->countData() > 1)
+		if (_currentStint->hasData())
 		{
 			auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
 			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
@@ -77,8 +77,9 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_currentStint->save(filePath);
 			++_currentStintNum;
 			Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
-			_currentStint->clearData();
 		}
+
+		_currentStint->clearData();
 	}
 
 	if (_isLapRecorded && flashbackDetected(lapData))
@@ -183,7 +184,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 void DriverTracker::addLapToStint(Lap *lap)
 {
-	auto values = {lap->lapTime, float(lap->averageEndTyreWear), float(lap->fuelOnEnd), float(lap->energy / 1000.0),
+	auto values = {lap->lapTime, float(lap->averageEndTyreWear - _currentStint->averageStartTyreWear), float(lap->fuelOnEnd), float(lap->energy / 1000.0),
 				   float(lap->deployedEnergy / 1000.0), float(lap->harvestedEnergy / 1000.0), float(lap->innerTemperatures.frontLeft.mean),
 				   float(lap->innerTemperatures.frontRight.mean), float(lap->innerTemperatures.rearLeft.mean),
 				   float(lap->innerTemperatures.rearRight.mean)};
@@ -199,6 +200,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->sector1Time = addMean(_currentStint->sector1Time, lap->sector1Time, _currentStint->nbLaps());
 	_currentStint->sector2Time = addMean(_currentStint->sector2Time, lap->sector2Time, _currentStint->nbLaps());
 	_currentStint->sector3Time = addMean(_currentStint->sector3Time, lap->sector3Time, _currentStint->nbLaps());
+	_currentStint->lapTimes.append(lap->lapTime);
 	if (_currentStint->maxSpeed >= lap->maxSpeed)
 	{
 		_currentStint->maxSpeed = lap->maxSpeed;

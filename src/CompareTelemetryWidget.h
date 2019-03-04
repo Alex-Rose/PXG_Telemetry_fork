@@ -57,7 +57,7 @@ protected:
 
 	QTreeWidgetItem* setupItem(QTreeWidget* tree, const Lap* lap) const;
 	QTreeWidgetItem* tyreTempItem(QTreeWidget* tree, const Lap *lap) const;
-	QTreeWidgetItem* tyreItem(QTreeWidget* tree, const Lap* lap) const;
+	QTreeWidgetItem* tyreItem(QTreeWidget* tree, const Lap* lap, double divisor = 1.0) const;
 
 private slots:
 	void clearData();

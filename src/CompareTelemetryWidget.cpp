@@ -400,17 +400,17 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreTempItem(QTreeWidget* tree, const L
 	return tempItem;
 }
 
-QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget* tree, const Lap *lap) const
+QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget* tree, const Lap *lap, double divisor) const
 {
-	auto lapWear = lap->averageEndTyreWear - lap->averageStartTyreWear;
+	auto lapWear = (lap->averageEndTyreWear - lap->averageStartTyreWear) / divisor;
 	auto tyreWearItem = new QTreeWidgetItem(tree, {"Tyre wear", QString("%1% (%2% -> %3%)").arg(lapWear).arg(lap->averageStartTyreWear).arg(lap->averageEndTyreWear)});
-	auto frontLeftWear = lap->endTyreWear.frontLeft - lap->startTyreWear.frontLeft;
+	auto frontLeftWear = (lap->endTyreWear.frontLeft - lap->startTyreWear.frontLeft) / divisor;
 	new QTreeWidgetItem(tyreWearItem, {"Front Left", QString("%1% (%2% -> %3%)").arg(frontLeftWear).arg(lap->startTyreWear.frontLeft).arg(lap->endTyreWear.frontLeft)});
-	auto frontRightWear = lap->endTyreWear.frontRight - lap->startTyreWear.frontRight;
+	auto frontRightWear = (lap->endTyreWear.frontRight - lap->startTyreWear.frontRight) / divisor;
 	new QTreeWidgetItem(tyreWearItem, {"Front Right", QString("%1% (%2% -> %3%)").arg(frontRightWear).arg(lap->startTyreWear.frontRight).arg(lap->endTyreWear.frontRight)});
-	auto rearLeftWear = lap->endTyreWear.rearLeft - lap->startTyreWear.rearLeft;
+	auto rearLeftWear = (lap->endTyreWear.rearLeft - lap->startTyreWear.rearLeft) / divisor;
 	new QTreeWidgetItem(tyreWearItem, {"Rear Left", QString("%1% (%2% -> %3%)").arg(rearLeftWear).arg(lap->startTyreWear.rearLeft).arg(lap->endTyreWear.rearLeft)});
-	auto rearRightWear = lap->endTyreWear.rearRight - lap->startTyreWear.rearRight;
+	auto rearRightWear = (lap->endTyreWear.rearRight - lap->startTyreWear.rearRight) / divisor;
 	new QTreeWidgetItem(tyreWearItem, {"Rear Right", QString("%1% (%2% -> %3%)").arg(rearRightWear).arg(lap->startTyreWear.rearRight).arg(lap->endTyreWear.rearRight)});
 	return tyreWearItem;
 }

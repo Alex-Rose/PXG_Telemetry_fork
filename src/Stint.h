@@ -20,6 +20,8 @@ public:
 
 	// Saving - Loading
 	static Stint* fromFile(const QString& filename);
+
+	QVector<float> lapTimes;
 };
 
 #endif // STINT_H

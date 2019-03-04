@@ -33,6 +33,7 @@ void TemperatureData::addValue(double temp)
 	mean = new_mean;
 	variance = new_var;
 	deviation = sqrt(abs(variance));
+	max = std::max(temp, max);
 }
 
 void TemperatureData::clear()
@@ -41,6 +42,7 @@ void TemperatureData::clear()
 	deviation = 0;
 	variance = 0;
 	nb_value = 0;
+	max = 0;
 }
 
 QDataStream &operator>>(QDataStream &in, TemperatureData &data)

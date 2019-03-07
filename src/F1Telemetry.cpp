@@ -1,3 +1,4 @@
+#include "AboutDialog.h"
 #include "F1Telemetry.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
@@ -8,8 +9,11 @@ F1Telemetry::F1Telemetry(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::F1Telemetry)
 {
-	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
 	ui->setupUi(this);
+
+	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
+	setWindowTitle(qApp->applicationName() + " " + qApp->applicationVersion());
+
 	_tracker = new Tracker();
 	_listener = new F1Listener(_tracker, this);
 
@@ -59,12 +63,8 @@ void F1Telemetry::initMenu()
 	auto helpMenu = ui->menuBar->addMenu("&Help");
 
 	helpMenu->addAction("About &Qt", [=](){QMessageBox::aboutQt(this, qApp->applicationName());});
-
-	auto aboutText = qApp->applicationName() + QString("\n\nCompatible with F1 2018\n\nGNU GENERAL PUBLIC LICENSE, version 3");
-	helpMenu->addAction("About", [=](){QMessageBox::about(this, qApp->applicationName(), aboutText);});
-
+	helpMenu->addAction("About", [=](){AboutDialog dlg(this);dlg.exec();});
 	helpMenu->addAction("Quick Instructions", ui->trackingWidget, &TrackingWidget::showQuickInstructions);
-
 }
 
 void F1Telemetry::closeEvent(QCloseEvent *event)

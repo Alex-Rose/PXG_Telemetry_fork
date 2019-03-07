@@ -41,7 +41,8 @@ SOURCES += \
     TelemetryDataTableModel.cpp \
     CompareTelemetryWidget.cpp \
     CompareLapsWidget.cpp \
-    CompareStintsWidget.cpp
+    CompareStintsWidget.cpp \
+    AboutDialog.cpp
 
 HEADERS += \
         F1Telemetry.h \
@@ -59,12 +60,14 @@ HEADERS += \
     TelemetryDataTableModel.h \
     CompareTelemetryWidget.h \
     CompareLapsWidget.h \
-    CompareStintsWidget.h
+    CompareStintsWidget.h \
+    AboutDialog.h
 
 FORMS += \
         F1Telemetry.ui \
     TrackingWidget.ui \
-    CompareTelemetryWidget.ui
+    CompareTelemetryWidget.ui \
+    AboutDialog.ui
 
 
 RESOURCES += \

@@ -64,23 +64,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	Q_UNUSED(header)
 	const auto& lapData = data.m_lapData[_driverIndex];
 
-	if (lapData.m_pitStatus > 0)
-	{
-		_isLapRecorded = false;
-
-		if (_currentStint->hasData())
-		{
-			auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
-			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
-			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
-			qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
-			_currentStint->save(filePath);
-			++_currentStintNum;
-			Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
-		}
-
-		_currentStint->clearData();
-	}
+	auto lastLap = isLastRaceLap(lapData);
 
 	if (_isLapRecorded && flashbackDetected(lapData))
 	{
@@ -97,7 +81,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_isLapRecorded = false;
 		}
 	}
-	else if (finishLineCrossed(lapData))
+	else if (finishLineCrossed(lapData) || lastLap)
 	{
 		_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
 		_currentLap->endTyreWear.rearLeft = _currentStatusData.m_tyresWear[0];
@@ -130,51 +114,72 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			addLapToStint(_currentLap);
 		}
 
-
-		qDebug() << "LAP Started : " << driverDataDirectory.dirName();
-
-		// A new lap started
-		_currentLap->resetData();
-		_currentLap->lapTime = std::numeric_limits<float>::quiet_NaN();
-		_currentLap->track = _currentSessionData.m_trackId;
-		_currentLap->session_type = _currentSessionData.m_sessionType;
-		_currentLap->trackTemp = _currentSessionData.m_trackTemperature;
-		_currentLap->airTemp = _currentSessionData.m_airTemperature;
-		_currentLap->weather = _currentSessionData.m_weather;
-		_currentLap->recordDate = QDateTime::currentDateTime();
-		_currentLap->invalid = lapData.m_currentLapInvalid;
-		_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
-		_currentLap->startTyreWear.rearLeft = _currentStatusData.m_tyresWear[0];
-		_currentLap->startTyreWear.rearRight = _currentStatusData.m_tyresWear[1];
-		_currentLap->startTyreWear.frontLeft = _currentStatusData.m_tyresWear[2];
-		_currentLap->startTyreWear.frontRight = _currentStatusData.m_tyresWear[3];
-		_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
-		_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
-		_currentLap->maxSpeed = 0;
-
-		if (!_currentStint->hasData() and driverDirDefined)
+		if (!lastLap)
 		{
-			qDebug() << "STINT Started : " << driverDataDirectory.dirName();
+			qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
-			_currentStint->track = _currentLap->track;
-			_currentStint->driver = _currentLap->driver;
-			_currentStint->session_type = _currentLap->session_type;
-			_currentStint->tyreCompound = _currentLap->tyreCompound;
-			_currentStint->trackTemp = _currentLap->trackTemp;
-			_currentStint->airTemp = _currentLap->airTemp;
-			_currentStint->weather = _currentLap->weather;
-			_currentStint->startTyreWear.frontLeft = _currentLap->startTyreWear.frontLeft;
-			_currentStint->startTyreWear.frontRight = _currentLap->startTyreWear.frontRight;
-			_currentStint->startTyreWear.rearLeft = _currentLap->startTyreWear.rearLeft;
-			_currentStint->startTyreWear.rearRight = _currentLap->startTyreWear.rearRight;
-			_currentStint->averageStartTyreWear = _currentLap->averageStartTyreWear;
-			_currentStint->fuelOnStart = _currentLap->fuelOnStart;
-			_currentStint->setup = _currentLap->setup;
-			_currentStint->recordDate = QDateTime::currentDateTime();
-			_currentStint->trackDistance = _currentLap->trackDistance;
+			// A new lap started
+			_currentLap->resetData();
+			_currentLap->lapTime = std::numeric_limits<float>::quiet_NaN();
+			_currentLap->track = _currentSessionData.m_trackId;
+			_currentLap->session_type = _currentSessionData.m_sessionType;
+			_currentLap->trackTemp = _currentSessionData.m_trackTemperature;
+			_currentLap->airTemp = _currentSessionData.m_airTemperature;
+			_currentLap->weather = _currentSessionData.m_weather;
+			_currentLap->recordDate = QDateTime::currentDateTime();
+			_currentLap->invalid = lapData.m_currentLapInvalid;
+			_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
+			_currentLap->startTyreWear.rearLeft = _currentStatusData.m_tyresWear[0];
+			_currentLap->startTyreWear.rearRight = _currentStatusData.m_tyresWear[1];
+			_currentLap->startTyreWear.frontLeft = _currentStatusData.m_tyresWear[2];
+			_currentLap->startTyreWear.frontRight = _currentStatusData.m_tyresWear[3];
+			_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
+			_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
+			_currentLap->maxSpeed = 0;
+
+			if (!_currentStint->hasData() and driverDirDefined)
+			{
+				qDebug() << "STINT Started : " << driverDataDirectory.dirName();
+
+				_currentStint->track = _currentLap->track;
+				_currentStint->driver = _currentLap->driver;
+				_currentStint->session_type = _currentLap->session_type;
+				_currentStint->tyreCompound = _currentLap->tyreCompound;
+				_currentStint->trackTemp = _currentLap->trackTemp;
+				_currentStint->airTemp = _currentLap->airTemp;
+				_currentStint->weather = _currentLap->weather;
+				_currentStint->startTyreWear.frontLeft = _currentLap->startTyreWear.frontLeft;
+				_currentStint->startTyreWear.frontRight = _currentLap->startTyreWear.frontRight;
+				_currentStint->startTyreWear.rearLeft = _currentLap->startTyreWear.rearLeft;
+				_currentStint->startTyreWear.rearRight = _currentLap->startTyreWear.rearRight;
+				_currentStint->averageStartTyreWear = _currentLap->averageStartTyreWear;
+				_currentStint->fuelOnStart = _currentLap->fuelOnStart;
+				_currentStint->setup = _currentLap->setup;
+				_currentStint->recordDate = QDateTime::currentDateTime();
+				_currentStint->trackDistance = _currentLap->trackDistance;
+				_currentStint->lapTimes.clear();
+			}
+
+			_isLapRecorded = true;
+		}
+	}
+
+	if (lapData.m_pitStatus > 0 || lastLap || _currentSessionData.m_sessionTimeLeft < 1)
+	{
+		_isLapRecorded = false;
+
+		if (_currentStint->hasData())
+		{
+			auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
+			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
+			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
+			qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
+			_currentStint->save(filePath);
+			++_currentStintNum;
+			Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
 		}
 
-		_isLapRecorded = true;
+		_currentStint->clearData();
 	}
 
 	_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));
@@ -255,8 +260,10 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
 	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200))
-			&& data.m_lapDistance < 200 && data.m_lapDistance > 0 && data.m_pitStatus == 0;
+			&& data.m_lapDistance < 200 && data.m_lapDistance > 0 && data.m_pitStatus == 0 && _previousLapData.m_pitStatus == 0
+			&& (data.m_driverStatus == 1 || data.m_driverStatus == 4);
 }
+
 
 bool DriverTracker::flashbackDetected(const LapData &data) const
 {
@@ -266,5 +273,11 @@ bool DriverTracker::flashbackDetected(const LapData &data) const
 double DriverTracker::averageTyreWear(const CarStatusData &carStatus) const
 {
 	return (carStatus.m_tyresWear[0] + carStatus.m_tyresWear[1] + carStatus.m_tyresWear[2] + carStatus.m_tyresWear[3]) / 4.0;
+}
+
+bool DriverTracker::isLastRaceLap(const LapData &data) const
+{
+	auto isRace = _currentSessionData.m_sessionType == 10  || _currentSessionData.m_sessionType == 11;
+	return isRace && data.m_lapDistance > (_currentSessionData.m_trackLength - 10) && data.m_currentLapNum == _currentSessionData.m_totalLaps;
 }
 

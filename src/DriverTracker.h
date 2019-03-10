@@ -45,6 +45,8 @@ private:
 	bool flashbackDetected(const LapData& data) const;
 	double averageTyreWear(const CarStatusData& carStatus) const;
 
+	bool isLastRaceLap(const LapData& data) const;
+
 	void addLapToStint(Lap* lap);
 };
 

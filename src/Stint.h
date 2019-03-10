@@ -22,6 +22,10 @@ public:
 	static Stint* fromFile(const QString& filename);
 
 	QVector<float> lapTimes;
+
+protected:
+	virtual void saveData(QDataStream& out) const;
+	virtual void loadData(QDataStream& in);
 };
 
 #endif // STINT_H

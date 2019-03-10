@@ -60,7 +60,9 @@ public:
 		void load(const QString& filename);
 		static Lap* fromFile(const QString& filename);
 
-
+	protected:
+		virtual void saveData(QDataStream& out) const;
+		virtual void loadData(QDataStream& in);
 };
 
 #endif // LAP_H

@@ -47,13 +47,13 @@ void TemperatureData::clear()
 
 QDataStream &operator>>(QDataStream &in, TemperatureData &data)
 {
-	in >> data.mean >> data.deviation >> data.variance >> data.nb_value;
+	in >> data.mean >> data.deviation >> data.variance >> data.nb_value >> data.max;
 	return in;
 }
 
 QDataStream &operator<<(QDataStream &out, const TemperatureData &data)
 {
-	out << data.mean << data.deviation << data.variance << data.nb_value;
+	out << data.mean << data.deviation << data.variance << data.nb_value << data.max;
 	return out;
 }
 

@@ -30,3 +30,15 @@ Stint *Stint::fromFile(const QString &filename)
 
 	return stint;
 }
+
+void Stint::saveData(QDataStream &out) const
+{
+	Lap::saveData(out);
+	out << lapTimes;
+}
+
+void Stint::loadData(QDataStream &in)
+{
+	Lap::loadData(in);
+	in >> lapTimes;
+}

@@ -50,14 +50,7 @@ void Lap::save(const QString &filename) const
 		QDataStream out(&file);
 		out.setByteOrder(QDataStream::LittleEndian);
 		out.setFloatingPointPrecision(QDataStream::SinglePrecision);
-
-		out << track << session_type << trackTemp << airTemp << weather << invalid << driver
-			<< recordDate << averageStartTyreWear << averageEndTyreWear << setup << comment
-			<< lapTime << sector1Time << sector2Time << sector3Time;
-		TelemetryData::save(out);
-		out	<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
-			<< ers << energy << harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance
-			<< startTyreWear << endTyreWear;
+		saveData(out);
 
 		qDebug() << "LAP saved " << filename;
 	}
@@ -75,14 +68,7 @@ void Lap::load(const QString &filename)
 		QDataStream in(&file);
 		in.setByteOrder(QDataStream::LittleEndian);
 		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
-
-		in  >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver
-			>> recordDate >> averageStartTyreWear >> averageEndTyreWear >> setup >> comment
-			>> lapTime >> sector1Time >> sector2Time >> sector3Time;
-		TelemetryData::load(in);
-		in  >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
-			>> ers >> energy >> harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance
-			>> startTyreWear >> endTyreWear;
+		loadData(in);
 	}
 }
 
@@ -92,4 +78,27 @@ Lap* Lap::fromFile(const QString &filename)
 	lap->load(filename);
 
 	return lap;
+}
+
+void Lap::saveData(QDataStream &out) const
+{
+	out << track << session_type << trackTemp << airTemp << weather << invalid << driver
+		<< recordDate << averageStartTyreWear << averageEndTyreWear << setup << comment
+		<< lapTime << sector1Time << sector2Time << sector3Time;
+	TelemetryData::save(out);
+	out	<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
+		<< ers << energy << harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance
+		<< startTyreWear << endTyreWear;
+
+}
+
+void Lap::loadData(QDataStream &in)
+{
+	in  >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver
+		>> recordDate >> averageStartTyreWear >> averageEndTyreWear >> setup >> comment
+		>> lapTime >> sector1Time >> sector2Time >> sector3Time;
+	TelemetryData::load(in);
+	in  >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
+		>> ers >> energy >> harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance
+		>> startTyreWear >> endTyreWear;
 }

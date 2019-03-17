@@ -38,6 +38,8 @@ void TrackingWidget::saveSettings(QSettings *settings)
 {
 	settings->beginGroup("Tracking");
 	settings->setValue("dataDirectory", ui->leDataDir->text());
+	settings->setValue("trackPlayer", ui->player->isChecked());
+	settings->setValue("trackTeammate", ui->teammate->isChecked());
 	settings->endGroup();
 }
 
@@ -46,6 +48,8 @@ void TrackingWidget::loadSettings(QSettings *settings)
 	settings->beginGroup("Tracking");
 	ui->leDataDir->setText(settings->value("dataDirectory").toString());
 	QDir::setCurrent(settings->value("dataDirectory").toString());
+	ui->player->setChecked(settings->value("trackPlayer").toBool());
+	ui->teammate->setChecked(settings->value("trackTeammate").toBool());
 	settings->endGroup();
 }
 
@@ -136,7 +140,7 @@ void TrackingWidget::startStop()
 			if (_driverCheckBoxes[i]->isChecked())
 				trackedId << i;
 		}
-		emit startTracking(ui->player->isChecked(), trackedId);
+		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), trackedId);
 	}
 	else
 	{

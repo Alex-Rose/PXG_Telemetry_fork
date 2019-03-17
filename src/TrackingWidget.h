@@ -16,7 +16,7 @@ class TrackingWidget : public QWidget, public LogInterface
 	Q_OBJECT
 
 signals:
-	void startTracking(bool me, const QVector<int>& driverId);
+	void startTracking(bool me, bool teammate, const QVector<int>& driverId);
 	void stopStracking();
 
 public:

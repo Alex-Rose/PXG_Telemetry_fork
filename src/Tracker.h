@@ -23,6 +23,7 @@ public:
 	void setDataDirectory(const QString& dirPath);
 	void trackDriver(int index);
 	void trackPlayer();
+	void trackTeammate();
 	void untrackDriver(int index);
 	void clearTrackedDrivers();
 
@@ -36,7 +37,9 @@ private:
 	QDir _dataDirectory;
 	QDir _sessionDirectory;
 	QVector<DriverTracker> _trackedDrivers;
+	QSet<int> _trackedIndexes;
 	bool _addPlayerTrackingOnStart = false;
+	bool _addTeammateTrackingOnStart = false;
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;
@@ -55,6 +58,8 @@ private:
 
 	QString sessionName(const PacketSessionData &data) const;
 	QStringList availableDrivers(const PacketParticipantsData &data) const;
+
+	void addAutoTrackedDrivers();
 };
 
 #endif // TRACKER_H

@@ -34,7 +34,7 @@ protected:
 	void closeEvent(QCloseEvent* event);
 
 private slots:
-	void startTracking(bool trackPlayer, const QVector<int>& trackedDriverIds);
+	void startTracking(bool trackPlayer, bool trackTeammate, const QVector<int>& trackedDriverIds);
 };
 
 #endif // F1TELEMETRY_H

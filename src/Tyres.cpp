@@ -1,7 +1,10 @@
 #include "Tyres.h"
 #include <cmath>
 
+#include <QtDebug>
+
 #define square(x) ((x) * (x))
+
 
 double addMean(double current_mean, double value_to_add, int nb_values)
 {
@@ -57,3 +60,50 @@ QDataStream &operator<<(QDataStream &out, const TemperatureData &data)
 	return out;
 }
 
+
+QDataStream &operator>>(QDataStream &in, DegradationData &data)
+{
+	in >> data.mean >> data.nb_value;
+	return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const DegradationData &data)
+{
+	out << data.mean << data.nb_value;
+	return out;
+}
+
+DegradationData::DegradationData()
+{
+	reset();
+}
+
+void DegradationData::computeValue(double tyreWear, double distance)
+{
+	if (qAbs(currentWear - tyreWear) > 2 * DEGRADATION_STEP)
+	{
+		reset(tyreWear, distance);
+	}
+	else if (tyreWear >= currentWear + DEGRADATION_STEP)
+	{
+		if (has_value)
+		{
+			++nb_value;
+			auto p = qAbs(distance - currentDistance);
+			mean = addMean(mean, p, nb_value);
+		}
+
+		currentWear = tyreWear;
+		currentDistance = distance;
+		has_value = true;
+	}
+}
+
+void DegradationData::reset(double tyreWear, double distance)
+{
+	mean = 0;
+	nb_value = 0;
+	currentDistance = distance;
+	currentWear = tyreWear;
+	has_value = false;
+}

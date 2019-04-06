@@ -60,14 +60,20 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	}
 
 	auto tyreWearItem = tyreItem(tree, stint, stint->nbLaps());
-	tyreWearItem->setText(0, "Tyre wear (per lap)");
+	tyreWearItem->setText(0, "Old Tyre wear (per lap)");
 
-	auto wearDiff = stint->endTyreWear - stint->startTyreWear;
+	auto wearDiff = stint->calculatedTyreWear;
 	auto wearList = {wearDiff.frontLeft, wearDiff.frontRight, wearDiff.rearLeft, wearDiff.rearRight};
-	qDebug() << wearDiff.frontLeft << wearDiff.frontRight;
 	auto maxWear = *(std::max_element(wearList.begin(), wearList.end()));
-	new QTreeWidgetItem(tyreWearItem, {"Estimated Life (40%)", QString("%1 Laps").arg((stint->nbLaps() * 40.0) / maxWear, 0, 'f', 1)});
-	tyreWearItem->setExpanded(true);
+
+	auto avgLapWear = (stint->calculatedTyreWear.frontLeft + stint->calculatedTyreWear.frontRight + stint->calculatedTyreWear.rearLeft + stint->calculatedTyreWear.rearRight) / 4.0;
+	auto calcTyreWearItem = new QTreeWidgetItem(tree, {"Tyre wear (per lap)", QString("%1%").arg(avgLapWear)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Front Left", QString("%1%").arg(stint->calculatedTyreWear.frontLeft)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Front Right", QString("%1%").arg(stint->calculatedTyreWear.frontRight)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Rear Left", QString("%1%").arg(stint->calculatedTyreWear.rearLeft)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Rear Right", QString("%1%").arg(stint->calculatedTyreWear.rearRight)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Estimated Life (40%)", QString("%1 Laps").arg(40.0 / maxWear, 0, 'f', 1)});
+	calcTyreWearItem->setExpanded(true);
 
 	auto maxTemp = std::max({stint->innerTemperatures.frontLeft.max, stint->innerTemperatures.frontRight.max, stint->innerTemperatures.rearLeft.max, stint->innerTemperatures.rearRight.max});
 	auto tempItem = new QTreeWidgetItem(tree, {"Max Tyre Temperature", QString::number(int(maxTemp)) + "°C"});

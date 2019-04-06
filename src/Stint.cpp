@@ -34,11 +34,11 @@ Stint *Stint::fromFile(const QString &filename)
 void Stint::saveData(QDataStream &out) const
 {
 	Lap::saveData(out);
-	out << lapTimes;
+	out << lapTimes << calculatedTyreWear;
 }
 
 void Stint::loadData(QDataStream &in)
 {
 	Lap::loadData(in);
-	in >> lapTimes;
+	in >> lapTimes >> calculatedTyreWear;
 }

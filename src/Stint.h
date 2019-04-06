@@ -22,6 +22,7 @@ public:
 	static Stint* fromFile(const QString& filename);
 
 	QVector<float> lapTimes;
+	TyresData<double> calculatedTyreWear;
 
 protected:
 	virtual void saveData(QDataStream& out) const;

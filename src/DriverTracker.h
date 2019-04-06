@@ -2,6 +2,7 @@
 #define DRIVERTRACKER_H
 
 #include "F1Listener.h"
+#include "Tyres.h"
 
 #include <QDir>
 
@@ -40,6 +41,8 @@ private:
 	Stint* _currentStint = nullptr;
 	int _currentLapNum = 1;
 	int _currentStintNum = 1;
+
+	TyresData<DegradationData> degradations;
 
 	bool finishLineCrossed(const LapData& data) const;
 	bool flashbackDetected(const LapData& data) const;

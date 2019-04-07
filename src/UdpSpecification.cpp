@@ -20,6 +20,14 @@ int UdpSpecification::expectedPacketLength(UdpSpecification::PacketType type) co
 	return packetExpectedLengths[type];
 }
 
+QList<double> UdpSpecification::turns(int trackIndex) const
+{
+	auto trackName = track(trackIndex);
+	if (trackTurns.contains(trackName))
+		return trackTurns[trackName];
+	return {};
+}
+
 UdpSpecification::UdpSpecification()
 {
 	packetExpectedLengths[PacketType::Header] = 21;

@@ -16,7 +16,9 @@ void CompareLapsWidget::browseData()
 	QVector<TelemetryData*> laps;
 	for (auto file : files)
 	{
-		laps.append(Lap::fromFile(file));
+		auto lap = Lap::fromFile(file);
+		laps.append(lap);
+		setTrackIndex(lap->track);
 	}
 
 	addTelemetryData(laps);

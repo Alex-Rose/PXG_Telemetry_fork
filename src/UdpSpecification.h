@@ -2,6 +2,7 @@
 #define UDPSPECIFICATION_H
 
 #include <QMap>
+#include <QHash>
 #include <QDataStream>
 #include <QVector>
 
@@ -39,6 +40,7 @@ public:
 	QString ersMode(int index) const {if (index < 0) return "Unknown"; return ersModes.value(index);}
 	QString fuelMix(int index) const {if (index < 0) return "Unknown"; return fuelMixes.value(index);}
 	int nbRaceLaps(int trackIndex) const {if (trackIndex < 0) return 0; return raceLaps.value(trackIndex);}
+	QList<double> turns(int trackIndex) const;
 
 private:
 	UdpSpecification();
@@ -52,6 +54,7 @@ private:
 	QStringList tyres;
 	QStringList ersModes;
 	QStringList fuelMixes;
+	QHash<QString, QList<double>> trackTurns;
 };
 
 struct PacketHeader

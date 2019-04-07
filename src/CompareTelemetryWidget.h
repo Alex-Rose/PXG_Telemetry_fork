@@ -31,6 +31,8 @@ public:
 
 	void setDataName(const QString& name);
 
+	void setTrackIndex(int trackIndex);
+
 private:
 	Ui::CompareTelemetryWidget *ui;
 	TelemetryDataTableModel* _telemetryDataModel;
@@ -40,6 +42,7 @@ private:
 	QStringList _variables;
 	QToolBar* _toolbar;
 	QMenu* _telemetryContextMenu;
+	int _trackIndex = -1;
 
 	void initActions();
 	QList<QColor> reloadVariableSeries(QtCharts::QChart *chart, const QVector<TelemetryData*> &telemetryData, int varIndex, bool diff);

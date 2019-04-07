@@ -2,6 +2,8 @@
 #include "TelemetryDataTableModel.h"
 #include "ui_CompareTelemetryWidget.h"
 
+#include <QBarCategoryAxis>
+#include <QCategoryAxis>
 #include <QFileDialog>
 #include <QGraphicsProxyWidget>
 #include <QLineSeries>
@@ -17,6 +19,7 @@ const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
 const int MAX_NB_ROWS_OF_VARIABLE = 6;
 
+const QString TURN_NAMES = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
 
 CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) :
 	QWidget(parent),
@@ -137,6 +140,28 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 	}
 
 	chart->createDefaultAxes();
+
+	auto trackTurn = UdpSpecification::instance()->turns(_trackIndex);
+	if (!trackTurn.isEmpty())
+	{
+		chart->axes(Qt::Horizontal)[0]->setGridLineVisible(false);
+		auto categoryAxis = new QCategoryAxis();
+		categoryAxis->setMin(0);
+		categoryAxis->setMax(telemetryData.first()->xValues().last());
+		int index = 0;
+		for (auto t : trackTurn)
+		{
+			categoryAxis->append(TURN_NAMES[index], t);
+			++index;
+		}
+		categoryAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
+		auto f = categoryAxis->labelsFont();
+		f.setBold(true);
+		categoryAxis->setLabelsFont(f);
+		chart->addAxis(categoryAxis, Qt::AlignTop);
+		chart->series()[0]->attachAxis(categoryAxis);
+	}
+
 	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
 
 	return colors;
@@ -254,6 +279,11 @@ void CompareTelemetryWidget::setDataName(const QString &name)
 {
 	ui->lblDataName->setText(name + " Data");
 	ui->btnAddLaps->setText("Add " + name + "s");
+}
+
+void CompareTelemetryWidget::setTrackIndex(int trackIndex)
+{
+	_trackIndex = trackIndex;
 }
 
 void CompareTelemetryWidget::clearVariables()

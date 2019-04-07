@@ -24,9 +24,11 @@ public:
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 	void addTelemetryData(const QVector<TelemetryData*>& data);
+	void removeTelemetryData(int index);
 	void clear();
 
 	void setColors(const QList<QColor>& colors);
+	QList<QColor> colors() const;
 
 	void setReferenceLapIndex(int index);
 

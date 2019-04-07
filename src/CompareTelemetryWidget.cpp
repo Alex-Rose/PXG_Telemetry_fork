@@ -58,6 +58,13 @@ void CompareTelemetryWidget::initActions()
 	setRefAction->setShortcut(Qt::Key_R);
 	connect(setRefAction, &QAction::triggered, this, &CompareTelemetryWidget::changeReferenceData);
 	addAction(setRefAction);
+
+	auto removeAction = _telemetryContextMenu->addAction("Rem");
+	removeAction->setShortcut(QKeySequence::Delete);
+	removeAction->setText("Remove (" + removeAction->shortcut().toString() + ")");
+	connect(removeAction, &QAction::triggered, this, &CompareTelemetryWidget::removeData);
+	addAction(removeAction);
+
 }
 
 CompareTelemetryWidget::~CompareTelemetryWidget()
@@ -71,7 +78,7 @@ void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &te
 	ui->lapsTableView->setCurrentIndex(_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));
 }
 
-QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff)
+QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors)
 {
 	QList<QColor> colors;
 
@@ -136,6 +143,10 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 		}
 
 		chart->addSeries(series);
+
+		if (!defaultColors.isEmpty())
+			series->setColor(defaultColors.takeFirst());
+
 		colors << series->color();
 	}
 
@@ -167,7 +178,7 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 	return colors;
 }
 
-void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry)
+void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry, bool retainColors)
 {
 	if (!telemetry.isEmpty())
 	{
@@ -175,12 +186,12 @@ void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &teleme
 		if (_variables != newVariables)
 			createVariables(newVariables);
 
-		QList<QColor> colors;
+		QList<QColor> colors = retainColors ? _telemetryDataModel->colors() : QList<QColor>();
 		int varIndex = 0;
 		for (auto chartView: _variablesCharts)
 		{
 			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
-			colors = reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff);
+			colors = reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
 
 			++varIndex;
 		}
@@ -312,7 +323,7 @@ void CompareTelemetryWidget::clearData()
 
 void CompareTelemetryWidget::updateData()
 {
-	setTelemetry(_telemetryDataModel->getTelemetryData());
+	setTelemetry(_telemetryDataModel->getTelemetryData(), true);
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
 }
 
@@ -367,7 +378,7 @@ void CompareTelemetryWidget::changeVariableDiff(bool value)
 	auto prevAxis = qobject_cast<QValueAxis*>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	auto prevMin = prevAxis->min();
 	auto prevMax = prevAxis->max();
-	reloadVariableSeries(chartView->chart(), _telemetryDataModel->getTelemetryData(), varIndex, value);
+	reloadVariableSeries(chartView->chart(), _telemetryDataModel->getTelemetryData(), varIndex, value, _telemetryDataModel->colors());
 	auto newAxis = qobject_cast<QValueAxis*>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	newAxis->setRange(prevMin, prevMax);
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
@@ -389,6 +400,28 @@ void CompareTelemetryWidget::changeReferenceData()
 	{
 		_telemetryDataModel->setReferenceLapIndex(currentIndex.row());
 		updateData();
+	}
+}
+
+void CompareTelemetryWidget::removeData()
+{
+	auto currentIndex = ui->lapsTableView->currentIndex();
+	if (currentIndex.isValid())
+	{
+		bool isEmpty = false;
+		for (auto chartView: _variablesCharts)
+		{
+			auto chart = chartView->chart();
+			chart->removeSeries(chart->series()[currentIndex.row()]);
+
+			isEmpty = chart->series().isEmpty();
+		}
+		_telemetryDataModel->removeTelemetryData(currentIndex.row());
+
+		if (isEmpty)
+		{
+			updateData();
+		}
 	}
 }
 

@@ -86,6 +86,19 @@ void TelemetryDataTableModel::addTelemetryData(const QVector<TelemetryData*> &te
 	emit lapsChanged();
 }
 
+void TelemetryDataTableModel::removeTelemetryData(int index)
+{
+	beginRemoveRows(QModelIndex(), index, index);
+	_telemetryData.remove(index);
+	_visibility.remove(index);
+	_colors.removeAt(index);
+	if (_referenceLapIndex >= _telemetryData.count())
+	{
+		_referenceLapIndex = _telemetryData.count() - 1;
+	}
+	endRemoveRows();
+}
+
 void TelemetryDataTableModel::clear()
 {
 	beginResetModel();
@@ -99,6 +112,11 @@ void TelemetryDataTableModel::setColors(const QList<QColor> &colors)
 {
 	_colors = colors;
 	emit dataChanged(QModelIndex(), QModelIndex());
+}
+
+QList<QColor> TelemetryDataTableModel::colors() const
+{
+	return _colors;
 }
 
 void TelemetryDataTableModel::setReferenceLapIndex(int index)

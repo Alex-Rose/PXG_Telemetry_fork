@@ -45,9 +45,9 @@ private:
 	int _trackIndex = -1;
 
 	void initActions();
-	QList<QColor> reloadVariableSeries(QtCharts::QChart *chart, const QVector<TelemetryData*> &telemetryData, int varIndex, bool diff);
+	QList<QColor> reloadVariableSeries(QtCharts::QChart *chart, const QVector<TelemetryData*> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors);
 
-	void setTelemetry(const QVector<TelemetryData*>& telemetry);
+	void setTelemetry(const QVector<TelemetryData*>& telemetry, bool retainColors=false);
 	void setTelemetryVisibility(const QVector<bool>& visibility);
 	void clearVariables();
 	void createVariables(const QStringList& variables);
@@ -73,6 +73,7 @@ private slots:
 	void changeVariableDiff(bool value);
 	void telemetryTableContextMenu(const QPoint& pos);
 	void changeReferenceData();
+	void removeData();
 };
 
 #endif // COMPARETELEMETRYWIDGET_H

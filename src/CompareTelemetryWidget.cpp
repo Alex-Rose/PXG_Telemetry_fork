@@ -17,8 +17,9 @@ using namespace QtCharts;
 
 const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
-const int MAX_NB_ROWS_OF_VARIABLE = 6;
+const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
+//const QString TURN_NAMES = "⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇";
 const QString TURN_NAMES = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
 
 CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) :
@@ -43,6 +44,8 @@ CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) :
 	connect(ui->lapsTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &CompareTelemetryWidget::telemetryDataSelected);
 
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
+
+	ui->trackWidget->hide();
 }
 
 void CompareTelemetryWidget::initActions()
@@ -80,6 +83,9 @@ void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &te
 
 QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors)
 {
+	qApp->setOverrideCursor(Qt::WaitCursor);
+	qApp->processEvents();
+
 	QList<QColor> colors;
 
 	auto refLap = _telemetryDataModel->getReferenceData();
@@ -148,6 +154,8 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 			series->setColor(defaultColors.takeFirst());
 
 		colors << series->color();
+
+		connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "DC : " << point;});
 	}
 
 	chart->createDefaultAxes();
@@ -158,22 +166,23 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 		chart->axes(Qt::Horizontal)[0]->setGridLineVisible(false);
 		auto categoryAxis = new QCategoryAxis();
 		categoryAxis->setMin(0);
-		categoryAxis->setMax(telemetryData.first()->xValues().last());
-		int index = 0;
+		categoryAxis->setMax(double(telemetryData.first()->xValues().last()));
 		for (auto t : trackTurn)
 		{
-			categoryAxis->append(TURN_NAMES[index], t);
-			++index;
+			categoryAxis->append(TURN_NAMES[t.first - 1], t.second);
 		}
 		categoryAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
 		auto f = categoryAxis->labelsFont();
 		f.setBold(true);
+		f.setFamily("courrier");
 		categoryAxis->setLabelsFont(f);
 		chart->addAxis(categoryAxis, Qt::AlignTop);
 		chart->series()[0]->attachAxis(categoryAxis);
 	}
 
 	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+
+	qApp->restoreOverrideCursor();
 
 	return colors;
 }
@@ -276,6 +285,7 @@ void CompareTelemetryWidget::saveSettings(QSettings *settings)
 {
 	settings->beginGroup("LapComparison");
 	settings->setValue("splitterState", ui->splitter->saveState());
+	settings->setValue("showTrack", ui->checkTrackLayout->isChecked());
 	settings->endGroup();
 }
 
@@ -283,6 +293,7 @@ void CompareTelemetryWidget::loadSettings(QSettings *settings)
 {
 	settings->beginGroup("LapComparison");
 	ui->splitter->restoreState(settings->value("splitterState").toByteArray());
+	ui->checkTrackLayout->setChecked(settings->value("showTrack", true).toBool());
 	settings->endGroup();
 }
 
@@ -295,6 +306,14 @@ void CompareTelemetryWidget::setDataName(const QString &name)
 void CompareTelemetryWidget::setTrackIndex(int trackIndex)
 {
 	_trackIndex = trackIndex;
+
+	ui->lblTrackMap->clear();
+	auto trackImage = UdpSpecification::instance()->trackImageMap(trackIndex);
+	ui->trackWidget->setVisible(!trackImage.isEmpty());
+	if (!trackImage.isEmpty())
+	{
+		ui->lblTrackMap->setPixmap(QPixmap(trackImage).scaledToHeight(ui->lblTrackMap->height(), Qt::SmoothTransformation));
+	}
 }
 
 void CompareTelemetryWidget::clearVariables()

@@ -20,7 +20,7 @@ int UdpSpecification::expectedPacketLength(UdpSpecification::PacketType type) co
 	return packetExpectedLengths[type];
 }
 
-QList<double> UdpSpecification::turns(int trackIndex) const
+QList<QPair<int, double>> UdpSpecification::turns(int trackIndex) const
 {
 	auto trackName = track(trackIndex);
 	if (trackTurns.contains(trackName))
@@ -53,6 +53,10 @@ UdpSpecification::UdpSpecification()
 	tyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet"});
 	ersModes = QStringList({"None", "Low", "Medium", "High", "Overtake", "Hotlap"});
 	fuelMixes = QStringList({"Lean", "Standard", "Rich", "Max"});
+	trackTurns["Hockenheim"] = {{1, 270}, {2, 860}, {6, 2100}, {8, 2830}, {10, 3000}, {11, 3470}, {12, 3780}, {13, 4150}, {15, 4290}};
+	trackMaps = QStringList({"", "", "", "", "", "", "", "", ":/track/Hockenheim",
+						 "", "", "", "", "", "", "", "", "", "",
+						 "", "", "", "", "", ""});
 }
 
 QDataStream &operator>>(QDataStream &in, PacketHeader &packet)

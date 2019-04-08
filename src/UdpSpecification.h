@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QDataStream>
 #include <QVector>
+#include <QPair>
 
 
 class UdpSpecification
@@ -40,7 +41,8 @@ public:
 	QString ersMode(int index) const {if (index < 0) return "Unknown"; return ersModes.value(index);}
 	QString fuelMix(int index) const {if (index < 0) return "Unknown"; return fuelMixes.value(index);}
 	int nbRaceLaps(int trackIndex) const {if (trackIndex < 0) return 0; return raceLaps.value(trackIndex);}
-	QList<double> turns(int trackIndex) const;
+	QList<QPair<int, double>> turns(int trackIndex) const;
+	QString trackImageMap(int trackIndex) const {if (trackIndex < 0) return ""; return trackMaps.value(trackIndex);}
 
 private:
 	UdpSpecification();
@@ -54,7 +56,8 @@ private:
 	QStringList tyres;
 	QStringList ersModes;
 	QStringList fuelMixes;
-	QHash<QString, QList<double>> trackTurns;
+	QHash<QString, QList<QPair<int, double>>> trackTurns;
+	QStringList trackMaps;
 };
 
 struct PacketHeader

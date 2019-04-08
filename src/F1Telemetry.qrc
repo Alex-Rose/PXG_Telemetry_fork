@@ -4,4 +4,7 @@
     <qresource prefix="/">
         <file>../Ressources/F1Telemetry.png</file>
     </qresource>
+    <qresource prefix="/track">
+        <file alias="Hockenheim">../Ressources/Hockenheim2012.png</file>
+    </qresource>
 </RCC>

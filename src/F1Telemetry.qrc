@@ -5,6 +5,9 @@
         <file>../Ressources/F1Telemetry.png</file>
     </qresource>
     <qresource prefix="/track">
-        <file alias="Hockenheim">../Ressources/Hockenheim2012.png</file>
+        <file alias="Hockenheim">../Ressources/TrackLayouts/Hockenheim2012.png</file>
+	<file alias="Hungaroring">../Ressources/TrackLayouts/Hungaroring.png</file>
+	<file alias="Silverstone">../Ressources/TrackLayouts/Silverstone.png</file>
+	<file alias="Red Bull Ring">../Ressources/TrackLayouts/Red Bull Ring.png</file>
     </qresource>
 </RCC>

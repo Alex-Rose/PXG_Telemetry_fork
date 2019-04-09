@@ -53,9 +53,13 @@ UdpSpecification::UdpSpecification()
 	tyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet"});
 	ersModes = QStringList({"None", "Low", "Medium", "High", "Overtake", "Hotlap"});
 	fuelMixes = QStringList({"Lean", "Standard", "Rich", "Max"});
+	trackTurns["Red Bull Ring"] = {{1, 450}, {2, 1410}, {3, 2220}, {4, 2730}, {5, 3030}, {7, 3780}, {8, 3990}};
+	trackTurns["Silverstone"] = {{1, 400}, {3, 927}, {4, 1045}, {6, 2005}, {7, 2168}, {9, 3060}, {14, 4045}, {13, 4150}, {15, 5020}, {16, 5550}};
 	trackTurns["Hockenheim"] = {{1, 270}, {2, 860}, {6, 2100}, {8, 2830}, {10, 3000}, {11, 3470}, {12, 3780}, {13, 4150}, {15, 4290}};
-	trackMaps = QStringList({"", "", "", "", "", "", "", "", ":/track/Hockenheim",
-						 "", "", "", "", "", "", "", "", "", "",
+	trackTurns["Hungaroring"] = {{1, 615}, {2, 1135}, {3, 1331}, {4, 1820}, {5, 2052}, {6, 2375}, {8, 2596}, {9, 2723}, {11, 3095}, {12, 3530}, {13, 3782}, {14, 4057}};
+
+	trackMaps = QStringList({"", "", "", "", "", "", "", ":/track/Silverstone", ":/track/Hockenheim",
+						 ":/track/Hungaroring", "", "", "", "", "", "", "", ":/track/Red Bull Ring", "",
 						 "", "", "", "", "", ""});
 }
 

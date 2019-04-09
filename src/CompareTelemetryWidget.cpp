@@ -84,7 +84,7 @@ void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &te
 QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors)
 {
 	qApp->setOverrideCursor(Qt::WaitCursor);
-	qApp->processEvents();
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
 	QList<QColor> colors;
 
@@ -338,6 +338,7 @@ void CompareTelemetryWidget::clearData()
 {
 	_telemetryDataModel->clear();
 	ui->infoTreeWidget->clear();
+	ui->trackWidget->hide();
 }
 
 void CompareTelemetryWidget::updateData()
@@ -439,7 +440,7 @@ void CompareTelemetryWidget::removeData()
 
 		if (isEmpty)
 		{
-			updateData();
+			clearData();
 		}
 	}
 }

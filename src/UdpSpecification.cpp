@@ -53,14 +53,22 @@ UdpSpecification::UdpSpecification()
 	tyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet"});
 	ersModes = QStringList({"None", "Low", "Medium", "High", "Overtake", "Hotlap"});
 	fuelMixes = QStringList({"Lean", "Standard", "Rich", "Max"});
+	trackTurns["Melbourne"] = {{1, 370}, {3, 1110}, {4, 1280}, {6, 1900}, {9, 2560}, {11, 3385}, {13, 4170}, {14, 4420}, {15, 4700}, {16, 4830}};
+	trackTurns["Sakir (Bahrain)"] = {{1, 750}, {4, 1530}, {6, 1910}, {8, 2285}, {10, 2760}, {11, 3480}, {13, 4130}, {14, 4940}};
+	trackTurns["Shanghai"] = {{1, 500}, {3, 905}, {6, 1590}, {8, 2370}, {9, 2575}, {11, 3150}, {14, 4795}, {16, 5175}};
+	trackTurns["Baku"] = {{1, 320}, {2, 660}, {3, 1530}, {4, 1760}, {5, 2100}, {7, 2560}, {8, 2795}, {12, 2950}, {15, 3780}, {16, 4125}};
+	trackTurns["Catalunya"] = {{1, 850}, {2, 940}, {4, 1730}, {5, 2140}, {7, 2550}, {9, 2900}, {10, 3510}, {12, 3740}, {13, 4010}, {14, 4150}, {18, 3015}};
+	trackTurns["Monaco"] = {{1, 210}, {3, 795}, {4, 905}, {5, 1145}, {6, 1270}, {8, 1450}, {10, 2100}, {12, 2380}, {15, 2700}, {17, 2930}, {18, 3015}};
+	trackTurns["Montreal"] = {{1, 250}, {2, 340}, {3, 720}, {6, 1260}, {8, 2020}, {10, 2710}, {13, 3910}};
+	trackTurns["Paul Ricard"] = {{1, 650}, {3, 1300}, {6, 1650}, {8, 2950}, {11, 4450}, {12, 4800}, {14, 5350}, {15, 5500}};
 	trackTurns["Red Bull Ring"] = {{1, 450}, {2, 1410}, {3, 2220}, {4, 2730}, {5, 3030}, {7, 3780}, {8, 3990}};
 	trackTurns["Silverstone"] = {{1, 400}, {3, 927}, {4, 1045}, {6, 2005}, {7, 2168}, {9, 3060}, {14, 4045}, {13, 4150}, {15, 5020}, {16, 5550}};
 	trackTurns["Hockenheim"] = {{1, 270}, {2, 860}, {6, 2100}, {8, 2830}, {10, 3000}, {11, 3470}, {12, 3780}, {13, 4150}, {15, 4290}};
 	trackTurns["Hungaroring"] = {{1, 615}, {2, 1135}, {3, 1331}, {4, 1820}, {5, 2052}, {6, 2375}, {8, 2596}, {9, 2723}, {11, 3095}, {12, 3530}, {13, 3782}, {14, 4057}};
 
-	trackMaps = QStringList({"", "", "", "", "", "", "", ":/track/Silverstone", ":/track/Hockenheim",
+	trackMaps = QStringList({":/track/Melbourne", ":/track/Paul Ricard", ":/track/Shanghai", ":/track/Sakir", ":/track/Catalunya", ":/track/Monaco", ":/track/Montreal", ":/track/Silverstone", ":/track/Hockenheim",
 						 ":/track/Hungaroring", "", "", "", "", "", "", "", ":/track/Red Bull Ring", "",
-						 "", "", "", "", "", ""});
+						 "", ":/track/Baku", "", "", "", ""});
 }
 
 QDataStream &operator>>(QDataStream &in, PacketHeader &packet)

@@ -9,5 +9,13 @@
 	<file alias="Hungaroring">../Ressources/TrackLayouts/Hungaroring.png</file>
 	<file alias="Silverstone">../Ressources/TrackLayouts/Silverstone.png</file>
 	<file alias="Red Bull Ring">../Ressources/TrackLayouts/Red Bull Ring.png</file>
+	<file alias="Paul Ricard">../Ressources/TrackLayouts/Paul Ricard.png</file>
+	<file alias="Montreal">../Ressources/TrackLayouts/Montreal.png</file>
+	<file alias="Monaco">../Ressources/TrackLayouts/Monaco.png</file>
+	<file alias="Catalunya">../Ressources/TrackLayouts/Catalunya.png</file>
+	<file alias="Baku">../Ressources/TrackLayouts/Baku.png</file>
+	<file alias="Shanghai">../Ressources/TrackLayouts/Shanghai.png</file>
+	<file alias="Sakir">../Ressources/TrackLayouts/Sakir.png</file>
+	<file alias="Melbourne">../Ressources/TrackLayouts/Melbourne.png</file>
     </qresource>
 </RCC>

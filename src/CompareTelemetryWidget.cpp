@@ -312,7 +312,9 @@ void CompareTelemetryWidget::setTrackIndex(int trackIndex)
 	ui->trackWidget->setVisible(!trackImage.isEmpty());
 	if (!trackImage.isEmpty())
 	{
-		ui->lblTrackMap->setPixmap(QPixmap(trackImage).scaledToHeight(ui->lblTrackMap->height(), Qt::SmoothTransformation));
+		ui->lblTrackMap->setPixmap(QPixmap(trackImage).scaled(QSize(ui->lblTrackMap->width(), ui->lblTrackMap->height()),
+															  Qt::KeepAspectRatio,
+															  Qt::SmoothTransformation));
 	}
 }
 

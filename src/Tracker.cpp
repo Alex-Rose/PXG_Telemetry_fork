@@ -75,6 +75,7 @@ void Tracker::start()
 		Logger::instance()->log("TRACKING...");
 		emit statusChanged("Tracking in progress...", true);
 		_isRunning = true;
+		_do_start = false;
 		_lastStartedSessionUID = _header.m_sessionUID;
 	}
 	else
@@ -174,7 +175,7 @@ void Tracker::lapData(const PacketHeader &header, const PacketLapData &data)
 
 void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &data)
 {
-	auto do_start = !hasSession() and _autoStart;
+	_do_start = !hasSession() and _autoStart;
 
 	if (header.m_sessionUID != _header.m_sessionUID)
 	{
@@ -184,7 +185,7 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 		if (_isRunning)
 		{
 			Logger::instance()->log("Session changed");
-			do_start = true;
+			_do_start = true;
 		}
 	}
 
@@ -192,7 +193,7 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 	_header = header;
 
 
-	if (do_start)
+	if (_do_start && _hasParticipants)
 		start();
 
 	if (!_isRunning)
@@ -232,6 +233,9 @@ void Tracker::participant(const PacketHeader &header, const PacketParticipantsDa
 		emit driverChanged(availableDrivers(data));
 		_hasParticipants = true;
 	}
+
+	if (_do_start && _hasParticipants)
+		start();
 
 	if (!_isRunning)
 		return;

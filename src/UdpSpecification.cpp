@@ -45,7 +45,7 @@ UdpSpecification::UdpSpecification()
 						 "Renault 2006", "Ferrari 2007", "McLaren 2008", "Red Bull 2010", "Ferrari 1976", "McLaren 1976", "Lotus 1972", "Ferrari 1979",
 						 "McLaren 1982", "Williams 2003", "Brawn 2009", "Lotus 1978"});
 	tracks = QStringList({"Melbourne", "Paul Ricard", "Shanghai", "Sakir (Bahrain)", "Catalunya", "Monaco", "Montreal", "Silverstone", "Hockenheim",
-						 "Hungaroring", "Spa Francorchamp", "Monza", "Singapore", "Susuka", "Abu Dhabi", "Austin", "Interlagos", "Red Bull Ring", "Sochi",
+						 "Hungaroring", "Spa Francorchamp", "Monza", "Singapore", "Suzuka", "Abu Dhabi", "Austin", "Interlagos", "Red Bull Ring", "Sochi",
 						 "Mexico", "Baku", "Sakhir Short", "Silverstone Short", "Austin Short", "Susuka Short"});
 	raceLaps = {58, 53, 56, 57, 59, 78, 70, 52, 67, 70, 44, 53, 61, 53, 55, 56, 71, 71, 53, 71, 51, 0, 0, 0, 0};
 	weathers = QStringList({"Clear", "Light Cloud", "Overcast", "Light Rain", "Heavy Rain", "Storm"});
@@ -65,10 +65,19 @@ UdpSpecification::UdpSpecification()
 	trackTurns["Silverstone"] = {{1, 400}, {3, 927}, {4, 1045}, {6, 2005}, {7, 2168}, {9, 3060}, {14, 4045}, {13, 4150}, {15, 5020}, {16, 5550}};
 	trackTurns["Hockenheim"] = {{1, 270}, {2, 860}, {6, 2100}, {8, 2830}, {10, 3000}, {11, 3470}, {12, 3780}, {13, 4150}, {15, 4290}};
 	trackTurns["Hungaroring"] = {{1, 615}, {2, 1135}, {3, 1331}, {4, 1820}, {5, 2052}, {6, 2375}, {8, 2596}, {9, 2723}, {11, 3095}, {12, 3530}, {13, 3782}, {14, 4057}};
+	trackTurns["Spa Francorchamp"] = {{1, 390}, {4, 1130}, {7, 2415}, {9, 2635}, {10, 3050}, {11, 3300}, {12, 3800}, {13, 4500}, {14, 4650}, {15, 4950}, {18, 6130}, {19, 6740}};
+	trackTurns["Monza"] = {{1, 925}, {4, 2130}, {6, 2520}, {7, 2870}, {8, 3960}, {11, 5175}};
+	trackTurns["Singapore"] = {{1, 430}, {3, 580}, {5, 990}, {7, 1825}, {8, 2040}, {9, 2220}, {10, 2650}, {11, 2800}, {13, 3075}, {14, 3620}, {16, 3970}, {18, 4265}, {20, 4490}, {22, 4830}};
+	trackTurns["Sochi"] = {{2, 1215}, {5, 2060}, {8, 2535}, {9, 3235}, {11, 3630}, {14, 4760}, {16, 5125}, {18, 5600}, {19, 5740}};
+	trackTurns["Suzuka"] = {{2, 845}, {4, 1245}, {6, 1565}, {8, 2280}, {9, 2460}, {11, 2945}, {13, 3815}, {14, 4030}, {15, 4995}, {16, 5410}};
+	trackTurns["Austin"] = {{1, 660}, {5, 1530}, {7, 1770}, {8, 1900}, {11, 2590}, {12, 3780}, {13, 4030}, {16, 4315}, {19, 5090}, {20, 5350}};
+	trackTurns["Mexico"] = {{1, 1290}, {2, 1360}, {4, 2180}, {6, 2405}, {7, 2765}, {9, 2955}, {10, 3130}, {12, 3855}, {13, 4055}, {16, 4230}};
+	trackTurns["Interlagos"] = {{1, 330}, {2, 420}, {4, 1370}, {7, 2050}, {8, 2315}, {10, 2730}, {12, 3225}};
+	trackTurns["Abu Dhabi"] = {{1, 410}, {5, 1315}, {7, 1515}, {8, 2770}, {11, 3785}, {14, 4020}, {17, 4650}, {18, 4700}, {20, 5170}, {21, 5370}};
 
 	trackMaps = QStringList({":/track/Melbourne", ":/track/Paul Ricard", ":/track/Shanghai", ":/track/Sakir", ":/track/Catalunya", ":/track/Monaco", ":/track/Montreal", ":/track/Silverstone", ":/track/Hockenheim",
-						 ":/track/Hungaroring", "", "", "", "", "", "", "", ":/track/Red Bull Ring", "",
-						 "", ":/track/Baku", "", "", "", ""});
+						 ":/track/Hungaroring", ":/track/Spa Francorchamp", ":/track/Monza", ":/track/Singapore", ":/track/Suzuka", ":/track/Abu Dhabi", ":/track/Austin", ":/track/Interlagos", ":/track/Red Bull Ring", ":/track/Sochi",
+						 ":/track/Mexico", ":/track/Baku", "", "", "", ""});
 }
 
 QDataStream &operator>>(QDataStream &in, PacketHeader &packet)

@@ -17,5 +17,14 @@
 	<file alias="Shanghai">../Ressources/TrackLayouts/Shanghai.png</file>
 	<file alias="Sakir">../Ressources/TrackLayouts/Sakir.png</file>
 	<file alias="Melbourne">../Ressources/TrackLayouts/Melbourne.png</file>
+	<file alias="Spa Francorchamp">../Ressources/TrackLayouts/Spa Francorchamp.png</file>
+	<file alias="Monza">../Ressources/TrackLayouts/Monza.png</file>
+	<file alias="Singapore">../Ressources/TrackLayouts/Singapore.png</file>
+	<file alias="Sochi">../Ressources/TrackLayouts/Sochi.png</file>
+	<file alias="Suzuka">../Ressources/TrackLayouts/Suzuka.png</file>
+	<file alias="Austin">../Ressources/TrackLayouts/Austin.png</file>
+	<file alias="Mexico">../Ressources/TrackLayouts/Mexico.png</file>
+	<file alias="Interlagos">../Ressources/TrackLayouts/Interlagos.png</file>
+	<file alias="Abu Dhabi">../Ressources/TrackLayouts/Abu Dhabi.png</file>
     </qresource>
 </RCC>

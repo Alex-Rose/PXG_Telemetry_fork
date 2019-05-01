@@ -155,7 +155,8 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 
 		colors << series->color();
 
-		connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "DC : " << point;});
+		// Uncomment to print the track distance under the mouse
+		// connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
 
 	chart->createDefaultAxes();

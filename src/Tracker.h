@@ -47,6 +47,7 @@ private:
 	PacketSessionData _session;
 	PacketHeader _header;
 	quint64 _lastStartedSessionUID = 0;
+	bool _do_start = false;
 
 	// F1PacketInterface interface
 	void telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data) override;

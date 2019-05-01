@@ -21,12 +21,16 @@ void Tracker::setDataDirectory(const QString& dirPath)
 	}
 }
 
-void Tracker::addAutoTrackedDrivers()
+void Tracker::updateAutoTrackedDrivers()
 {
-	QSet<int> additionalCarToTrack;
+	for (auto carIndex : _autoTrackedIndexes)
+	{
+		untrackDriver(carIndex);
+	}
+	_autoTrackedIndexes.clear();
 
 	if (_addPlayerTrackingOnStart)
-		additionalCarToTrack << _header.m_playerCarIndex;
+		_autoTrackedIndexes << _header.m_playerCarIndex;
 
 	if (_addTeammateTrackingOnStart)
 	{
@@ -36,14 +40,14 @@ void Tracker::addAutoTrackedDrivers()
 		{
 			if (driverData.m_teamId == playerData.m_teamId && driverData.m_driverId != playerData.m_driverId)
 			{
-				additionalCarToTrack << carIndex;
+				_autoTrackedIndexes << carIndex;
 			}
 
 			++carIndex;
 		}
 	}
 
-	for (auto carIndex : additionalCarToTrack)
+	for (auto carIndex : _autoTrackedIndexes)
 	{
 		if (!_trackedIndexes.contains(carIndex))
 			trackDriver(carIndex);
@@ -54,7 +58,7 @@ void Tracker::start()
 {
 	if (hasSession())
 	{
-		addAutoTrackedDrivers();
+		updateAutoTrackedDrivers();
 
 		if (_lastStartedSessionUID != _header.m_sessionUID)
 		{

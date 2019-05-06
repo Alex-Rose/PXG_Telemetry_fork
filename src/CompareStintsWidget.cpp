@@ -59,9 +59,6 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 		++lapIndex;
 	}
 
-	auto tyreWearItem = tyreItem(tree, stint, stint->nbLaps());
-	tyreWearItem->setText(0, "Old Tyre wear (per lap)");
-
 	auto wearDiff = stint->calculatedTyreWear;
 	auto wearList = {wearDiff.frontLeft, wearDiff.frontRight, wearDiff.rearLeft, wearDiff.rearRight};
 	auto maxWear = *(std::max_element(wearList.begin(), wearList.end()));

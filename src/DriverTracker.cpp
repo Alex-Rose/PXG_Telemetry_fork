@@ -58,7 +58,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	Q_UNUSED(header)
 	const auto& lapData = data.m_lapData[_driverIndex];
 
-	auto lastLap = isLastRaceLap(lapData);
+	auto lastRaceLap = isLastRaceLap(lapData);
 
 	if (_isLapRecorded && flashbackDetected(lapData))
 	{
@@ -75,7 +75,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_isLapRecorded = false;
 		}
 	}
-	else if (finishLineCrossed(lapData) || lastLap)
+	else if (finishLineCrossed(lapData))
 	{
 		_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
 		_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
@@ -105,7 +105,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			addLapToStint(_currentLap);
 		}
 
-		if (!lastLap)
+		if (!lastRaceLap)
 		{
 			qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
@@ -155,7 +155,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		}
 	}
 
-	if (lapData.m_pitStatus > 0 || lastLap || _currentSessionData.m_sessionTimeLeft < 1)
+	if (lapData.m_pitStatus > 0 || lastRaceLap || _currentSessionData.m_sessionTimeLeft < 1)
 	{
 		_isLapRecorded = false;
 
@@ -283,6 +283,6 @@ double DriverTracker::averageTyreWear(const CarStatusData &carStatus) const
 bool DriverTracker::isLastRaceLap(const LapData &data) const
 {
 	auto isRace = _currentSessionData.m_sessionType == 10  || _currentSessionData.m_sessionType == 11;
-	return isRace && data.m_lapDistance > (_currentSessionData.m_trackLength - 10) && data.m_currentLapNum == _currentSessionData.m_totalLaps;
+	return isRace && data.m_currentLapNum == _currentSessionData.m_totalLaps;
 }
 

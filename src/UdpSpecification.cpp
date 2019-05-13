@@ -111,10 +111,14 @@ QDataStream &operator<<(QDataStream &out, const ParticipantData &packet)
 	auto codedName = packet.m_name.toUtf8();
 	for (auto i = 0; i < 48; ++i)
 	{
-		if (i < packet.m_name.count())
+		if (i < codedName.count())
+		{
 			out << quint8(codedName[i]);
+		}
 		else
+		{
 			out << quint8(0);
+		}
 	}
 
 	return out;

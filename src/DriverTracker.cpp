@@ -13,7 +13,7 @@ const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "
 const QStringList TELEMETRY_STINT_NAMES = {"Lap Times (s)", "Average Tyre Wear (%)", "Fuel (kg)", "Stored Energy (kJ)",
 										   "Energy Deployed (kJ)", "Energy Harvested (kJ)",
 											"Front Left Tyre Temperature", "Front Right Tyre Temperature",
-											"Rear Left Tyre Temperature.", "Rear Left Tyre Temperature."};
+											"Rear Left Tyre Temperature", "Rear Left Tyre Temperature"};
 
 DriverTracker::DriverTracker(int driverIndex) : _driverIndex(driverIndex)
 {

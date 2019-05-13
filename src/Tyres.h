@@ -2,6 +2,7 @@
 #define TYRES_H
 
 #include <QDataStream>
+#include <functional>
 
 constexpr double DEGRADATION_STEP = 1.0;
 

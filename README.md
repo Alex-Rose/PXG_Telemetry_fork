@@ -1,5 +1,41 @@
 
-PXG F1 Telemetry is a tool to store, review and analyse UDP telemetry data from Codemasters F1 2018.
+PXG F1 Telemetry is a tool to save, review and analyse UDP telemetry data from Codemasters F1 2018.
+
+## Features
+
+F1 Telemetry is able to analyse laps and stints (multiple consecutive laps) of every drivers in the session (human or a.i.).
+
+It allows you to :
+
+- Compare your lap with the A.I. or other drivers to improve your driving
+- Refine your setups
+- Prepare your own practice programmes 
+
+
+Data of the selected drivers is recorded on the hard drive during the session and can be reviewed later. There is no real time display !
+
+### Analysis available for laps
+
+- Speed
+- Throttle input
+- Brake input
+- Steering input
+- Gear
+- Time differences
+- Tyre wear
+- Tyre temperatures
+- ERS energy
+- Multiple laps comparison
+
+### Analysis available for stints
+
+- Lap times
+- Average tyre wear per lap
+- Max tyre temperature
+- Fuel consumption
+- ERS energy
+- Multiple stints comparison
+
 
 ## Compilation
 

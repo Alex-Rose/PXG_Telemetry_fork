@@ -11,8 +11,9 @@ It allows you to :
 - Refine your setups
 - Prepare your own practice programmes 
 
-
 Data of the selected drivers is recorded on the hard drive during the session and can be reviewed later. There is no real time display !
+
+![Tracked drivers sélection](Screenshots/tracking.png)
 
 ### Analysis available for laps
 
@@ -27,6 +28,8 @@ Data of the selected drivers is recorded on the hard drive during the session an
 - ERS energy
 - Multiple laps comparison
 
+![Comparaison of laps](Screenshots/Laps.png)
+
 ### Analysis available for stints
 
 - Lap times
@@ -35,6 +38,8 @@ Data of the selected drivers is recorded on the hard drive during the session an
 - Fuel consumption
 - ERS energy
 - Multiple stints comparison
+
+![Comparaison of stints](Screenshots/Stints.png)
 
 
 ## Compilation

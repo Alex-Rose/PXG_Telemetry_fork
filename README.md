@@ -1,5 +1,5 @@
 
-PXG F1 Telemetry is a tool to save, review and analyse UDP telemetry data from Codemasters F1 2018.
+PXG F1 Telemetry is a tool to record, review and analyse UDP telemetry data from Codemasters F1 2018.
 
 ## Features
 

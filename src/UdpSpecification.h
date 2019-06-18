@@ -248,6 +248,51 @@ struct PacketCarStatusData
 	QVector<CarStatusData>       m_carStatusData;
 };
 
+struct CarMotionData
+{
+	float         m_worldPositionX;           // World space X position
+	float         m_worldPositionY;           // World space Y position
+	float         m_worldPositionZ;           // World space Z position
+	float         m_worldVelocityX;           // Velocity in world space X
+	float         m_worldVelocityY;           // Velocity in world space Y
+	float         m_worldVelocityZ;           // Velocity in world space Z
+	qint16         m_worldForwardDirX;         // World space forward X direction (normalised)
+	qint16         m_worldForwardDirY;         // World space forward Y direction (normalised)
+	qint16         m_worldForwardDirZ;         // World space forward Z direction (normalised)
+	qint16         m_worldRightDirX;           // World space right X direction (normalised)
+	qint16         m_worldRightDirY;           // World space right Y direction (normalised)
+	qint16         m_worldRightDirZ;           // World space right Z direction (normalised)
+	float         m_gForceLateral;            // Lateral G-Force component
+	float         m_gForceLongitudinal;       // Longitudinal G-Force component
+	float         m_gForceVertical;           // Vertical G-Force component
+	float         m_yaw;                      // Yaw angle in radians
+	float         m_pitch;                    // Pitch angle in radians
+	float         m_roll;                     // Roll angle in radians
+};
+struct PacketMotionData
+{
+	PacketHeader    m_header;               // Header
+
+	QVector<CarMotionData>   m_carMotionData;    // Data for all cars on track
+
+	// Extra player car ONLY data
+	float         m_suspensionPosition[4];       // Note: All wheel arrays have the following order:
+	float         m_suspensionVelocity[4];       // RL, RR, FL, FR
+	float         m_suspensionAcceleration[4];   // RL, RR, FL, FR
+	float         m_wheelSpeed[4];               // Speed of each wheel
+	float         m_wheelSlip[4];                // Slip ratio for each wheel
+	float         m_localVelocityX;              // Velocity in local space
+	float         m_localVelocityY;              // Velocity in local space
+	float         m_localVelocityZ;              // Velocity in local space
+	float         m_angularVelocityX;            // Angular velocity x-component
+	float         m_angularVelocityY;            // Angular velocity y-component
+	float         m_angularVelocityZ;            // Angular velocity z-component
+	float         m_angularAccelerationX;        // Angular velocity x-component
+	float         m_angularAccelerationY;        // Angular velocity y-component
+	float         m_angularAccelerationZ;        // Angular velocity z-component
+	float         m_frontWheelsAngle;            // Current front wheels angle in radians
+};
+
 QDataStream & operator>>(QDataStream &in, PacketHeader& packet);
 QDataStream & operator>>(QDataStream &in, ParticipantData& packet);
 QDataStream & operator>>(QDataStream &in, PacketParticipantsData& packet);
@@ -261,6 +306,8 @@ QDataStream & operator>>(QDataStream &in, MarshalZone& packet);
 QDataStream & operator>>(QDataStream &in, PacketSessionData& packet);
 QDataStream & operator>>(QDataStream &in, CarStatusData& packet);
 QDataStream & operator>>(QDataStream &in, PacketCarStatusData& packet);
+QDataStream & operator>>(QDataStream &in, PacketMotionData& packet);
+QDataStream & operator>>(QDataStream &in, CarMotionData& packet);
 
 QDataStream & operator<<(QDataStream &out, const CarSetupData& packet);
 QDataStream & operator<<(QDataStream &out, const ParticipantData& packet);

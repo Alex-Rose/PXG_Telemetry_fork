@@ -259,7 +259,18 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 		driverDataDirectory.cd(subDirName);
 		qDebug() << driverDataDirectory.absolutePath();
 		driverDirDefined = true;
+
+		if (header.m_playerCarIndex == _driverIndex) {
+			_extendedPlayerTelemetry = true;
+			_currentLap->setDataNames(TELEMETRY_NAMES + EXTENDED_TELEMETRY_NAMES);
+		}
 	}
+}
+
+void DriverTracker::motionData(const PacketHeader &header, const PacketMotionData &data)
+{
+	Q_UNUSED(header)
+	_currentMotionData = data;
 }
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const

@@ -226,3 +226,28 @@ QDataStream &operator>>(QDataStream &in, PacketCarStatusData &packet)
 	readDataList<CarStatusData>(in, packet.m_carStatusData);
 	return in;
 }
+
+QDataStream &operator>>(QDataStream &in, PacketMotionData &packet)
+{
+	readDataList<CarMotionData>(in, packet.m_carMotionData);
+
+	for (auto i = 0; i < 4; ++i) in >> packet.m_suspensionPosition[i];
+	for (auto i = 0; i < 4; ++i) in >> packet.m_suspensionVelocity[i];
+	for (auto i = 0; i < 4; ++i) in >> packet.m_suspensionAcceleration[i];
+	for (auto i = 0; i < 4; ++i) in >> packet.m_wheelSpeed[i];
+	for (auto i = 0; i < 4; ++i) in >> packet.m_wheelSlip[i];
+
+	in >> packet.m_localVelocityX >> packet.m_localVelocityY >> packet.m_localVelocityZ >> packet.m_angularVelocityX >> packet.m_angularVelocityY >> packet.m_angularVelocityZ
+	   >> packet.m_angularAccelerationX >> packet.m_angularAccelerationY >> packet.m_angularAccelerationZ >> packet.m_frontWheelsAngle;
+
+	return in;
+}
+
+QDataStream &operator>>(QDataStream &in, CarMotionData &packet)
+{
+	in >> packet.m_worldPositionX >> packet.m_worldPositionY >> packet.m_worldPositionZ >> packet.m_worldVelocityX >> packet.m_worldVelocityY >> packet.m_worldVelocityZ
+	   >> packet.m_worldForwardDirX >> packet.m_worldForwardDirY >> packet.m_worldForwardDirZ >> packet.m_worldRightDirX >> packet.m_worldRightDirY >> packet.m_worldRightDirZ
+	   >> packet.m_gForceLateral >> packet.m_gForceLongitudinal >> packet.m_gForceVertical >> packet.m_yaw >> packet.m_pitch  >> packet.m_pitch;
+
+	return in;
+}

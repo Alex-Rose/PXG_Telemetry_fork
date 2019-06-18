@@ -248,3 +248,13 @@ void Tracker::participant(const PacketHeader &header, const PacketParticipantsDa
 		driver.participant(header, data);
 	}
 }
+
+void Tracker::motionData(const PacketHeader &header, const PacketMotionData &data)
+{
+	if (!_isRunning)
+		return;
+
+	for (auto& driver : _trackedDrivers) {
+		driver.motionData(header, data);
+	}
+}

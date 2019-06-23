@@ -36,11 +36,14 @@ public:
 	const QVector<bool>& getVisibility() const;
 	const TelemetryData* getReferenceData() const;
 
+	QColor getNewColor();
+
 private:
 	QVector<TelemetryData*> _telemetryData;
 	QVector<bool> _visibility;
 	QList<QColor> _colors;
 	int _referenceLapIndex = -1;
+	QList<QColor> _availableColors;
 
 };
 

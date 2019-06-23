@@ -7,8 +7,22 @@
 
 #include <QtDebug>
 
+const QList<QColor> BASIC_COLOR_LIST = {QColor(41, 141, 198), QColor(153, 202, 83), QColor(246, 166, 83), QColor(190, 95, 213)};
+
 TelemetryDataTableModel::TelemetryDataTableModel()
 {
+	for (int i = 0; i < 5; ++i) {
+		for (const auto& color : BASIC_COLOR_LIST)
+		{
+			_availableColors << color.darker(100 + i * 20);
+		}
+	}
+	for (int i = 0; i < 5; ++i) {
+		for (const auto& color : BASIC_COLOR_LIST)
+		{
+			_availableColors << color.darker(100 - i * 20);
+		}
+	}
 }
 
 QVariant TelemetryDataTableModel::data(const QModelIndex &index, int role) const
@@ -82,6 +96,8 @@ void TelemetryDataTableModel::addTelemetryData(const QVector<TelemetryData*> &te
 	beginInsertRows(QModelIndex(), rowCount(), rowCount() + telemetryData.size() - 1);
 	_telemetryData.append(telemetryData);
 	_visibility.append(QVector<bool>(telemetryData.count(), true));
+	for (int i = 0; i < telemetryData.count(); ++i)
+		_colors.append(getNewColor());
 	endInsertRows();
 	emit lapsChanged();
 }
@@ -91,7 +107,7 @@ void TelemetryDataTableModel::removeTelemetryData(int index)
 	beginRemoveRows(QModelIndex(), index, index);
 	_telemetryData.remove(index);
 	_visibility.remove(index);
-	_colors.removeAt(index);
+	_availableColors.prepend(_colors.takeAt(index));
 	if (_referenceLapIndex >= _telemetryData.count())
 	{
 		_referenceLapIndex = _telemetryData.count() - 1;
@@ -141,4 +157,13 @@ const TelemetryData *TelemetryDataTableModel::getReferenceData() const
 		return nullptr;
 
 	return _telemetryData[_referenceLapIndex];
+}
+
+QColor TelemetryDataTableModel::getNewColor()
+{
+	if (!_availableColors.isEmpty()) {
+		return _availableColors.takeFirst();
+	}
+
+	return QColor(Qt::black);
 }

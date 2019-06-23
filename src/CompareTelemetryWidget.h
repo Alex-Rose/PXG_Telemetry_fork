@@ -47,9 +47,9 @@ private:
 	int _trackIndex = -1;
 
 	void initActions();
-	QList<QColor> reloadVariableSeries(QtCharts::QChart *chart, const QVector<TelemetryData*> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors);
+	void reloadVariableSeries(QtCharts::QChart *chart, const QVector<TelemetryData*> &telemetryData, int varIndex, bool diff, QList<QColor> colors);
 
-	void setTelemetry(const QVector<TelemetryData*>& telemetry, bool retainColors=false);
+	void setTelemetry(const QVector<TelemetryData*>& telemetry);
 	void setTelemetryVisibility(const QVector<bool>& visibility);
 	void clearVariables();
 	void createVariables(const QStringList& variables);

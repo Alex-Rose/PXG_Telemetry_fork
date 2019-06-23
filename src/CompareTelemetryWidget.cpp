@@ -81,16 +81,14 @@ void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &te
 	ui->lapsTableView->setCurrentIndex(_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));
 }
 
-QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors)
+void CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> colors)
 {
 	qApp->setOverrideCursor(Qt::WaitCursor);
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-	QList<QColor> colors;
-
 	auto refLap = _telemetryDataModel->getReferenceData();
 	if (!refLap)
-		return colors;
+		return;
 
 	chart->removeAllSeries();
 	for (auto data : telemetryData)
@@ -153,10 +151,8 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 
 		chart->addSeries(series);
 
-		if (!defaultColors.isEmpty())
-			series->setColor(defaultColors.takeFirst());
-
-		colors << series->color();
+		if (!colors.isEmpty())
+			series->setColor(colors.takeFirst());
 
 		// Uncomment to print the track distance under the mouse
 		// connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
@@ -166,8 +162,6 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
 
 	qApp->restoreOverrideCursor();
-
-	return colors;
 }
 
 void CompareTelemetryWidget::createAxis(QChart* chart)
@@ -204,22 +198,20 @@ void CompareTelemetryWidget::createAxis(QChart* chart)
 	}
 }
 
-void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry, bool retainColors)
+void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry)
 {
 	if (!telemetry.isEmpty())
 	{
 		for (const auto& telemetryData : telemetry)
 			createVariables(telemetryData->availableData());
 
-		QList<QColor> colors = retainColors ? _telemetryDataModel->colors() : QList<QColor>();
+		QList<QColor> colors = _telemetryDataModel->colors();
 		int varIndex = 0;
 		for (auto chartView: _variablesCharts)
 		{
 			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
-			auto newColors = reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
+			reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
 			chartView->setHomeZoom();
-			if (newColors.count() > colors.count())
-				colors = newColors;
 
 			++varIndex;
 		}
@@ -373,7 +365,7 @@ void CompareTelemetryWidget::clearData()
 
 void CompareTelemetryWidget::updateData()
 {
-	setTelemetry(_telemetryDataModel->getTelemetryData(), true);
+	setTelemetry(_telemetryDataModel->getTelemetryData());
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
 }
 

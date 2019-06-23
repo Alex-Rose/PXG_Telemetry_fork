@@ -16,6 +16,7 @@ namespace Ui {
 }
 
 class TelemetryDataTableModel;
+class TelemetryChartView;
 
 class CompareTelemetryWidget : public QWidget
 {
@@ -39,7 +40,7 @@ private:
 	TelemetryDataTableModel* _telemetryDataModel;
 	QList<QCheckBox*> _variableCheckboxes;
 	QList<QCheckBox*> _diffCheckboxes;
-	QList<QtCharts::QChartView*> _variablesCharts;
+	QList<TelemetryChartView*> _variablesCharts;
 	QStringList _variables;
 	QToolBar* _toolbar;
 	QMenu* _telemetryContextMenu;

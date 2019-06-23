@@ -1,4 +1,5 @@
 #include "CompareTelemetryWidget.h"
+#include "TelemetryChartView.h"
 #include "TelemetryDataTableModel.h"
 #include "ui_CompareTelemetryWidget.h"
 
@@ -216,6 +217,7 @@ void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &teleme
 		{
 			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
 			auto newColors = reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
+			chartView->setHomeZoom();
 			if (newColors.count() > colors.count())
 				colors = newColors;
 
@@ -285,12 +287,12 @@ void CompareTelemetryWidget::createVariables(const QStringList &variables)
 			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			pol.setVerticalStretch(1);
 
-			auto view = new QChartView(chart, this);
+			auto view = new TelemetryChartView(chart, this);
 			chart->setMargins(QMargins());
 			view->setSizePolicy(pol);
 			_variablesCharts << view;
 			view->setVisible(checkbox->isChecked());
-			view->setRubberBand(QChartView::HorizontalRubberBand);
+			view->setRubberBand(QChartView::RectangleRubberBand);
 
 			ui->graphLayout->addWidget(view);
 		}
@@ -394,7 +396,7 @@ void CompareTelemetryWidget::variableChecked(bool value)
 void CompareTelemetryWidget::home()
 {
 	for (auto chartView : _variablesCharts)
-		chartView->chart()->zoomReset();
+		chartView->home();
 }
 
 void CompareTelemetryWidget::distanceZoomChanged(qreal min, qreal max)

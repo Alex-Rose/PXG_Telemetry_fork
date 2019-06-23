@@ -161,16 +161,35 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 		// connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
 
-	chart->createDefaultAxes();
+	createAxis(chart);
+	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
 
-	auto trackTurn = UdpSpecification::instance()->turns(_trackIndex);
-	if (!trackTurn.isEmpty())
+	qApp->restoreOverrideCursor();
+
+	return colors;
+}
+
+void CompareTelemetryWidget::createAxis(QChart* chart)
+{
+	chart->createDefaultAxes();
+	auto xAxis = static_cast<QValueAxis*>(chart->axes(Qt::Horizontal)[0]);
+	auto yAxis = static_cast<QValueAxis*>(chart->axes(Qt::Vertical)[0]);
+
+	xAxis->setGridLineVisible(false);
+
+	if (yAxis->min() < 0 && yAxis->max() > 0) {
+		auto absMax = qMax(qAbs(yAxis->min()), yAxis->max());
+		yAxis->setMin(-absMax);
+		yAxis->setMax(absMax);
+	}
+
+	auto trackTurns = UdpSpecification::instance()->turns(_trackIndex);
+	if (!trackTurns.isEmpty())
 	{
-		chart->axes(Qt::Horizontal)[0]->setGridLineVisible(false);
 		auto categoryAxis = new QCategoryAxis();
 		categoryAxis->setMin(0);
-		categoryAxis->setMax(double(telemetryData.first()->xValues().last()));
-		for (auto t : trackTurn)
+		categoryAxis->setMax(xAxis->max());
+		for (const auto& t : qAsConst(trackTurns))
 		{
 			categoryAxis->append(TURN_NAMES[t.first - 1], t.second);
 		}
@@ -182,12 +201,6 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 		chart->addAxis(categoryAxis, Qt::AlignTop);
 		chart->series()[0]->attachAxis(categoryAxis);
 	}
-
-	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
-
-	qApp->restoreOverrideCursor();
-
-	return colors;
 }
 
 void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry, bool retainColors)

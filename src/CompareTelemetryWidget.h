@@ -9,6 +9,7 @@
 #include <QToolBar>
 #include <QSettings>
 #include <QTreeWidget>
+#include <QLineSeries>
 
 namespace Ui {
 	class CompareTelemetryWidget;
@@ -51,6 +52,7 @@ private:
 	void setTelemetryVisibility(const QVector<bool>& visibility);
 	void clearVariables();
 	void createVariables(const QStringList& variables);
+	void createAxis(QtCharts::QChart *chart);
 
 protected slots:
 	virtual void browseData() {}

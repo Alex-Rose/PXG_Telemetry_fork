@@ -30,7 +30,8 @@ public:
 	int getDriverIndex() const {return _driverIndex;}
 
 private:
-	int _driverIndex = 0;
+	bool _extendedPlayerTelemetry = false;
+	int _driverIndex;
 	QDir dataDirectory;
 	bool driverDirDefined = false;
 	QDir driverDataDirectory;

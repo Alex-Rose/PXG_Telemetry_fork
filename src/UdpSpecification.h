@@ -38,11 +38,14 @@ public:
 	QString weather(int index) const {return weathers.value(index);}
 	QString session_type(int index) const {return sessions.value(index);}
 	QString tyre(int index) const {if (index < 0) return "Unknown"; return tyres.value(index);}
+	QString visualTyre(int index) const {if (index < 0) return "Unknown"; return visualTyres.value(index);}
 	QString ersMode(int index) const {if (index < 0) return "Unknown"; return ersModes.value(index);}
 	QString fuelMix(int index) const {if (index < 0) return "Unknown"; return fuelMixes.value(index);}
 	int nbRaceLaps(int trackIndex) const {if (trackIndex < 0) return 0; return raceLaps.value(trackIndex);}
 	QList<QPair<int, double>> turns(int trackIndex) const;
 	QString trackImageMap(int trackIndex) const {if (trackIndex < 0) return ""; return trackMaps.value(trackIndex);}
+	QString formula(int index) const {return formulaTypes.value(index, "Unknown");}
+	QString surface(int index) const {return surfaces.value(index, "Unknown");}
 
 private:
 	UdpSpecification();
@@ -54,15 +57,20 @@ private:
 	QStringList weathers;
 	QStringList sessions;
 	QStringList tyres;
+	QStringList visualTyres;
 	QStringList ersModes;
 	QStringList fuelMixes;
 	QHash<QString, QList<QPair<int, double>>> trackTurns;
 	QStringList trackMaps;
+	QStringList formulaTypes;
+	QStringList surfaces;
 };
 
 struct PacketHeader
 {
-	quint16   m_packetFormat;         // 2018
+	quint16   m_packetFormat;         // 2019
+	quint8    m_gameMajorVersion;     // Game major version - "X.00"
+	quint8    m_gameMinorVersion;     // Game minor version - "1.XX"
 	quint8    m_packetVersion;        // Version of this packet type, all start from 1
 	quint8    m_packetId;             // Identifier for the packet type, see below
 	quint64   m_sessionUID;           // Unique identifier for the session
@@ -82,10 +90,13 @@ struct ParticipantData
 	quint8      m_nationality = 0;            // Nationality of the driver
 	QString     m_name;					 // Name of participant in UTF-8 format – null terminated
 										 // Will be truncated with … (U+2026) if too long
+	quint8    m_yourTelemetry;          // The player's UDP setting, 0 = restricted, 1 = public
+
 };
 struct PacketParticipantsData
 {
-	quint8           m_numCars;           // Number of cars in the data
+	quint8           m_numActiveCars;		// Number of active cars in the data – should match number of
+											// cars on HUD
 	QVector<ParticipantData> m_participants;
 };
 
@@ -124,9 +135,9 @@ struct PacketLapData
 struct CarTelemetryData
 {
 	quint16    m_speed;                      // Speed of car in kilometres per hour
-	quint8     m_throttle;                   // Amount of throttle applied (0 to 100)
-	qint8      m_steer;                      // Steering (-100 (full lock left) to 100 (full lock right))
-	quint8     m_brake;                      // Amount of brake applied (0 to 100)
+	float      m_throttle;                   // Amount of throttle applied (0.0 to 1.0)
+	float      m_steer;                      // Steering (-1.0 (full lock left) to 1.0 (full lock right))
+	float      m_brake;                      // Amount of brake applied (0.0 to 1.0)
 	quint8     m_clutch;                     // Amount of clutch applied (0 to 100)
 	qint8      m_gear;                       // Gear selected (1-8, N=0, R=-1)
 	quint16    m_engineRPM;                  // Engine RPM
@@ -137,6 +148,7 @@ struct CarTelemetryData
 	quint16    m_tyresInnerTemperature[4];   // Tyres inner temperature (celsius)
 	quint16    m_engineTemperature;          // Engine temperature (celsius)
 	float     m_tyresPressure[4];           // Tyres pressure (PSI)
+	quint8     m_surfaceType[4];           // Driving surface, see appendices
 };
 
 struct PacketCarTelemetryData
@@ -193,7 +205,7 @@ struct PacketSessionData
 												// 5 = Q1, 6 = Q2, 7 = Q3, 8 = Short Q, 9 = OSQ
 												// 10 = R, 11 = R2, 12 = Time Trial
 	qint8            m_trackId;         		// -1 for unknown, 0-21 for tracks, see appendix
-	quint8           m_era;                  	// Era, 0 = modern, 1 = classic
+	quint8           m_formula;                 // Formula, 0 = F1 Modern, 1 = F1 Classic, 2 = F2, 3 = F1 Generic
 	quint16          m_sessionTimeLeft;    	// Time left in session in seconds
 	quint16          m_sessionDuration;     	// Session duration in seconds
 	quint8           m_pitSpeedLimit;      	// Pit speed limit in kilometres per hour
@@ -217,22 +229,27 @@ struct CarStatusData
 	quint8       m_pitLimiterStatus;         // Pit limiter status - 0 = off, 1 = on
 	float       m_fuelInTank;               // Current fuel mass
 	float       m_fuelCapacity;             // Fuel capacity
+	float       m_fuelRemainingLaps;        // Fuel remaining in terms of laps (value on MFD)
 	quint16      m_maxRPM;                   // Cars max RPM, point of rev limiter
 	quint16      m_idleRPM;                  // Cars idle RPM
 	quint8       m_maxGears;                 // Maximum number of gears
 	quint8       m_drsAllowed;               // 0 = not allowed, 1 = allowed, -1 = unknown
 	quint8       m_tyresWear[4];             // Tyre wear percentage
-	quint8       m_tyreCompound;             // Modern - 0 = hyper soft, 1 = ultra soft
-											// 2 = super soft, 3 = soft, 4 = medium, 5 = hard
-											// 6 = super hard, 7 = inter, 8 = wet
-											// Classic - 0-6 = dry, 7-8 = wet
+	quint8       m_tyreCompound;             // F1 Modern - 16 = C5, 17 = C4, 18 = C3, 19 = C2, 20 = C1
+												// 7 = inter, 8 = wet
+												// F1 Classic - 9 = dry, 10 = wet
+												// F2 – 11 = super soft, 12 = soft, 13 = medium, 14 = hard
+												// 15 = wet
+	quint8       m_tyreVisualCompound;       // F1 visual (can be different from actual compound)
+											   // 16 = soft, 17 = medium, 18 = hard, 7 = inter, 8 = wet
+											   // F1 Classic – same as above
+											   // F2 – same as above
 	quint8       m_tyresDamage[4];           // Tyre damage (percentage)
 	quint8       m_frontLeftWingDamage;      // Front left wing damage (percentage)
 	quint8       m_frontRightWingDamage;     // Front right wing damage (percentage)
 	quint8       m_rearWingDamage;           // Rear wing damage (percentage)
 	quint8       m_engineDamage;             // Engine damage (percentage)
 	quint8       m_gearBoxDamage;            // Gear box damage (percentage)
-	quint8       m_exhaustDamage;            // Exhaust damage (percentage)
 	qint8        m_vehicleFiaFlags;          // -1 = invalid/unknown, 0 = none, 1 = green
 											// 2 = blue, 3 = yellow, 4 = red
 	float       m_ersStoreEnergy;           // ERS energy store in Joules

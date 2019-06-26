@@ -7,7 +7,6 @@
 #include <QVector>
 #include <QPair>
 
-
 class UdpSpecification
 {
 public:
@@ -65,6 +64,22 @@ private:
 	QStringList formulaTypes;
 	QStringList surfaces;
 };
+
+enum class Event
+{
+	SessionStarted,
+	SessionEnded,
+	FastestLap,
+	Retirement,
+	DrsEnabled,
+	DrsDisabled,
+	TeammateInPits,
+	ChequeredFlag,
+	RaceWinner,
+	Unknown
+};
+
+Event stringToEvent(const QString str);
 
 struct PacketHeader
 {
@@ -310,6 +325,14 @@ struct PacketMotionData
 	float         m_frontWheelsAngle;            // Current front wheels angle in radians
 };
 
+struct PacketEventData
+{
+	QString           	m_eventStringCode;		// Event string code, see below
+	quint8				details1;				// Vehicle index of car achieving fastest lap
+	float				details2;				// Lap time is in seconds
+	Event				event;
+};
+
 QDataStream & operator>>(QDataStream &in, PacketHeader& packet);
 QDataStream & operator>>(QDataStream &in, ParticipantData& packet);
 QDataStream & operator>>(QDataStream &in, PacketParticipantsData& packet);
@@ -325,6 +348,7 @@ QDataStream & operator>>(QDataStream &in, CarStatusData& packet);
 QDataStream & operator>>(QDataStream &in, PacketCarStatusData& packet);
 QDataStream & operator>>(QDataStream &in, PacketMotionData& packet);
 QDataStream & operator>>(QDataStream &in, CarMotionData& packet);
+QDataStream & operator>>(QDataStream &in, PacketEventData& packet);
 
 QDataStream & operator<<(QDataStream &out, const CarSetupData& packet);
 QDataStream & operator<<(QDataStream &out, const ParticipantData& packet);

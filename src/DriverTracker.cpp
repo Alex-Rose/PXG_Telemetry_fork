@@ -308,6 +308,12 @@ void DriverTracker::motionData(const PacketHeader &header, const PacketMotionDat
 	_currentMotionData = data;
 }
 
+void DriverTracker::eventData(const PacketHeader &header, Event event)
+{
+	Q_UNUSED(header)
+	Q_UNUSED(event)
+}
+
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
 	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200))

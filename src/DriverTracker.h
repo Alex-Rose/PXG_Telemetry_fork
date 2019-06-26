@@ -26,6 +26,7 @@ public:
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
 	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
+	void eventData(const PacketHeader& header, Event event) override;
 
 	int getDriverIndex() const {return _driverIndex;}
 

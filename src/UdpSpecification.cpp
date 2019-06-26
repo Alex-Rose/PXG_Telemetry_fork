@@ -34,7 +34,7 @@ UdpSpecification::UdpSpecification()
 	packetExpectedLengths[PacketType::Motion] = 1320;
 	packetExpectedLengths[PacketType::Session] = 126;
 	packetExpectedLengths[PacketType::LapData] = 820;
-	packetExpectedLengths[PacketType::Event] = 4;
+	packetExpectedLengths[PacketType::Event] = 9;
 	packetExpectedLengths[PacketType::Participants] = 1081;
 	packetExpectedLengths[PacketType::CarSetup] = 820;
 	packetExpectedLengths[PacketType::CarTelemetry] = 1324;
@@ -265,4 +265,45 @@ QDataStream &operator>>(QDataStream &in, CarMotionData &packet)
 	   >> packet.m_gForceLateral >> packet.m_gForceLongitudinal >> packet.m_gForceVertical >> packet.m_yaw >> packet.m_pitch  >> packet.m_pitch;
 
 	return in;
+}
+
+QDataStream &operator>>(QDataStream &in, PacketEventData &packet)
+{
+	packet.m_eventStringCode.clear();
+	char name[4];
+	for (auto i = 0; i < 4; ++i)
+	{
+		qint8 c;
+		in >> c;
+		name[i] = c;
+	}
+
+	packet.m_eventStringCode = QString::fromUtf8(name);
+	in >> packet.details1 >> packet.details2;
+	packet.event = stringToEvent(packet.m_eventStringCode);
+	return in;
+}
+
+Event stringToEvent(const QString str)
+{
+	if (str == "SSTA")
+		return Event::SessionStarted;
+	if (str == "SEND")
+		return Event::SessionEnded;
+	if (str == "FTLP")
+		return Event::FastestLap;
+	if (str == "RTMT")
+		return Event::Retirement;
+	if (str == "DRSE")
+		return Event::DrsEnabled;
+	if (str == "DRSD")
+		return Event::DrsDisabled;
+	if (str == "TMPT")
+		return Event::TeammateInPits;
+	if (str == "CHQF")
+		return Event::ChequeredFlag;
+	if (str == "RCWN")
+		return Event::RaceWinner;
+
+	return Event::Unknown;
 }

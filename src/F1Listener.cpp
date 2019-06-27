@@ -91,7 +91,7 @@ bool F1Listener::tryRead()
 				auto packet = PacketEventData();
 				stream >> packet;
 				if (_interface)
-					_interface->eventData(_lastHeader, packet.event);
+					_interface->eventData(_lastHeader, packet);
 				break;
 			}
 			default:

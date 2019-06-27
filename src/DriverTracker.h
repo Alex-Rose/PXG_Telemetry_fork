@@ -26,7 +26,7 @@ public:
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
 	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
-	void eventData(const PacketHeader& header, Event event) override;
+	void eventData(const PacketHeader& header, const PacketEventData& data) override;
 
 	int getDriverIndex() const {return _driverIndex;}
 
@@ -53,6 +53,8 @@ private:
 	double averageTyreWear(const CarStatusData& carStatus) const;
 
 	bool isLastRaceLap(const LapData& data) const;
+
+	void saveCurrentStint();
 
 	void addLapToStint(Lap* lap);
 };

@@ -259,12 +259,12 @@ void Tracker::motionData(const PacketHeader &header, const PacketMotionData &dat
 	}
 }
 
-void Tracker::eventData(const PacketHeader &header, Event event)
+void Tracker::eventData(const PacketHeader &header, const PacketEventData &data)
 {
 	if (!_isRunning)
 		return;
 
 	for (auto& driver : _trackedDrivers) {
-		driver.eventData(header, event);
+		driver.eventData(header, data);
 	}
 }

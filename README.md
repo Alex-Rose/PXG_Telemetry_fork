@@ -1,5 +1,5 @@
 
-PXG F1 Telemetry is a tool to record, review and analyse UDP telemetry data from Codemasters F1 2018.
+PXG F1 Telemetry is a tool to record, review and analyse UDP telemetry data from Codemasters F1 2019.
 
 ## Features
 
@@ -27,6 +27,8 @@ Data of the selected drivers is recorded on the hard drive during the session an
 - Tyre temperatures
 - ERS energy
 - Multiple laps comparison
+- Tyres lockup
+- Car balance i.e. oversteer / understeer (wip)
 
 ![Comparaison of laps](Screenshots/Laps.png)
 
@@ -44,7 +46,7 @@ Data of the selected drivers is recorded on the hard drive during the session an
 
 ## Compilation
 
-- Download and install Qt 5.12.0 or higher from www.qt.io
+- Download and install Qt 5.13.0 or higher from www.qt.io
 - Open "F1Telemetry.pro" with Qt creator and compile the project
 
 

@@ -93,7 +93,7 @@ UdpSpecification::UdpSpecification()
 
 QDataStream &operator>>(QDataStream &in, PacketHeader &packet)
 {
-	in >> packet.m_packetFormat >> packet.m_packetVersion >> packet.m_packetId >> packet.m_sessionUID
+	in >> packet.m_packetFormat >> packet.m_gameMajorVersion >> packet.m_gameMinorVersion >> packet.m_packetVersion >> packet.m_packetId >> packet.m_sessionUID
 		   >> packet.m_sessionTime >> packet.m_frameIdentifier >> packet.m_playerCarIndex;
 
 	return in;
@@ -228,7 +228,7 @@ QDataStream &operator>>(QDataStream &in, CarStatusData &packet)
 	in >> packet.m_tractionControl >> packet.m_antiLockBrakes >> packet.m_fuelMix >> packet.m_frontBrakeBias >> packet.m_pitLimiterStatus
 		>> packet.m_fuelInTank >> packet.m_fuelCapacity >> packet.m_fuelRemainingLaps >> packet.m_maxRPM >> packet.m_idleRPM >> packet.m_maxGears >> packet.m_drsAllowed;
 	for (auto i = 0; i < 4; ++i) in >> packet.m_tyresWear[i];
-	in >> packet.m_tyreCompound;
+	in >> packet.m_tyreCompound >> packet.m_tyreVisualCompound;
 	for (auto i = 0; i < 4; ++i) in >> packet.m_tyresDamage[i];
 	in >> packet.m_frontLeftWingDamage >> packet.m_frontRightWingDamage >> packet.m_rearWingDamage >> packet.m_engineDamage >> packet.m_gearBoxDamage
 		>> packet.m_vehicleFiaFlags >> packet.m_ersStoreEnergy >> packet.m_ersDeployMode >> packet.m_ersHarvestedThisLapMGUK

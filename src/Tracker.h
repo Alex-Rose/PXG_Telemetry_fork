@@ -58,6 +58,7 @@ private:
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
 	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
+	void eventData(const PacketHeader& header, const PacketEventData& data)  override;
 
 	QString sessionName(const PacketSessionData &data) const;
 	QStringList availableDrivers(const PacketParticipantsData &data) const;

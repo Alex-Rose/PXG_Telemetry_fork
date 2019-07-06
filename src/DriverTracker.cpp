@@ -192,21 +192,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 	if (lapData.m_pitStatus > 0 || lastRaceLap || (_currentSessionData.m_sessionTimeLeft < 1 && _currentSessionData.m_sessionType != 12))
 	{
-		_isLapRecorded = false;
-
-		if (_currentStint->hasData())
-		{
-			// A stint ended
-			auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
-			auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
-			auto filePath = driverDataDirectory.absoluteFilePath(fileName);
-			qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
-			_currentStint->save(filePath);
-			++_currentStintNum;
-			Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
-		}
-
-		_currentStint->clearData();
+		saveCurrentStint();
 	}
 
 	_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));	
@@ -224,6 +210,25 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	_previousLapData = LapData(lapData);
 }
 
+
+void DriverTracker::saveCurrentStint()
+{
+	_isLapRecorded = false;
+
+	if (_currentStint->hasData())
+	{
+		// A stint ended
+		auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
+		auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
+		auto filePath = driverDataDirectory.absoluteFilePath(fileName);
+		qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
+		_currentStint->save(filePath);
+		++_currentStintNum;
+		Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
+	}
+
+	_currentStint->clearData();
+}
 
 void DriverTracker::addLapToStint(Lap *lap)
 {
@@ -306,6 +311,20 @@ void DriverTracker::motionData(const PacketHeader &header, const PacketMotionDat
 {
 	Q_UNUSED(header)
 	_currentMotionData = data;
+}
+
+void DriverTracker::eventData(const PacketHeader &header, const PacketEventData &data)
+{
+	Q_UNUSED(header)
+	switch (data.event) {
+		case Event::SessionEnded:
+		case Event::RaceWinner:
+		case Event::ChequeredFlag:
+			saveCurrentStint();
+			break;
+		default:
+			break;
+	}
 }
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const

@@ -86,6 +86,14 @@ bool F1Listener::tryRead()
 					_interface->motionData(_lastHeader, packet);
 				break;
 			}
+			case UdpSpecification::PacketType::Event:
+			{
+				auto packet = PacketEventData();
+				stream >> packet;
+				if (_interface)
+					_interface->eventData(_lastHeader, packet);
+				break;
+			}
 			default:
 				break;
 		}

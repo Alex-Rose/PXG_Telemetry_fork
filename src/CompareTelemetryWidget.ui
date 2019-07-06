@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>588</height>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,7 +62,7 @@
             <x>0</x>
             <y>0</y>
             <width>197</width>
-            <height>586</height>
+            <height>590</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -126,6 +126,9 @@
            </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="showGrid">
+            <bool>false</bool>
            </property>
            <property name="wordWrap">
             <bool>false</bool>

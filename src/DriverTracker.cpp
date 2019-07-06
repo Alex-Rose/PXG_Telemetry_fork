@@ -7,8 +7,9 @@
 #include <QtGlobal>
 
 const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "Gear", "Time",
-									 "Front Left Tyre Temperature", "Front Right Tyre Temperature",
-									 "Rear Left Tyre Temperature.", "Rear Left Tyre Temperature."};
+									 "Front Left Tyre Temp.", "Front Right Tyre Temp.", "Rear Left Tyre Temp.", "Rear Right Tyre Temp."};
+
+const QStringList EXTENDED_TELEMETRY_NAMES = {"Locking", "Balance"};
 
 const QStringList TELEMETRY_STINT_NAMES = {"Lap Times (s)", "Average Tyre Wear (%)", "Fuel (kg)", "Stored Energy (kJ)",
 										   "Energy Deployed (kJ)", "Energy Harvested (kJ)",
@@ -25,6 +26,8 @@ void DriverTracker::init(const QDir &directory)
 {
 	dataDirectory = directory;
 	driverDirDefined = false;
+	_extendedPlayerTelemetry = false;
+	_currentLap->setDataNames(TELEMETRY_NAMES);
 	_isLapRecorded = false;
 }
 
@@ -36,10 +39,42 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	if (driverData.m_gear < 0)
 		_isLapRecorded = false; //Rear gear
 
-	auto values = {float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
+	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
 					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime,
-				  float(driverData.m_tyresSurfaceTemperature[2]), float(driverData.m_tyresSurfaceTemperature[3]),
-				  float(driverData.m_tyresSurfaceTemperature[0]), float(driverData.m_tyresSurfaceTemperature[1])};
+					float(driverData.m_tyresSurfaceTemperature[2]), float(driverData.m_tyresSurfaceTemperature[3]),
+					float(driverData.m_tyresSurfaceTemperature[0]), float(driverData.m_tyresSurfaceTemperature[1])});
+
+	if (_extendedPlayerTelemetry)
+	{
+		TyresData<float> slip;
+		slip.setArray(_currentMotionData.m_wheelSlip);
+
+		const auto& slipValuesList = slip.asList();
+
+		// locking
+		auto hasLock = false;
+		for (auto slipValue : slipValuesList) {
+			if (qAbs(*slipValue) > 0.6) {
+				hasLock = true;
+				values << qAbs(**(std::max_element(slipValuesList.begin(), slipValuesList.end(), [](auto v1, auto v2){return qAbs(*v1) < qAbs(*v2);})));
+				break;
+			}
+		}
+
+		if (!hasLock) {
+			values << 0;
+		}
+
+		// Balance
+		auto vx = (driverData.m_speed * 1000.0) / 3600.0;
+		auto wb = 3.630;
+		auto ay = _currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral * 10.0;
+		auto neutralSteer = (ay * wb) / (vx * vx);
+		auto balance = qAbs(neutralSteer) - qAbs(_currentMotionData.m_frontWheelsAngle);
+		values << balance;
+	}
+
+
 	_currentLap->addData(_previousLapData.m_lapDistance, values);
 
 	_currentLap->innerTemperatures.apply([driverData](auto index, auto& temp){temp.addValue(driverData.m_tyresInnerTemperature[index]);});
@@ -155,7 +190,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		}
 	}
 
-	if (lapData.m_pitStatus > 0 || lastRaceLap || _currentSessionData.m_sessionTimeLeft < 1)
+	if (lapData.m_pitStatus > 0 || lastRaceLap || (_currentSessionData.m_sessionTimeLeft < 1 && _currentSessionData.m_sessionType != 12))
 	{
 		_isLapRecorded = false;
 
@@ -259,7 +294,18 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 		driverDataDirectory.cd(subDirName);
 		qDebug() << driverDataDirectory.absolutePath();
 		driverDirDefined = true;
+
+		if (header.m_playerCarIndex == _driverIndex) {
+			_extendedPlayerTelemetry = true;
+			_currentLap->setDataNames(TELEMETRY_NAMES + EXTENDED_TELEMETRY_NAMES);
+		}
 	}
+}
+
+void DriverTracker::motionData(const PacketHeader &header, const PacketMotionData &data)
+{
+	Q_UNUSED(header)
+	_currentMotionData = data;
 }
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const

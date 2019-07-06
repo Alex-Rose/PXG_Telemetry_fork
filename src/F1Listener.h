@@ -16,6 +16,7 @@ public:
 	virtual void setupData(const PacketHeader& header, const PacketCarSetupData& data) = 0;
 	virtual void statusData(const PacketHeader& header, const PacketCarStatusData& data) = 0;
 	virtual void participant(const PacketHeader& header, const PacketParticipantsData& data) = 0;
+	virtual void motionData(const PacketHeader& header, const PacketMotionData& data) = 0;
 };
 
 class F1Listener : public QObject

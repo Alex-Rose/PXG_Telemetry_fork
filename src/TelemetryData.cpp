@@ -47,10 +47,17 @@ QVector<float> TelemetryData::data(int index) const
 	QVector<float> dataValues;
 	for (const auto& dataPoint : _data)
 	{
+		if (index >= dataPoint.count())
+			break;
 		dataValues << dataPoint[index];
 	}
 
 	return dataValues;
+}
+
+void TelemetryData::setDataNames(const QStringList &dataNames)
+{
+	_dataNames = dataNames;
 }
 
 void TelemetryData::save(QDataStream &out) const

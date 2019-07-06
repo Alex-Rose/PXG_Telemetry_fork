@@ -1,4 +1,5 @@
 #include "CompareTelemetryWidget.h"
+#include "TelemetryChartView.h"
 #include "TelemetryDataTableModel.h"
 #include "ui_CompareTelemetryWidget.h"
 
@@ -19,7 +20,6 @@ const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
 const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
-//const QString TURN_NAMES = "⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇";
 const QString TURN_NAMES = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
 
 CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) :
@@ -81,25 +81,26 @@ void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &te
 	ui->lapsTableView->setCurrentIndex(_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));
 }
 
-QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> defaultColors)
+void CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> colors)
 {
 	qApp->setOverrideCursor(Qt::WaitCursor);
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-	QList<QColor> colors;
-
 	auto refLap = _telemetryDataModel->getReferenceData();
 	if (!refLap)
-		return colors;
+		return;
 
 	chart->removeAllSeries();
 	for (auto data : telemetryData)
 	{
+		const auto& values = data->data(varIndex);
+		if (values.isEmpty())
+			continue;
+
 		auto series = new QLineSeries();
 		series->setName(data->description());
 
 		const auto& distances = data->xValues();
-		const auto& values = data->data(varIndex);
 		const auto& refDist = refLap->xValues();
 		const auto& ref = refLap->data(varIndex);
 		auto itDistance = distances.constBegin();
@@ -150,25 +151,40 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 
 		chart->addSeries(series);
 
-		if (!defaultColors.isEmpty())
-			series->setColor(defaultColors.takeFirst());
-
-		colors << series->color();
+		if (!colors.isEmpty())
+			series->setColor(colors.takeFirst());
 
 		// Uncomment to print the track distance under the mouse
 		// connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
 
-	chart->createDefaultAxes();
+	createAxis(chart);
+	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
 
-	auto trackTurn = UdpSpecification::instance()->turns(_trackIndex);
-	if (!trackTurn.isEmpty())
+	qApp->restoreOverrideCursor();
+}
+
+void CompareTelemetryWidget::createAxis(QChart* chart)
+{
+	chart->createDefaultAxes();
+	auto xAxis = static_cast<QValueAxis*>(chart->axes(Qt::Horizontal)[0]);
+	auto yAxis = static_cast<QValueAxis*>(chart->axes(Qt::Vertical)[0]);
+
+	xAxis->setGridLineVisible(false);
+
+	if (yAxis->min() < 0 && yAxis->max() > 0) {
+		auto absMax = qMax(qAbs(yAxis->min()), yAxis->max());
+		yAxis->setMin(-absMax);
+		yAxis->setMax(absMax);
+	}
+
+	auto trackTurns = UdpSpecification::instance()->turns(_trackIndex);
+	if (!trackTurns.isEmpty())
 	{
-		chart->axes(Qt::Horizontal)[0]->setGridLineVisible(false);
 		auto categoryAxis = new QCategoryAxis();
 		categoryAxis->setMin(0);
-		categoryAxis->setMax(double(telemetryData.first()->xValues().last()));
-		for (auto t : trackTurn)
+		categoryAxis->setMax(xAxis->max());
+		for (const auto& t : qAsConst(trackTurns))
 		{
 			categoryAxis->append(TURN_NAMES[t.first - 1], t.second);
 		}
@@ -180,28 +196,22 @@ QList<QColor> CompareTelemetryWidget::reloadVariableSeries(QChart* chart, const 
 		chart->addAxis(categoryAxis, Qt::AlignTop);
 		chart->series()[0]->attachAxis(categoryAxis);
 	}
-
-	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
-
-	qApp->restoreOverrideCursor();
-
-	return colors;
 }
 
-void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry, bool retainColors)
+void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry)
 {
 	if (!telemetry.isEmpty())
 	{
-		const auto& newVariables = telemetry.first()->availableData();
-		if (_variables != newVariables)
-			createVariables(newVariables);
+		for (const auto& telemetryData : telemetry)
+			createVariables(telemetryData->availableData());
 
-		QList<QColor> colors = retainColors ? _telemetryDataModel->colors() : QList<QColor>();
+		QList<QColor> colors = _telemetryDataModel->colors();
 		int varIndex = 0;
 		for (auto chartView: _variablesCharts)
 		{
 			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
-			colors = reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
+			reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
+			chartView->setHomeZoom();
 
 			++varIndex;
 		}
@@ -232,53 +242,62 @@ void CompareTelemetryWidget::setTelemetryVisibility(const QVector<bool> &visibil
 
 void CompareTelemetryWidget::createVariables(const QStringList &variables)
 {
-	clearVariables();
+	if (variables.count() <= _variables.count())
+		return;
 
-	_variables = variables;
-	int varIndex = 0;
-	int maxVarRows = fmax(ceil(_variables.count() / 2.0), MAX_NB_ROWS_OF_VARIABLE);
-	auto varCurrentRow = 0;
-	auto varCurrentCol = 0;
-	for (auto var: _variables)
+	int maxVarRows = fmax(ceil(variables.count() / 2.0), MAX_NB_ROWS_OF_VARIABLE);
+	int varCurrentCol = 0;
+	int varCurrentRow = 0;
+	for (auto checkbox : _variableCheckboxes)
+		ui->variableLayout->removeWidget(checkbox);
+	for (int varIndex = 0; varIndex < variables.count(); ++varIndex)
 	{
-		auto checkbox = new QCheckBox(var, this);
-		connect(checkbox, &QCheckBox::toggled, this, &CompareTelemetryWidget::variableChecked);
-		_variableCheckboxes << checkbox;
-		ui->variableLayout->addWidget(checkbox, varCurrentRow,varCurrentCol);
+		auto var = variables.value(varIndex);
+
+		if (varIndex < _variables.count()) {
+			ui->variableLayout->addWidget(_variableCheckboxes[varIndex], varCurrentRow, varCurrentCol);
+		}
+		else {
+			auto checkbox = new QCheckBox(var, this);
+			connect(checkbox, &QCheckBox::toggled, this, &CompareTelemetryWidget::variableChecked);
+			_variableCheckboxes << checkbox;
+			ui->variableLayout->addWidget(checkbox, varCurrentRow,varCurrentCol);
+
+			auto chart = new QChart();
+			chart->setMargins(QMargins());
+			chart->setContentsMargins(0, 0, 0, 0);
+			chart->legend()->hide();
+			chart->setTitle(var);
+
+			auto diffProxy = new QGraphicsProxyWidget(chart);
+			auto diffCheck = new QCheckBox("Diff with reference lap");
+			diffProxy->setWidget(diffCheck);
+			_diffCheckboxes << diffCheck;
+			connect(diffCheck, &QCheckBox::toggled, this, &CompareTelemetryWidget::changeVariableDiff);
+			diffProxy->setPos(QPoint(12, 9));
+
+			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			pol.setVerticalStretch(1);
+
+			auto view = new TelemetryChartView(chart, this);
+			chart->setMargins(QMargins());
+			view->setSizePolicy(pol);
+			_variablesCharts << view;
+			view->setVisible(checkbox->isChecked());
+			view->setRubberBand(QChartView::RectangleRubberBand);
+
+			ui->graphLayout->addWidget(view);
+		}
+
 		++varCurrentRow;
 		if (varCurrentRow >= maxVarRows)
 		{
 			varCurrentRow = 0;
 			varCurrentCol += 1;
 		}
-
-		auto chart = new QChart();
-		chart->setMargins(QMargins());
-		chart->setContentsMargins(0, 0, 0, 0);
-		chart->legend()->hide();
-		chart->setTitle(var);
-
-		auto diffProxy = new QGraphicsProxyWidget(chart);
-		auto diffCheck = new QCheckBox("Diff with reference lap");
-		diffProxy->setWidget(diffCheck);
-		_diffCheckboxes << diffCheck;
-		connect(diffCheck, &QCheckBox::toggled, this, &CompareTelemetryWidget::changeVariableDiff);
-		diffProxy->setPos(QPoint(12, 9));
-
-		QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		pol.setVerticalStretch(1);
-
-		auto view = new QChartView(chart, this);
-		chart->setMargins(QMargins());
-		view->setSizePolicy(pol);
-		_variablesCharts << view;
-		view->setVisible(checkbox->isChecked());
-		view->setRubberBand(QChartView::HorizontalRubberBand);
-
-		ui->graphLayout->addWidget(view);
-
-		++varIndex;
 	}
+
+	_variables = variables;
 	ui->variableLayout->setColumnStretch(1, 1);
 }
 
@@ -346,7 +365,7 @@ void CompareTelemetryWidget::clearData()
 
 void CompareTelemetryWidget::updateData()
 {
-	setTelemetry(_telemetryDataModel->getTelemetryData(), true);
+	setTelemetry(_telemetryDataModel->getTelemetryData());
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
 }
 
@@ -369,7 +388,7 @@ void CompareTelemetryWidget::variableChecked(bool value)
 void CompareTelemetryWidget::home()
 {
 	for (auto chartView : _variablesCharts)
-		chartView->chart()->zoomReset();
+		chartView->home();
 }
 
 void CompareTelemetryWidget::distanceZoomChanged(qreal min, qreal max)

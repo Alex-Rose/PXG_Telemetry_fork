@@ -25,17 +25,20 @@ public:
 	void setupData(const PacketHeader &header, const PacketCarSetupData &data) override;
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
+	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
 
 	int getDriverIndex() const {return _driverIndex;}
 
 private:
-	int _driverIndex = 0;
+	bool _extendedPlayerTelemetry = false;
+	int _driverIndex;
 	QDir dataDirectory;
 	bool driverDirDefined = false;
 	QDir driverDataDirectory;
 	LapData _previousLapData;
 	PacketSessionData _currentSessionData;
 	CarStatusData _currentStatusData;
+	PacketMotionData _currentMotionData;
 	bool _isLapRecorded = false;
 	Lap* _currentLap = nullptr;
 	Stint* _currentStint = nullptr;

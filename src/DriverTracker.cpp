@@ -4,6 +4,7 @@
 #include "Stint.h"
 
 #include <QTime>
+#include <cmath>
 #include <QtGlobal>
 
 const QStringList TELEMETRY_NAMES = {"Speed", "Throttle", "Brake", "Steering", "Gear", "Time",

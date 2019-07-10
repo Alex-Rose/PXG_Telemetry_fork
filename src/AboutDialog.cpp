@@ -10,7 +10,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 	ui->lblIcon->setPixmap(QPixmap(":/Ressources/F1Telemetry.png").scaledToWidth(80));
 
 	auto sourceUrl = "https://bitbucket.org/Fiingon/pxg-f1-telemetry/src";
-	auto cdUrl = "http://www.codemasters.com/game/f1-2018/";
+	auto cdUrl = "http://www.codemasters.com/game/f1-2019/";
 	auto licenceUrl = "https://www.gnu.org/licenses/gpl-3.0.en.html";
 
 	auto aboutText = QString("%1 %2"

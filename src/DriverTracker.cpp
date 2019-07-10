@@ -54,8 +54,9 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		// locking
 		auto hasLock = false;
 		for (auto slipValue : slipValuesList) {
-			if (qAbs(*slipValue) > 0.6) {
+			if (qAbs(*slipValue) > 0.8) {
 				hasLock = true;
+
 				values << qAbs(**(std::max_element(slipValuesList.begin(), slipValuesList.end(), [](auto v1, auto v2){return qAbs(*v1) < qAbs(*v2);})));
 				break;
 			}
@@ -71,6 +72,8 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		auto ay = _currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral * 10.0;
 		auto neutralSteer = (ay * wb) / (vx * vx);
 		auto balance = qAbs(neutralSteer) - qAbs(_currentMotionData.m_frontWheelsAngle);
+		balance *= 180.0;
+		balance /= M_PI;
 		values << balance;
 	}
 

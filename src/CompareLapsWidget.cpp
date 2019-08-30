@@ -45,6 +45,10 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(lap->trackTemp) + "°C"});
 
 	auto time = QTime(0, 0).addMSecs(int(double(lap->lapTime) * 1000.0)).toString("m:ss.zzz");
+	if (lap->isOutLap)
+		time += " (Out Lap)";
+	if (lap->isInLap)
+		time += " (In Lap)";
 	auto s1time = QTime(0, 0).addMSecs(int(double(lap->sector1Time) * 1000.0)).toString("m:ss.zzz");
 	auto s2time = QTime(0, 0).addMSecs(int(double(lap->sector2Time) * 1000.0)).toString("m:ss.zzz");
 	auto s3time = QTime(0, 0).addMSecs(int(double(lap->sector3Time) * 1000.0)).toString("m:ss.zzz");

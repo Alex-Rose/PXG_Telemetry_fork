@@ -77,6 +77,7 @@ private slots:
 	void telemetryTableContextMenu(const QPoint& pos);
 	void changeReferenceData();
 	void removeData();
+	void showTrackLayout(bool value);
 };
 
 #endif // COMPARETELEMETRYWIDGET_H

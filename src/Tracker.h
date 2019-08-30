@@ -44,6 +44,7 @@ private:
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;
+	QStringList _driverList;
 	bool _hasParticipants = false;
 	PacketSessionData _session;
 	PacketHeader _header;

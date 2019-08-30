@@ -42,6 +42,7 @@ CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) :
 	connect(_telemetryDataModel, &TelemetryDataTableModel::lapsChanged, this, &CompareTelemetryWidget::updateData);
 	connect(_telemetryDataModel, &TelemetryDataTableModel::visibilityChanged, this, &CompareTelemetryWidget::updateDataVisibilities);
 	connect(ui->lapsTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &CompareTelemetryWidget::telemetryDataSelected);
+	connect(ui->checkTrackLayout, &QCheckBox::toggled, this, &CompareTelemetryWidget::showTrackLayout);
 
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
 
@@ -464,6 +465,14 @@ void CompareTelemetryWidget::removeData()
 		{
 			clearData();
 		}
+	}
+}
+
+void CompareTelemetryWidget::showTrackLayout(bool value)
+{
+	ui->lblTrackMap->setVisible(value);
+	if (value) {
+		setTrackIndex(_trackIndex);
 	}
 }
 

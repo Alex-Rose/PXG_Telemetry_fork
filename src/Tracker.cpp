@@ -230,13 +230,15 @@ void Tracker::statusData(const PacketHeader &header, const PacketCarStatusData &
 
 void Tracker::participant(const PacketHeader &header, const PacketParticipantsData &data)
 {
-	_participants = data;
-
-	if (!_hasParticipants)
+	auto newDriverList = availableDrivers(data);
+	if (!_hasParticipants || newDriverList != _driverList)
 	{
-		emit driverChanged(availableDrivers(data));
+		emit driverChanged(newDriverList);
 		_hasParticipants = true;
 	}
+
+	_participants = data;
+	_driverList = newDriverList;
 
 	if (_do_start && _hasParticipants)
 		start();

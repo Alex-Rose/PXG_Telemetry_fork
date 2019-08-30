@@ -12,7 +12,16 @@ QString Lap::description() const
 	auto time = QTime(0, 0).addMSecs(int(double(lapTime) * 1000.0)).toString("m:ss.zzz");
 	auto team = UdpSpecification::instance()->team(driver.m_teamId);
 	auto tyre = UdpSpecification::instance()->tyre(tyreCompound);
-	return driver.m_name + " " + team + " - " + tyre + " - " + time;
+	QString additionalInfo;
+	if (isOutLap && isInLap) {
+		additionalInfo = " (inout)";
+	} else if (isOutLap) {
+		additionalInfo = " (out)";
+	}
+	else if (isInLap) {
+		additionalInfo = " (in)";
+	}
+	return driver.m_name + " " + team + " - " + tyre + " - " + time + additionalInfo;
 }
 
 void Lap::resetData()
@@ -24,6 +33,8 @@ void Lap::resetData()
 	innerTemperatures.rearLeft.clear();
 	innerTemperatures.rearRight.clear();
 	nbFlashback = 0;
+	isOutLap = false;
+	isInLap = false;
 }
 
 
@@ -88,7 +99,7 @@ void Lap::saveData(QDataStream &out) const
 	TelemetryData::save(out);
 	out	<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
 		<< ers << energy << harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance
-		<< startTyreWear << endTyreWear;
+		<< startTyreWear << endTyreWear << isInLap << isOutLap;
 
 }
 
@@ -100,5 +111,5 @@ void Lap::loadData(QDataStream &in)
 	TelemetryData::load(in);
 	in  >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
 		>> ers >> energy >> harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance
-		>> startTyreWear >> endTyreWear;
+		>> startTyreWear >> endTyreWear >> isInLap >> isOutLap;
 }

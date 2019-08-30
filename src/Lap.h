@@ -55,6 +55,9 @@ public:
 		int nbFlashback = 0;
 		double trackDistance = 0;
 
+		bool isOutLap = false;
+		bool isInLap = false;
+
 		// Saving - Loading
 		void save(const QString& filename) const;
 		void load(const QString& filename);

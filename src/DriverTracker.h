@@ -45,6 +45,7 @@ private:
 	Stint* _currentStint = nullptr;
 	int _currentLapNum = 1;
 	int _currentStintNum = 1;
+	double _timeDiff = 0;
 
 	TyresData<DegradationData> degradations;
 
@@ -55,8 +56,10 @@ private:
 	bool isLastRaceLap(const LapData& data) const;
 
 	void saveCurrentStint();
-
 	void addLapToStint(Lap* lap);
+
+	void saveCurrentLap(const LapData& lapData);
+	void startLap(const LapData &lapData);
 };
 
 #endif // DRIVERTRACKER_H

@@ -55,7 +55,12 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	for (auto lap : stint->lapTimes)
 	{
 		auto lapTime = QTime(0, 0).addMSecs(int(double(lap) * 1000.0)).toString("m:ss.zzz");
-		new QTreeWidgetItem(stintItem, {QString("Lap ").append(QString::number(lapIndex)), lapTime});
+		auto text = QString("Lap ").append(QString::number(lapIndex));
+		if (stint->isOutLap && lapIndex == 1)
+			text += " (Out Lap)";
+		if (stint->isInLap && lapIndex == stint->lapTimes.count())
+			text += " (In Lap)";
+		new QTreeWidgetItem(stintItem, {text, lapTime});
 		++lapIndex;
 	}
 

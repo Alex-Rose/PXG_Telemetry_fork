@@ -108,7 +108,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		((lapData.m_lapDistance > 0 && lapData.m_lapDistance < _currentSessionData.m_trackLength / 4.0)
 		|| (lapData.m_lapDistance < 0 && lapData.m_lapDistance < -3.0 * _currentSessionData.m_trackLength / 4.0)))  // out lap
 	{
-		qInfo() << "In Lap Started";
+		qInfo() << "In Lap Started, TimeDif = " << lapData.m_currentLapTime;
 		startLap(lapData);
 		_timeDiff = lapData.m_currentLapTime;
 		_currentLap->isOutLap = true;
@@ -187,7 +187,7 @@ void DriverTracker::saveCurrentStint()
 	if (_currentStint->hasData())
 	{
 		// A stint ended
-		auto tyre = UdpSpecification::instance()->tyre(_currentStint->tyreCompound).remove(' ');
+		auto tyre = UdpSpecification::instance()->visualTyre(_currentStint->visualTyreCompound).remove(' ');
 		auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) + "Laps_" + tyre + ".f1stint";
 		auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 		qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
@@ -206,15 +206,15 @@ void DriverTracker::saveCurrentLap(const LapData& lapData)
 	_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
 	_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 	if (_currentLap->isInLap) {
-		_currentLap->lapTime = lapData.m_currentLapTime - _timeDiff;
+		_currentLap->lapTime = lapData.m_currentLapTime;
 		_currentLap->sector1Time = lapData.m_sector1Time;
 		_currentLap->sector2Time = lapData.m_sector2Time;
-		_currentLap->sector3Time = lapData.m_currentLapTime - _timeDiff - lapData.m_sector2Time - lapData.m_sector1Time;
+		_currentLap->sector3Time = lapData.m_currentLapTime - lapData.m_sector2Time - lapData.m_sector1Time;
 	} else if (_currentLap->isOutLap) {
-		_currentLap->lapTime = _previousLapData.m_currentLapTime;
+		_currentLap->lapTime = _previousLapData.m_currentLapTime - _timeDiff;
 		_currentLap->sector1Time = _previousLapData.m_sector1Time;
 		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time = _previousLapData.m_currentLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+		_currentLap->sector3Time = _previousLapData.m_currentLapTime - _timeDiff - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
 	}
 	else {
 		_currentLap->lapTime = lapData.m_lastLapTime;
@@ -293,6 +293,7 @@ void DriverTracker::startLap(const LapData& lapData)
 	_currentLap->averageStartTyreWear = averageTyreWear(_currentStatusData);
 	_currentLap->startTyreWear.setArray(_currentStatusData.m_tyresWear);
 	_currentLap->tyreCompound = _currentStatusData.m_tyreCompound;
+	_currentLap->visualTyreCompound = _currentStatusData.m_tyreVisualCompound;
 	_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 	_currentLap->maxSpeed = 0;
 
@@ -305,6 +306,7 @@ void DriverTracker::startLap(const LapData& lapData)
 		_currentStint->driver = _currentLap->driver;
 		_currentStint->session_type = _currentLap->session_type;
 		_currentStint->tyreCompound = _currentLap->tyreCompound;
+		_currentStint->visualTyreCompound = _currentLap->visualTyreCompound;
 		_currentStint->trackTemp = _currentLap->trackTemp;
 		_currentStint->airTemp = _currentLap->airTemp;
 		_currentStint->weather = _currentLap->weather;

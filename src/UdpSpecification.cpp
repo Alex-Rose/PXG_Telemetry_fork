@@ -55,10 +55,10 @@ UdpSpecification::UdpSpecification()
 	weathers = QStringList({"Clear", "Light Cloud", "Overcast", "Light Rain", "Heavy Rain", "Storm"});
 	sessions = QStringList({"Unknown", "FP1", "FP2", "FP3", "Short FP", "Q1", "Q2", "Q3", "Short Q", "OSQ", "R1", "R2", "Time Trial"});
 	tyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet",
-						"Dry (Classic)", "Wet (Classic)", "Super Soft (F2)", "Soft (F2)", "Medium (F2)", "Hard (F2)", "Wet (F2)"
+						"Dry (Classic)", "Wet (Classic)", "Super Soft (F2)", "Soft (F2)", "Medium (F2)", "Hard (F2)", "Wet (F2)",
 						"C5", "C4", "C3", "C2", "C1"});
 	visualTyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard", "Inter", "Full Wet",
-							   "Dry (Classic)", "Wet (Classic)", "Super Soft (F2)", "Soft (F2)", "Medium (F2)", "Hard (F2)", "Wet (F2)"
+							   "Dry (Classic)", "Wet (Classic)", "Super Soft (F2)", "Soft (F2)", "Medium (F2)", "Hard (F2)", "Wet (F2)",
 							   "Soft", "Medium", "Hard"});
 	ersModes = QStringList({"None", "Low", "Medium", "High", "Overtake", "Hotlap"});
 	fuelMixes = QStringList({"Lean", "Standard", "Rich", "Max"});

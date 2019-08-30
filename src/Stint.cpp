@@ -14,7 +14,7 @@ QString Stint::description() const
 {
 	auto nbLap = QString::number(nbLaps());
 	auto team = UdpSpecification::instance()->team(driver.m_teamId);
-	auto tyre = UdpSpecification::instance()->tyre(tyreCompound);
+	auto tyre = UdpSpecification::instance()->visualTyre(visualTyreCompound);
 	return driver.m_name + " " + team + " - " + tyre + " - " + nbLap + "Laps";
 }
 

@@ -45,6 +45,7 @@ public:
 		int maxSpeedErsMode = -1;
 		int maxSpeedFuelMix = -1;
 		int tyreCompound = -1;
+		int visualTyreCompound = -1;
 		double fuelOnStart = 0;
 		double fuelOnEnd = 0;
 		ErsData ers;

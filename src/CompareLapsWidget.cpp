@@ -66,6 +66,10 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	maxSpeedItem->setExpanded(true);
 
 	auto compound = UdpSpecification::instance()->tyre(lap->tyreCompound);
+	auto visualCompound = UdpSpecification::instance()->visualTyre(lap->visualTyreCompound);
+	if (compound != visualCompound && !visualCompound.isEmpty()) {
+		compound += " - " + visualCompound;
+	}
 	new QTreeWidgetItem(tree, {"Tyre Compound", compound});
 
 	tyreItem(tree, lap);

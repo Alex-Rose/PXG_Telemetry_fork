@@ -47,6 +47,10 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(stint->trackTemp) + "°C"});
 
 	auto compound = UdpSpecification::instance()->tyre(stint->tyreCompound);
+	auto visualCompound = UdpSpecification::instance()->visualTyre(stint->visualTyreCompound);
+	if (compound != visualCompound && !visualCompound.isEmpty()) {
+		compound += " - " + visualCompound;
+	}
 	new QTreeWidgetItem(tree, {"Tyre Compound", compound});
 
 	auto stintItem = new QTreeWidgetItem(tree, {"Stint", QString::number(stint->nbLaps()) + " Laps"});

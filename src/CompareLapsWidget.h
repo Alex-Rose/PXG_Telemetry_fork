@@ -6,20 +6,19 @@
 #include <QTreeWidget>
 
 
-
 class CompareLapsWidget : public CompareTelemetryWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	CompareLapsWidget();
 	virtual ~CompareLapsWidget() {}
 
-protected slots:
+  protected slots:
 	virtual void browseData();
 
-protected:
-	virtual void fillInfoTree(QTreeWidget* tree, const TelemetryData* data);
+  protected:
+	virtual void fillInfoTree(QTreeWidget *tree, const TelemetryData *data);
 };
 
 #endif // COMPARELAPSWIDGET_H

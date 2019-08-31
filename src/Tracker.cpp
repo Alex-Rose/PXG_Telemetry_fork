@@ -10,11 +10,10 @@ Tracker::Tracker()
 	_sessionDirectory = _dataDirectory;
 }
 
-void Tracker::setDataDirectory(const QString& dirPath)
+void Tracker::setDataDirectory(const QString &dirPath)
 {
 	auto newDir = QDir(dirPath);
-	if (newDir != _dataDirectory)
-	{
+	if(newDir != _dataDirectory) {
 		QDir().mkpath(dirPath);
 		_dataDirectory = QDir(dirPath);
 		_lastStartedSessionUID = 0;
@@ -24,23 +23,19 @@ void Tracker::setDataDirectory(const QString& dirPath)
 
 void Tracker::updateAutoTrackedDrivers()
 {
-	for (auto carIndex : _autoTrackedIndexes)
-	{
+	for(auto carIndex : _autoTrackedIndexes) {
 		untrackDriver(carIndex);
 	}
 	_autoTrackedIndexes.clear();
 
-	if (_addPlayerTrackingOnStart)
+	if(_addPlayerTrackingOnStart)
 		_autoTrackedIndexes << _header.m_playerCarIndex;
 
-	if (_addTeammateTrackingOnStart)
-	{
-		const auto& playerData = _participants.m_participants[_header.m_playerCarIndex];
+	if(_addTeammateTrackingOnStart) {
+		const auto &playerData = _participants.m_participants[_header.m_playerCarIndex];
 		int carIndex = 0;
-		for (auto& driverData : _participants.m_participants)
-		{
-			if (driverData.m_teamId == playerData.m_teamId && driverData.m_driverId != playerData.m_driverId)
-			{
+		for(auto &driverData : _participants.m_participants) {
+			if(driverData.m_teamId == playerData.m_teamId && driverData.m_driverId != playerData.m_driverId) {
 				_autoTrackedIndexes << carIndex;
 			}
 
@@ -48,26 +43,23 @@ void Tracker::updateAutoTrackedDrivers()
 		}
 	}
 
-	if (_addTTGhostsTrackingOnStart) {
+	if(_addTTGhostsTrackingOnStart) {
 		auto tracker = std::make_shared<TTGhostsTracker>();
 		_trackedDrivers.append(tracker);
 	}
 
-	for (auto carIndex : _autoTrackedIndexes)
-	{
-		if (!_trackedIndexes.contains(carIndex))
+	for(auto carIndex : _autoTrackedIndexes) {
+		if(!_trackedIndexes.contains(carIndex))
 			trackDriver(carIndex);
 	}
 }
 
 void Tracker::start()
 {
-	if (hasSession())
-	{
+	if(hasSession()) {
 		updateAutoTrackedDrivers();
 
-		if (_lastStartedSessionUID != _header.m_sessionUID)
-		{
+		if(_lastStartedSessionUID != _header.m_sessionUID) {
 			auto trackName = UdpSpecification::instance()->track(_session.m_trackId);
 			auto type = UdpSpecification::instance()->session_type(_session.m_sessionType);
 
@@ -78,7 +70,7 @@ void Tracker::start()
 			_sessionDirectory.cd(dirName);
 		}
 
-		for (auto& driver : qAsConst(_trackedDrivers)) {
+		for(auto &driver : qAsConst(_trackedDrivers)) {
 			driver->init(_sessionDirectory);
 		}
 
@@ -87,9 +79,7 @@ void Tracker::start()
 		_isRunning = true;
 		_do_start = false;
 		_lastStartedSessionUID = _header.m_sessionUID;
-	}
-	else
-	{
+	} else {
 		Logger::instance()->log("Waiting for a session ...");
 		emit statusChanged("Waiting for a session...", true);
 		_autoStart = true;
@@ -111,25 +101,16 @@ void Tracker::trackDriver(int index)
 	_trackedIndexes.insert(index);
 }
 
-void Tracker::trackPlayer()
-{
-	_addPlayerTrackingOnStart = true;
-}
+void Tracker::trackPlayer() { _addPlayerTrackingOnStart = true; }
 
-void Tracker::trackTeammate()
-{
-	_addTeammateTrackingOnStart = true;
-}
+void Tracker::trackTeammate() { _addTeammateTrackingOnStart = true; }
 
-void Tracker::trackTTGhosts()
-{
-	_addTTGhostsTrackingOnStart = true;
-}
+void Tracker::trackTTGhosts() { _addTTGhostsTrackingOnStart = true; }
 
 void Tracker::untrackDriver(int index)
 {
-	for (auto it = _trackedDrivers.begin(); it != _trackedDrivers.end(); ++it) {
-		if ((*it)->getDriverIndex() == index) {
+	for(auto it = _trackedDrivers.begin(); it != _trackedDrivers.end(); ++it) {
+		if((*it)->getDriverIndex() == index) {
 			_trackedDrivers.erase(it);
 			break;
 		}
@@ -148,10 +129,10 @@ void Tracker::clearTrackedDrivers()
 QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const
 {
 	QStringList names;
-	for (auto& driver : data.m_participants) {
+	for(auto &driver : data.m_participants) {
 		auto name = QString(driver.m_name);
 		auto team = UdpSpecification::instance()->team(driver.m_teamId);
-		if (!team.isEmpty()) {
+		if(!team.isEmpty()) {
 			name += " (";
 			name += team;
 			name += " )";
@@ -162,10 +143,7 @@ QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const
 	return names;
 }
 
-bool Tracker::hasSession() const
-{
-	return _header.isValid();
-}
+bool Tracker::hasSession() const { return _header.isValid(); }
 
 QString Tracker::sessionName(const PacketSessionData &data) const
 {
@@ -177,20 +155,20 @@ QString Tracker::sessionName(const PacketSessionData &data) const
 
 void Tracker::telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data)
 {
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->telemetryData(header, data);
 	}
 }
 
 void Tracker::lapData(const PacketHeader &header, const PacketLapData &data)
 {
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->lapData(header, data);
 	}
 }
@@ -199,13 +177,11 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 {
 	_do_start = !hasSession() and _autoStart;
 
-	if (header.m_sessionUID != _header.m_sessionUID)
-	{
+	if(header.m_sessionUID != _header.m_sessionUID) {
 		emit sessionChanged(sessionName(data));
 		_hasParticipants = false;
 
-		if (_isRunning)
-		{
+		if(_isRunning) {
 			Logger::instance()->log("Session changed");
 			_do_start = true;
 		}
@@ -215,33 +191,33 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 	_header = header;
 
 
-	if (_do_start && _hasParticipants)
+	if(_do_start && _hasParticipants)
 		start();
 
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->sessionData(header, data);
 	}
 }
 
 void Tracker::setupData(const PacketHeader &header, const PacketCarSetupData &data)
 {
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->setupData(header, data);
 	}
 }
 
 void Tracker::statusData(const PacketHeader &header, const PacketCarStatusData &data)
 {
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->statusData(header, data);
 	}
 }
@@ -249,8 +225,7 @@ void Tracker::statusData(const PacketHeader &header, const PacketCarStatusData &
 void Tracker::participant(const PacketHeader &header, const PacketParticipantsData &data)
 {
 	auto newDriverList = availableDrivers(data);
-	if (!_hasParticipants || newDriverList != _driverList)
-	{
+	if(!_hasParticipants || newDriverList != _driverList) {
 		emit driverChanged(newDriverList);
 		_hasParticipants = true;
 	}
@@ -258,33 +233,33 @@ void Tracker::participant(const PacketHeader &header, const PacketParticipantsDa
 	_participants = data;
 	_driverList = newDriverList;
 
-	if (_do_start && _hasParticipants)
+	if(_do_start && _hasParticipants)
 		start();
 
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->participant(header, data);
 	}
 }
 
 void Tracker::motionData(const PacketHeader &header, const PacketMotionData &data)
 {
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->motionData(header, data);
 	}
 }
 
 void Tracker::eventData(const PacketHeader &header, const PacketEventData &data)
 {
-	if (!_isRunning)
+	if(!_isRunning)
 		return;
 
-	for (auto& driver : qAsConst(_trackedDrivers)) {
+	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->eventData(header, data);
 	}
 }

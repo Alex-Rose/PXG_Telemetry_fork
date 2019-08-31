@@ -1,13 +1,11 @@
-#include "AboutDialog.h"
 #include "F1Telemetry.h"
+#include "AboutDialog.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
 #include <QMessageBox>
 
-F1Telemetry::F1Telemetry(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::F1Telemetry)
+F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Telemetry)
 {
 	ui->setupUi(this);
 
@@ -29,10 +27,7 @@ F1Telemetry::F1Telemetry(QWidget *parent) :
 	initMenu();
 }
 
-F1Telemetry::~F1Telemetry()
-{
-	delete ui;
-}
+F1Telemetry::~F1Telemetry() { delete ui; }
 
 void F1Telemetry::loadSettings()
 {
@@ -62,8 +57,11 @@ void F1Telemetry::initMenu()
 {
 	auto helpMenu = ui->menuBar->addMenu("&Help");
 
-	helpMenu->addAction("About &Qt", [=](){QMessageBox::aboutQt(this, qApp->applicationName());});
-	helpMenu->addAction("About", [=](){AboutDialog dlg(this);dlg.exec();});
+	helpMenu->addAction("About &Qt", [=]() { QMessageBox::aboutQt(this, qApp->applicationName()); });
+	helpMenu->addAction("About", [=]() {
+		AboutDialog dlg(this);
+		dlg.exec();
+	});
 	helpMenu->addAction("Quick Instructions", ui->trackingWidget, &TrackingWidget::showQuickInstructions);
 }
 
@@ -76,13 +74,13 @@ void F1Telemetry::closeEvent(QCloseEvent *event)
 void F1Telemetry::startTracking(bool trackPlayer, bool trackTeammate, bool trackTTGHosts, const QVector<int> &trackedDriverIds)
 {
 	_tracker->clearTrackedDrivers();
-	if (trackPlayer)
+	if(trackPlayer)
 		_tracker->trackPlayer();
-	if (trackTeammate)
+	if(trackTeammate)
 		_tracker->trackTeammate();
-	if (trackTTGHosts)
+	if(trackTTGHosts)
 		_tracker->trackTTGhosts();
-	for (auto id : trackedDriverIds)
+	for(auto id : trackedDriverIds)
 		_tracker->trackDriver(id);
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
 	_tracker->start();

@@ -10,15 +10,13 @@ double addMean(double current_mean, double value_to_add, int nb_values);
 float addMean(float current_mean, float value_to_add, int nb_values);
 
 
-template<typename T>
-struct TyresData
-{
+template <typename T> struct TyresData {
 	T frontLeft;
 	T frontRight;
 	T rearLeft;
 	T rearRight;
 
-	TyresData<T>& operator=(const TyresData<T>& other)
+	TyresData<T> &operator=(const TyresData<T> &other)
 	{
 		rearLeft = other.rearLeft;
 		rearRight = other.rearRight;
@@ -28,17 +26,13 @@ struct TyresData
 		return *this;
 	}
 
-	QVector<T*> asList()
-	{
-		return {&rearLeft, &rearRight, &frontLeft, &frontRight};
-	}
+	QVector<T *> asList() { return {&rearLeft, &rearRight, &frontLeft, &frontRight}; }
 
-	T& operator[](int index)
+	T &operator[](int index)
 	{
-		if (index <= 0)
+		if(index <= 0)
 			return rearLeft;
-		switch(index)
-		{
+		switch(index) {
 			case 0:
 				return rearLeft;
 			case 1:
@@ -51,12 +45,9 @@ struct TyresData
 		}
 	}
 
-	void reset(const T& value)
-	{
-		setList({value, value, value, value});
-	}
+	void reset(const T &value) { setList({value, value, value, value}); }
 
-	void setList(const QVector<T>& values)
+	void setList(const QVector<T> &values)
 	{
 		rearLeft = values.value(0);
 		rearRight = values.value(1);
@@ -64,8 +55,7 @@ struct TyresData
 		frontRight = values.value(3);
 	}
 
-	template<typename FromType>
-	void setArray(const FromType values[4])
+	template <typename FromType> void setArray(const FromType values[4])
 	{
 		rearLeft = FromType(values[0]);
 		rearRight = FromType(values[1]);
@@ -73,19 +63,17 @@ struct TyresData
 		frontRight = FromType(values[3]);
 	}
 
-	void apply(std::function<void(int, T&)> func)
+	void apply(std::function<void(int, T &)> func)
 	{
 		int index = 0;
-		for (auto obj : asList())
-		{
+		for(auto obj : asList()) {
 			func(index, *obj);
 			++index;
 		}
 	}
 };
 
-template<typename T>
-TyresData<T> operator-(const TyresData<T>& t1, const TyresData<T>& t2)
+template <typename T> TyresData<T> operator-(const TyresData<T> &t1, const TyresData<T> &t2)
 {
 	auto res = t1;
 	res.frontLeft -= t2.frontLeft;
@@ -98,7 +86,7 @@ TyresData<T> operator-(const TyresData<T>& t1, const TyresData<T>& t2)
 
 class TemperatureData
 {
-public:
+  public:
 	TemperatureData();
 
 	void addValue(double temp);
@@ -114,7 +102,7 @@ public:
 
 class DegradationData
 {
-public:
+  public:
 	DegradationData();
 
 	void computeValue(double tyreWear, double distance);
@@ -126,28 +114,26 @@ public:
 	double currentDistance;
 	int nb_value;
 
-private:
+  private:
 	bool has_value = false;
 };
 
-template<typename T>
-QDataStream & operator>>(QDataStream &in, TyresData<T>& tyre)
+template <typename T> QDataStream &operator>>(QDataStream &in, TyresData<T> &tyre)
 {
 	in >> tyre.frontLeft >> tyre.frontRight >> tyre.rearLeft >> tyre.rearRight;
 	return in;
 }
 
-template<typename T>
-QDataStream & operator<<(QDataStream &out, const TyresData<T>& tyre)
+template <typename T> QDataStream &operator<<(QDataStream &out, const TyresData<T> &tyre)
 {
 	out << tyre.frontLeft << tyre.frontRight << tyre.rearLeft << tyre.rearRight;
 	return out;
 }
 
-QDataStream & operator>>(QDataStream &in, TemperatureData& data);
-QDataStream & operator<<(QDataStream &out, const TemperatureData& data);
+QDataStream &operator>>(QDataStream &in, TemperatureData &data);
+QDataStream &operator<<(QDataStream &out, const TemperatureData &data);
 
-QDataStream & operator>>(QDataStream &in, DegradationData& data);
-QDataStream & operator<<(QDataStream &out, const DegradationData& data);
+QDataStream &operator>>(QDataStream &in, DegradationData &data);
+QDataStream &operator<<(QDataStream &out, const DegradationData &data);
 
 #endif // TYRES_H

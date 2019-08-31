@@ -12,16 +12,16 @@ class Tracker : public QObject, public F1PacketInterface
 {
 	Q_OBJECT
 
-signals:
-	void sessionChanged(const QString& name);
-	void driverChanged(const QStringList& drivers);
-	void statusChanged(const QString& status, bool isTracking);
+  signals:
+	void sessionChanged(const QString &name);
+	void driverChanged(const QStringList &drivers);
+	void statusChanged(const QString &status, bool isTracking);
 
-public:
+  public:
 	Tracker();
 	virtual ~Tracker() override {}
 
-	void setDataDirectory(const QString& dirPath);
+	void setDataDirectory(const QString &dirPath);
 	void trackDriver(int index);
 	void trackPlayer();
 	void trackTeammate();
@@ -31,11 +31,11 @@ public:
 
 	bool hasSession() const;
 
-public slots:
+  public slots:
 	void start();
 	void stop();
 
-private:
+  private:
 	QDir _dataDirectory;
 	QDir _sessionDirectory;
 	QVector<std::shared_ptr<DriverTracker>> _trackedDrivers;
@@ -61,8 +61,8 @@ private:
 	void setupData(const PacketHeader &header, const PacketCarSetupData &data) override;
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
-	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
-	void eventData(const PacketHeader& header, const PacketEventData& data)  override;
+	void motionData(const PacketHeader &header, const PacketMotionData &data) override;
+	void eventData(const PacketHeader &header, const PacketEventData &data) override;
 
 	QString sessionName(const PacketSessionData &data) const;
 	QStringList availableDrivers(const PacketParticipantsData &data) const;

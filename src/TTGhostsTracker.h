@@ -4,10 +4,9 @@
 #include "DriverTracker.h"
 
 
-
 class TTGhostsTracker : public DriverTracker
 {
-public:
+  public:
 	TTGhostsTracker();
 
 	void telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data) override;
@@ -16,14 +15,14 @@ public:
 	void setupData(const PacketHeader &header, const PacketCarSetupData &data) override;
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
-	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
-	void eventData(const PacketHeader& header, const PacketEventData& data) override;
+	void motionData(const PacketHeader &header, const PacketMotionData &data) override;
+	void eventData(const PacketHeader &header, const PacketEventData &data) override;
 
-private:
+  private:
 	QVector<DriverTracker> _trackedDrivers;
 	PacketParticipantsData _participants;
 
-	bool isGhost(const LapData& lapData, const ParticipantData& participant) const;
+	bool isGhost(const LapData &lapData, const ParticipantData &participant) const;
 };
 
 #endif // TTDRIVERTRACKER_H

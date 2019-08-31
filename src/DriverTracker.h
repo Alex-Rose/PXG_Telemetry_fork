@@ -12,11 +12,11 @@ class Stint;
 
 class DriverTracker : public F1PacketInterface
 {
-public:
+  public:
 	DriverTracker(int driverIndex = 0);
 	virtual ~DriverTracker() override {}
 
-	void init(const QDir& directory);
+	void init(const QDir &directory);
 
 	// F1PacketInterface interface
 	void telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data) override;
@@ -25,12 +25,12 @@ public:
 	void setupData(const PacketHeader &header, const PacketCarSetupData &data) override;
 	void statusData(const PacketHeader &header, const PacketCarStatusData &data) override;
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
-	void motionData(const PacketHeader& header, const PacketMotionData& data) override;
-	void eventData(const PacketHeader& header, const PacketEventData& data) override;
+	void motionData(const PacketHeader &header, const PacketMotionData &data) override;
+	void eventData(const PacketHeader &header, const PacketEventData &data) override;
 
-	int getDriverIndex() const {return _driverIndex;}
+	int getDriverIndex() const { return _driverIndex; }
 
-protected:
+  protected:
 	bool _extendedPlayerTelemetry = false;
 	int _driverIndex;
 	QDir dataDirectory;
@@ -41,24 +41,24 @@ protected:
 	CarStatusData _currentStatusData;
 	PacketMotionData _currentMotionData;
 	bool _isLapRecorded = false;
-	Lap* _currentLap = nullptr;
-	Stint* _currentStint = nullptr;
+	Lap *_currentLap = nullptr;
+	Stint *_currentStint = nullptr;
 	int _currentLapNum = 1;
 	int _currentStintNum = 1;
 	double _timeDiff = 0;
 
 	TyresData<DegradationData> degradations;
 
-	bool finishLineCrossed(const LapData& data) const;
-	bool flashbackDetected(const LapData& data) const;
-	double averageTyreWear(const CarStatusData& carStatus) const;
+	bool finishLineCrossed(const LapData &data) const;
+	bool flashbackDetected(const LapData &data) const;
+	double averageTyreWear(const CarStatusData &carStatus) const;
 
-	bool isLastRaceLap(const LapData& data) const;
+	bool isLastRaceLap(const LapData &data) const;
 
 	void saveCurrentStint();
-	void addLapToStint(Lap* lap);
+	void addLapToStint(Lap *lap);
 
-	void saveCurrentLap(const LapData& lapData);
+	void saveCurrentLap(const LapData &lapData);
 	void startLap(const LapData &lapData);
 };
 

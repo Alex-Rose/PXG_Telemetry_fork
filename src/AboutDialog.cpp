@@ -1,9 +1,7 @@
 #include "AboutDialog.h"
 #include "ui_AboutDialog.h"
 
-AboutDialog::AboutDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::AboutDialog)
+AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {
 	ui->setupUi(this);
 
@@ -17,11 +15,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 							 "<br><a href=\"%3\">%3</a>"
 							 "<br><br>Compatible with <a href=\"%4\">Codemasters F1 2019</a><br>"
 							 "<br>Licence: <a href=\"%5\">GPL v3</a>")
-			.arg(qApp->applicationName(), qApp->applicationVersion(), sourceUrl, cdUrl, licenceUrl);
+					 .arg(qApp->applicationName(), qApp->applicationVersion(), sourceUrl, cdUrl, licenceUrl);
 	ui->lblText->setText(aboutText);
 }
 
-AboutDialog::~AboutDialog()
-{
-	delete ui;
-}
+AboutDialog::~AboutDialog() { delete ui; }

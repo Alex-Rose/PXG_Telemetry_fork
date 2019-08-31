@@ -1,7 +1,7 @@
 #include "F1Telemetry.h"
 #include <QApplication>
 
-const QString& VERSION = "1.1";
+const QString &VERSION = "1.1";
 
 int main(int argc, char *argv[])
 {

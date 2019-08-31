@@ -3,9 +3,7 @@
 #include <QFile>
 #include <QtDebug>
 
-Lap::Lap(const QStringList &telemetryDataNames) : TelemetryData(telemetryDataNames)
-{
-}
+Lap::Lap(const QStringList &telemetryDataNames) : TelemetryData(telemetryDataNames) {}
 
 QString Lap::description() const
 {
@@ -13,12 +11,11 @@ QString Lap::description() const
 	auto team = UdpSpecification::instance()->team(driver.m_teamId);
 	auto tyre = UdpSpecification::instance()->visualTyre(visualTyreCompound);
 	QString additionalInfo;
-	if (isOutLap && isInLap) {
+	if(isOutLap && isInLap) {
 		additionalInfo = " (inout)";
-	} else if (isOutLap) {
+	} else if(isOutLap) {
 		additionalInfo = " (out)";
-	}
-	else if (isInLap) {
+	} else if(isInLap) {
 		additionalInfo = " (in)";
 	}
 	return driver.m_name + " " + team + " - " + tyre + " - " + time + additionalInfo;
@@ -40,13 +37,11 @@ void Lap::resetData()
 
 void Lap::removeTelemetryFrom(float distance)
 {
-	if (!_xValues.isEmpty())
-	{
+	if(!_xValues.isEmpty()) {
 		auto d = _xValues.last();
-		while (d > distance)
-		{
+		while(d > distance) {
 			removeLastData();
-			if (_xValues.isEmpty())
+			if(_xValues.isEmpty())
 				break;
 			d = _xValues.last();
 		}
@@ -56,17 +51,14 @@ void Lap::removeTelemetryFrom(float distance)
 void Lap::save(const QString &filename) const
 {
 	QFile file(filename);
-	if (file.open(QIODevice::WriteOnly))
-	{
+	if(file.open(QIODevice::WriteOnly)) {
 		QDataStream out(&file);
 		out.setByteOrder(QDataStream::LittleEndian);
 		out.setFloatingPointPrecision(QDataStream::SinglePrecision);
 		saveData(out);
 
 		qDebug() << "LAP saved " << filename;
-	}
-	else
-	{
+	} else {
 		qDebug() << "LAP saving failed in " << filename;
 	}
 }
@@ -74,8 +66,7 @@ void Lap::save(const QString &filename) const
 void Lap::load(const QString &filename)
 {
 	QFile file(filename);
-	if (file.open(QIODevice::ReadOnly))
-	{
+	if(file.open(QIODevice::ReadOnly)) {
 		QDataStream in(&file);
 		in.setByteOrder(QDataStream::LittleEndian);
 		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
@@ -83,7 +74,7 @@ void Lap::load(const QString &filename)
 	}
 }
 
-Lap* Lap::fromFile(const QString &filename)
+Lap *Lap::fromFile(const QString &filename)
 {
 	auto lap = new Lap;
 	lap->load(filename);
@@ -93,23 +84,20 @@ Lap* Lap::fromFile(const QString &filename)
 
 void Lap::saveData(QDataStream &out) const
 {
-	out << track << session_type << trackTemp << airTemp << weather << invalid << driver
-		<< recordDate << averageStartTyreWear << averageEndTyreWear << setup << comment
-		<< lapTime << sector1Time << sector2Time << sector3Time;
+	out << track << session_type << trackTemp << airTemp << weather << invalid << driver << recordDate << averageStartTyreWear
+		<< averageEndTyreWear << setup << comment << lapTime << sector1Time << sector2Time << sector3Time;
 	TelemetryData::save(out);
-	out	<< tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd
-		<< ers << energy << harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance
-		<< startTyreWear << endTyreWear << isInLap << isOutLap << visualTyreCompound;
-
+	out << tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd << ers << energy
+		<< harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance << startTyreWear
+		<< endTyreWear << isInLap << isOutLap << visualTyreCompound;
 }
 
 void Lap::loadData(QDataStream &in)
 {
-	in  >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver
-		>> recordDate >> averageStartTyreWear >> averageEndTyreWear >> setup >> comment
-		>> lapTime >> sector1Time >> sector2Time >> sector3Time;
+	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver >> recordDate >>
+	averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >> sector3Time;
 	TelemetryData::load(in);
-	in  >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd
-		>> ers >> energy >> harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance
-		>> startTyreWear >> endTyreWear >> isInLap >> isOutLap >> visualTyreCompound;
+	in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
+	harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
+	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound;
 }

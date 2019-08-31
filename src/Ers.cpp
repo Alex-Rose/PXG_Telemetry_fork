@@ -1,18 +1,14 @@
 #include "Ers.h"
 
-ErsData::ErsData()
-{
-	clear();
-}
+ErsData::ErsData() { clear(); }
 
 void ErsData::addValue(int mode, double lapDistance)
 {
-	if (_currentMode < 0)
+	if(_currentMode < 0)
 		_currentMode = mode;
 
-	if (mode != _currentMode)
-	{
-		if (!distancesPerMode.contains(_currentMode))
+	if(mode != _currentMode) {
+		if(!distancesPerMode.contains(_currentMode))
 			distancesPerMode[_currentMode] = 0;
 		distancesPerMode[_currentMode] += (lapDistance - _startedModeDistance);
 		_currentMode = mode;
@@ -20,10 +16,7 @@ void ErsData::addValue(int mode, double lapDistance)
 	}
 }
 
-void ErsData::finalize(double lapDistance)
-{
-	addValue(-1, lapDistance);
-}
+void ErsData::finalize(double lapDistance) { addValue(-1, lapDistance); }
 
 void ErsData::clear()
 {

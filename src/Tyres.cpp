@@ -8,19 +8,16 @@
 
 double addMean(double current_mean, double value_to_add, int nb_values)
 {
-	return (value_to_add  + ((nb_values - 1) * current_mean)) / nb_values;
+	return (value_to_add + ((nb_values - 1) * current_mean)) / nb_values;
 }
 
 float addMean(float current_mean, float value_to_add, int nb_values)
 {
-	return (value_to_add  + ((nb_values - 1) * current_mean)) / nb_values;
+	return (value_to_add + ((nb_values - 1) * current_mean)) / nb_values;
 }
 
 
-TemperatureData::TemperatureData()
-{
-	clear();
-}
+TemperatureData::TemperatureData() { clear(); }
 
 void TemperatureData::addValue(double temp)
 {
@@ -28,8 +25,7 @@ void TemperatureData::addValue(double temp)
 
 	auto new_mean = addMean(mean, temp, n);
 	auto new_var = 0.0;
-	if (n >= 2)
-	{
+	if(n >= 2) {
 		new_var = ((n - 2) / (n - 1)) * variance + square(temp - new_mean) / (n - 1);
 	}
 	++nb_value;
@@ -73,21 +69,14 @@ QDataStream &operator<<(QDataStream &out, const DegradationData &data)
 	return out;
 }
 
-DegradationData::DegradationData()
-{
-	reset();
-}
+DegradationData::DegradationData() { reset(); }
 
 void DegradationData::computeValue(double tyreWear, double distance)
 {
-	if (qAbs(currentWear - tyreWear) > 2 * DEGRADATION_STEP)
-	{
+	if(qAbs(currentWear - tyreWear) > 2 * DEGRADATION_STEP) {
 		reset(tyreWear, distance);
-	}
-	else if (tyreWear >= currentWear + DEGRADATION_STEP)
-	{
-		if (has_value)
-		{
+	} else if(tyreWear >= currentWear + DEGRADATION_STEP) {
+		if(has_value) {
 			++nb_value;
 			auto p = qAbs(distance - currentDistance);
 			mean = addMean(mean, p, nb_value);

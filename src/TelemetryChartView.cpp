@@ -6,31 +6,28 @@ using namespace QtCharts;
 
 const constexpr double FACTOR = 1.3;
 
-TelemetryChartView::TelemetryChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
-{
-
-}
+TelemetryChartView::TelemetryChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent) {}
 
 void TelemetryChartView::setHomeZoom()
 {
-	auto xAxis = static_cast<QValueAxis*>(chart()->axes(Qt::Horizontal)[0]);
-	auto yAxis = static_cast<QValueAxis*>(chart()->axes(Qt::Vertical)[0]);
+	auto xAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
+	auto yAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
 	xHome = qMakePair(xAxis->min(), xAxis->max());
 	yHome = qMakePair(yAxis->min(), yAxis->max());
 }
 
 void TelemetryChartView::home()
 {
-	auto xAxis = static_cast<QValueAxis*>(chart()->axes(Qt::Horizontal)[0]);
-	auto yAxis = static_cast<QValueAxis*>(chart()->axes(Qt::Vertical)[0]);
+	auto xAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
+	auto yAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
 	xAxis->setRange(xHome.first, xHome.second);
 	yAxis->setRange(yHome.first, yHome.second);
 }
 
 void TelemetryChartView::wheelEvent(QWheelEvent *event)
 {
-	auto xAxis = static_cast<QValueAxis*>(chart()->axes(Qt::Horizontal)[0]);
-	auto yAxis = static_cast<QValueAxis*>(chart()->axes(Qt::Vertical)[0]);
+	auto xAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
+	auto yAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
 
 	auto zoomScale = event->delta() < 0 ? FACTOR : 1.0 / FACTOR;
 	auto zoomPoint = mapFromGlobal(event->globalPos());

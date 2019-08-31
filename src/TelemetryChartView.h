@@ -6,16 +6,16 @@
 
 class TelemetryChartView : public QtCharts::QChartView
 {
-public:
+  public:
 	TelemetryChartView(QtCharts::QChart *chart, QWidget *parent = nullptr);
 
 	void setHomeZoom();
 	void home();
 
-protected:
+  protected:
 	void wheelEvent(QWheelEvent *event);
 
-private:
+  private:
 	QPair<double, double> xHome;
 	QPair<double, double> yHome;
 };

@@ -1,14 +1,12 @@
 #include "Stint.h"
 #include "UdpSpecification.h"
 
-#include <QFile>
 #include <QDataStream>
+#include <QFile>
 #include <QtDebug>
 
 
-Stint::Stint(const QStringList &dataNames) : Lap(dataNames)
-{
-}
+Stint::Stint(const QStringList &dataNames) : Lap(dataNames) {}
 
 QString Stint::description() const
 {
@@ -18,10 +16,7 @@ QString Stint::description() const
 	return driver.m_name + " " + team + " - " + tyre + " - " + nbLap + "Laps";
 }
 
-int Stint::nbLaps() const
-{
-	return countData();
-}
+int Stint::nbLaps() const { return countData(); }
 
 Stint *Stint::fromFile(const QString &filename)
 {

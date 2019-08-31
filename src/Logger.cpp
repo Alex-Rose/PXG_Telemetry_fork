@@ -1,8 +1,6 @@
 #include "Logger.h"
 
-Logger::Logger()
-{
-}
+Logger::Logger() {}
 
 Logger *Logger::instance()
 {
@@ -12,15 +10,10 @@ Logger *Logger::instance()
 
 void Logger::log(const QString &text)
 {
-	if (_interface)
+	if(_interface)
 		_interface->log(text);
 }
 
-void Logger::setInterface(LogInterface *interface)
-{
-	_interface = interface;
-}
+void Logger::setInterface(LogInterface *interface) { _interface = interface; }
 
-LogInterface::~LogInterface()
-{
-}
+LogInterface::~LogInterface() {}

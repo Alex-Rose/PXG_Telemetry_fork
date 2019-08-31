@@ -10,15 +10,15 @@ class CompareStintsWidget : public CompareTelemetryWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	CompareStintsWidget();
 	virtual ~CompareStintsWidget() {}
 
-protected slots:
+  protected slots:
 	virtual void browseData();
 
-protected:
-	virtual void fillInfoTree(QTreeWidget* tree, const TelemetryData* data);
+  protected:
+	virtual void fillInfoTree(QTreeWidget *tree, const TelemetryData *data);
 };
 
 #endif // COMPARESTINTWIDGET_H

@@ -3,7 +3,8 @@
 #include <QNetworkDatagram>
 
 
-F1Listener::F1Listener(F1PacketInterface* interface, QObject *parent) : QObject(parent), _listener(new QUdpSocket(this)), _interface(interface)
+F1Listener::F1Listener(F1PacketInterface *interface, QObject *parent)
+: QObject(parent), _listener(new QUdpSocket(this)), _interface(interface)
 {
 	// bind to listening port
 	_listener->bind(QHostAddress::Any, 20777);
@@ -14,8 +15,7 @@ F1Listener::F1Listener(F1PacketInterface* interface, QObject *parent) : QObject(
 bool F1Listener::tryRead()
 {
 	auto expectedLength = UdpSpecification::instance()->expectedPacketLength(_expectedDataType);
-	if (_buffer.count() >= expectedLength)
-	{
+	if(_buffer.count() >= expectedLength) {
 		auto dataToRead = _buffer.left(expectedLength);
 		_buffer.remove(0, expectedLength);
 
@@ -23,74 +23,64 @@ bool F1Listener::tryRead()
 		stream.setByteOrder(QDataStream::LittleEndian);
 		stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
-		switch(_expectedDataType)
-		{
-			case UdpSpecification::PacketType::Header:
-			{
+		switch(_expectedDataType) {
+			case UdpSpecification::PacketType::Header: {
 				stream >> _lastHeader;
 				break;
 			}
-			case UdpSpecification::PacketType::Participants:
-			{
+			case UdpSpecification::PacketType::Participants: {
 				auto packet = PacketParticipantsData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->participant(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::LapData:
-			{
+			case UdpSpecification::PacketType::LapData: {
 				auto packet = PacketLapData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->lapData(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::CarTelemetry:
-			{
+			case UdpSpecification::PacketType::CarTelemetry: {
 				auto packet = PacketCarTelemetryData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->telemetryData(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::CarSetup:
-			{
+			case UdpSpecification::PacketType::CarSetup: {
 				auto packet = PacketCarSetupData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->setupData(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::Session:
-			{
+			case UdpSpecification::PacketType::Session: {
 				auto packet = PacketSessionData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->sessionData(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::CarStatus:
-			{
+			case UdpSpecification::PacketType::CarStatus: {
 				auto packet = PacketCarStatusData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->statusData(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::Motion:
-			{
+			case UdpSpecification::PacketType::Motion: {
 				auto packet = PacketMotionData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->motionData(_lastHeader, packet);
 				break;
 			}
-			case UdpSpecification::PacketType::Event:
-			{
+			case UdpSpecification::PacketType::Event: {
 				auto packet = PacketEventData();
 				stream >> packet;
-				if (_interface)
+				if(_interface)
 					_interface->eventData(_lastHeader, packet);
 				break;
 			}
@@ -98,7 +88,7 @@ bool F1Listener::tryRead()
 				break;
 		}
 
-		if (_expectedDataType == UdpSpecification::PacketType::Header)
+		if(_expectedDataType == UdpSpecification::PacketType::Header)
 			_expectedDataType = static_cast<UdpSpecification::PacketType>(_lastHeader.m_packetId);
 		else
 			_expectedDataType = UdpSpecification::PacketType::Header;
@@ -111,15 +101,12 @@ bool F1Listener::tryRead()
 
 void F1Listener::readData()
 {
-	while (_listener->hasPendingDatagrams())
-	{
+	while(_listener->hasPendingDatagrams()) {
 		auto datagram = _listener->receiveDatagram();
 		_buffer += datagram.data();
-		while (tryRead()) {}
+		while(tryRead()) {
+		}
 	}
 }
 
-F1PacketInterface::~F1PacketInterface()
-{
-
-}
+F1PacketInterface::~F1PacketInterface() {}

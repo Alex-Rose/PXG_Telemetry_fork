@@ -4,26 +4,25 @@
 #include <QString>
 
 
-
 class LogInterface
 {
-public:
+  public:
 	virtual ~LogInterface();
-	virtual void log(const QString& text) = 0;
+	virtual void log(const QString &text) = 0;
 };
 
 class Logger
 {
-public:
-	static Logger* instance();
+  public:
+	static Logger *instance();
 
-	void log(const QString& text);
+	void log(const QString &text);
 
-	void setInterface(LogInterface* interface);
+	void setInterface(LogInterface *interface);
 
-private:
+  private:
 	Logger();
-	LogInterface* _interface;
+	LogInterface *_interface;
 };
 
 #endif // LOGGER_H

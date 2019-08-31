@@ -1,12 +1,12 @@
 #ifndef ERS_H
 #define ERS_H
 
-#include <QMap>
 #include <QDataStream>
+#include <QMap>
 
 class ErsData
 {
-public:
+  public:
 	ErsData();
 
 	QMap<int, double> distancesPerMode;
@@ -15,12 +15,12 @@ public:
 	void finalize(double lapDistance);
 	void clear();
 
-private:
+  private:
 	int _currentMode = -1;
 	double _startedModeDistance = 0;
 };
 
-QDataStream & operator>>(QDataStream &in, ErsData& data);
-QDataStream & operator<<(QDataStream &out, const ErsData& data);
+QDataStream &operator>>(QDataStream &in, ErsData &data);
+QDataStream &operator<<(QDataStream &out, const ErsData &data);
 
 #endif // ERS_H

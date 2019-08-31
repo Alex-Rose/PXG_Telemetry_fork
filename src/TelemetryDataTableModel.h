@@ -10,11 +10,11 @@ class TelemetryDataTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 
-signals:
+  signals:
 	void lapsChanged();
 	void visibilityChanged();
 
-public:
+  public:
 	TelemetryDataTableModel();
 
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -23,28 +23,27 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	void addTelemetryData(const QVector<TelemetryData*>& data);
+	void addTelemetryData(const QVector<TelemetryData *> &data);
 	void removeTelemetryData(int index);
 	void clear();
 
-	void setColors(const QList<QColor>& colors);
+	void setColors(const QList<QColor> &colors);
 	QList<QColor> colors() const;
 
 	void setReferenceLapIndex(int index);
 
-	const QVector<TelemetryData*>& getTelemetryData() const;
-	const QVector<bool>& getVisibility() const;
-	const TelemetryData* getReferenceData() const;
+	const QVector<TelemetryData *> &getTelemetryData() const;
+	const QVector<bool> &getVisibility() const;
+	const TelemetryData *getReferenceData() const;
 
 	QColor getNewColor();
 
-private:
-	QVector<TelemetryData*> _telemetryData;
+  private:
+	QVector<TelemetryData *> _telemetryData;
 	QVector<bool> _visibility;
 	QList<QColor> _colors;
 	int _referenceLapIndex = -1;
 	QList<QColor> _availableColors;
-
 };
 
 #endif // TELEMETRYDATATABLEMODEL_H

@@ -4,18 +4,15 @@
 #include <QFileDialog>
 #include <QHeaderView>
 
-CompareLapsWidget::CompareLapsWidget()
-{
-	setDataName("Lap");
-}
+CompareLapsWidget::CompareLapsWidget() { setDataName("Lap"); }
 
 void CompareLapsWidget::browseData()
 {
-	auto files = QFileDialog::getOpenFileNames(this, "Select some laps to compare", "", "*.f1lap", nullptr, QFileDialog::DontUseNativeDialog);
+	auto files = QFileDialog::getOpenFileNames(this, "Select some laps to compare", "", "*.f1lap", nullptr,
+											   QFileDialog::DontUseNativeDialog);
 
-	QVector<TelemetryData*> laps;
-	for (auto file : files)
-	{
+	QVector<TelemetryData *> laps;
+	for(auto file : files) {
 		auto lap = Lap::fromFile(file);
 		laps.append(lap);
 		setTrackIndex(lap->track);
@@ -26,8 +23,8 @@ void CompareLapsWidget::browseData()
 
 void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *data)
 {
-	auto lap = dynamic_cast<const Lap*>(data);
-	if (!lap)
+	auto lap = dynamic_cast<const Lap *>(data);
+	if(!lap)
 		return;
 
 	tree->clear();
@@ -45,9 +42,9 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(lap->trackTemp) + "°C"});
 
 	auto time = QTime(0, 0).addMSecs(int(double(lap->lapTime) * 1000.0)).toString("m:ss.zzz");
-	if (lap->isOutLap)
+	if(lap->isOutLap)
 		time += " (Out Lap)";
-	if (lap->isInLap)
+	if(lap->isInLap)
 		time += " (In Lap)";
 	auto s1time = QTime(0, 0).addMSecs(int(double(lap->sector1Time) * 1000.0)).toString("m:ss.zzz");
 	auto s2time = QTime(0, 0).addMSecs(int(double(lap->sector2Time) * 1000.0)).toString("m:ss.zzz");
@@ -67,7 +64,7 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 
 	auto compound = UdpSpecification::instance()->tyre(lap->tyreCompound);
 	auto visualCompound = UdpSpecification::instance()->visualTyre(lap->visualTyreCompound);
-	if (compound != visualCompound && !visualCompound.isEmpty()) {
+	if(compound != visualCompound && !visualCompound.isEmpty()) {
 		compound += " - " + visualCompound;
 	}
 	new QTreeWidgetItem(tree, {"Tyre Compound", compound});
@@ -85,8 +82,7 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	auto ersItem = new QTreeWidgetItem(tree, {"ERS Energy", QString::number(int(lap->energy / 1000.0)) + "kJ"});
 	new QTreeWidgetItem(ersItem, {"Deployed", QString::number(int(lap->deployedEnergy / 1000.0)) + "kJ"});
 	new QTreeWidgetItem(ersItem, {"Harvested", QString::number(int(lap->harvestedEnergy / 1000.0)) + "kJ"});
-	for (auto it = lap->ers.distancesPerMode.constBegin(); it != lap->ers.distancesPerMode.constEnd(); ++it)
-	{
+	for(auto it = lap->ers.distancesPerMode.constBegin(); it != lap->ers.distancesPerMode.constEnd(); ++it) {
 		auto percentage = (it.value() / lap->trackDistance) * 100.0;
 		new QTreeWidgetItem(ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(percentage, 'f', 2) + "%"});
 	}

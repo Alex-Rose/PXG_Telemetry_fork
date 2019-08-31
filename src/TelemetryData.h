@@ -8,13 +8,13 @@
 
 class TelemetryData
 {
-public:
-	TelemetryData(const QStringList& dataNames = {});
+  public:
+	TelemetryData(const QStringList &dataNames = {});
 	virtual ~TelemetryData() = default;
 
 	virtual QString description() const = 0;
 
-	void addData(float x, const QVector<float>& dataValues);
+	void addData(float x, const QVector<float> &dataValues);
 	void clearData();
 	void removeLastData();
 
@@ -25,9 +25,9 @@ public:
 	QVector<float> data(int index) const;
 
 	void setDataNames(const QStringList &dataNames);
-	QStringList availableData() const {return _dataNames;}
+	QStringList availableData() const { return _dataNames; }
 
-protected:
+  protected:
 	QVector<float> _xValues;
 	QVector<QVector<float>> _data;
 	QStringList _dataNames;

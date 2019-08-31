@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 SOURCES += \
+    TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
         main.cpp \
         F1Telemetry.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
 HEADERS += \
         F1Telemetry.h \
     F1Listener.h \
+    TTGhostsTracker.h \
     TelemetryChartView.h \
     UdpSpecification.h \
     Tracker.h \

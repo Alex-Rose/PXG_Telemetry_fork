@@ -3,6 +3,7 @@
 
 #include "DriverTracker.h"
 #include "F1Listener.h"
+#include <memory>
 
 #include <QDir>
 #include <QVector>
@@ -24,6 +25,7 @@ public:
 	void trackDriver(int index);
 	void trackPlayer();
 	void trackTeammate();
+	void trackTTGhosts();
 	void untrackDriver(int index);
 	void clearTrackedDrivers();
 
@@ -36,11 +38,12 @@ public slots:
 private:
 	QDir _dataDirectory;
 	QDir _sessionDirectory;
-	QVector<DriverTracker> _trackedDrivers;
+	QVector<std::shared_ptr<DriverTracker>> _trackedDrivers;
 	QSet<int> _trackedIndexes;
 	QSet<int> _autoTrackedIndexes;
 	bool _addPlayerTrackingOnStart = false;
 	bool _addTeammateTrackingOnStart = false;
+	bool _addTTGhostsTrackingOnStart = false;
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;

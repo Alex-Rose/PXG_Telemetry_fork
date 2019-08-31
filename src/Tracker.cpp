@@ -1,5 +1,6 @@
 #include "Tracker.h"
 #include "Logger.h"
+#include "TTGhostsTracker.h"
 
 #include <QDateTime>
 
@@ -47,6 +48,11 @@ void Tracker::updateAutoTrackedDrivers()
 		}
 	}
 
+	if (_addTTGhostsTrackingOnStart) {
+		auto tracker = std::make_shared<TTGhostsTracker>();
+		_trackedDrivers.append(tracker);
+	}
+
 	for (auto carIndex : _autoTrackedIndexes)
 	{
 		if (!_trackedIndexes.contains(carIndex))
@@ -72,8 +78,8 @@ void Tracker::start()
 			_sessionDirectory.cd(dirName);
 		}
 
-		for (auto& driver : _trackedDrivers) {
-			driver.init(_sessionDirectory);
+		for (auto& driver : qAsConst(_trackedDrivers)) {
+			driver->init(_sessionDirectory);
 		}
 
 		Logger::instance()->log("TRACKING...");
@@ -100,7 +106,7 @@ void Tracker::stop()
 
 void Tracker::trackDriver(int index)
 {
-	auto driver = DriverTracker(index);
+	auto driver = std::make_shared<DriverTracker>(index);
 	_trackedDrivers.append(driver);
 	_trackedIndexes.insert(index);
 }
@@ -115,10 +121,15 @@ void Tracker::trackTeammate()
 	_addTeammateTrackingOnStart = true;
 }
 
+void Tracker::trackTTGhosts()
+{
+	_addTTGhostsTrackingOnStart = true;
+}
+
 void Tracker::untrackDriver(int index)
 {
 	for (auto it = _trackedDrivers.begin(); it != _trackedDrivers.end(); ++it) {
-		if (it->getDriverIndex() == index) {
+		if ((*it)->getDriverIndex() == index) {
 			_trackedDrivers.erase(it);
 			break;
 		}
@@ -138,7 +149,14 @@ QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const
 {
 	QStringList names;
 	for (auto& driver : data.m_participants) {
-		names << QString(driver.m_name);
+		auto name = QString(driver.m_name);
+		auto team = UdpSpecification::instance()->team(driver.m_teamId);
+		if (!team.isEmpty()) {
+			name += " (";
+			name += team;
+			name += " )";
+		}
+		names << name;
 	}
 
 	return names;
@@ -162,8 +180,8 @@ void Tracker::telemetryData(const PacketHeader &header, const PacketCarTelemetry
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.telemetryData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->telemetryData(header, data);
 	}
 }
 
@@ -172,8 +190,8 @@ void Tracker::lapData(const PacketHeader &header, const PacketLapData &data)
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.lapData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->lapData(header, data);
 	}
 }
 
@@ -203,8 +221,8 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.sessionData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->sessionData(header, data);
 	}
 }
 
@@ -213,8 +231,8 @@ void Tracker::setupData(const PacketHeader &header, const PacketCarSetupData &da
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.setupData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->setupData(header, data);
 	}
 }
 
@@ -223,8 +241,8 @@ void Tracker::statusData(const PacketHeader &header, const PacketCarStatusData &
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.statusData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->statusData(header, data);
 	}
 }
 
@@ -246,8 +264,8 @@ void Tracker::participant(const PacketHeader &header, const PacketParticipantsDa
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.participant(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->participant(header, data);
 	}
 }
 
@@ -256,8 +274,8 @@ void Tracker::motionData(const PacketHeader &header, const PacketMotionData &dat
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.motionData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->motionData(header, data);
 	}
 }
 
@@ -266,7 +284,7 @@ void Tracker::eventData(const PacketHeader &header, const PacketEventData &data)
 	if (!_isRunning)
 		return;
 
-	for (auto& driver : _trackedDrivers) {
-		driver.eventData(header, data);
+	for (auto& driver : qAsConst(_trackedDrivers)) {
+		driver->eventData(header, data);
 	}
 }

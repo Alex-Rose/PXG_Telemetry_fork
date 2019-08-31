@@ -139,7 +139,7 @@ void TrackingWidget::startStop()
 			if (_driverCheckBoxes[i]->isChecked())
 				trackedId << i;
 		}
-		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), trackedId);
+		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), ui->ttghosts->isChecked(), trackedId);
 	}
 	else
 	{

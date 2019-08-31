@@ -14,11 +14,13 @@ void TTGhostsTracker::lapData(const PacketHeader &header, const PacketLapData &d
 	if(_currentSessionData.m_sessionType == 12) {
 		auto playerLapData = data.m_lapData[header.m_playerCarIndex];
 		if(finishLineCrossed(playerLapData)) {
+			qInfo() << "Time Trial, ghosts scanning...";
 			_trackedDrivers.clear();
 			for(int i = 0; i < 20; ++i) {
 				if(i != header.m_playerCarIndex) {
 					const auto &participant = _participants.m_participants[i];
 					if(isGhost(data.m_lapData[i], participant)) {
+						qInfo() << "Tracking ghost" << i;
 						auto tracker = DriverTracker(i);
 						tracker.init(dataDirectory);
 						_trackedDrivers << tracker;
@@ -26,6 +28,8 @@ void TTGhostsTracker::lapData(const PacketHeader &header, const PacketLapData &d
 				}
 			}
 		}
+
+		_previousLapData = playerLapData;
 	}
 
 	for(auto &driver : _trackedDrivers) {
@@ -35,6 +39,7 @@ void TTGhostsTracker::lapData(const PacketHeader &header, const PacketLapData &d
 
 void TTGhostsTracker::sessionData(const PacketHeader &header, const PacketSessionData &data)
 {
+	_currentSessionData = data;
 	for(auto &driver : _trackedDrivers) {
 		driver.sessionData(header, data);
 	}
@@ -56,7 +61,6 @@ void TTGhostsTracker::statusData(const PacketHeader &header, const PacketCarStat
 
 void TTGhostsTracker::participant(const PacketHeader &header, const PacketParticipantsData &data)
 {
-	DriverTracker::participant(header, data);
 	_participants = data;
 
 	for(auto &driver : _trackedDrivers) {
@@ -80,5 +84,5 @@ void TTGhostsTracker::eventData(const PacketHeader &header, const PacketEventDat
 
 bool TTGhostsTracker::isGhost(const LapData &lapData, const ParticipantData &participant) const
 {
-	return participant.m_aiControlled == 1 && !participant.m_name.isEmpty() && lapData.m_bestLapTime > 0;
+	return participant.m_aiControlled == 1 && !participant.m_name.isEmpty() && lapData.m_lastLapTime > 0;
 }

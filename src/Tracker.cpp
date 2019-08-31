@@ -132,10 +132,10 @@ QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const
 	for(auto &driver : data.m_participants) {
 		auto name = QString(driver.m_name);
 		auto team = UdpSpecification::instance()->team(driver.m_teamId);
-		if(!team.isEmpty()) {
+		if(!name.isEmpty() && !team.isEmpty()) {
 			name += " (";
 			name += team;
-			name += " )";
+			name += ")";
 		}
 		names << name;
 	}

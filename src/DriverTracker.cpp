@@ -90,7 +90,6 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		values << rearSlide;
 	}
 
-
 	_currentLap->addData(_previousLapData.m_lapDistance, values);
 
 	_currentLap->innerTemperatures.apply(
@@ -199,6 +198,10 @@ void DriverTracker::saveCurrentStint()
 
 void DriverTracker::saveCurrentLap(const LapData &lapData)
 {
+	if(_currentLap->xValues().count() <= 1) {
+		return;
+	}
+
 	qInfo() << "Lap Time" << lapData.m_currentLapTime << "Last Lap Time" << lapData.m_lastLapTime;
 	_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
 	_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
@@ -398,7 +401,8 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
 	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
-		   ((data.m_lapDistance < 200 && data.m_lapDistance > 0) || data.m_lapDistance > _currentSessionData.m_trackLength) &&
+		   ((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
+			(data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12) &&
 		   data.m_pitStatus == 0 && _previousLapData.m_pitStatus == 0 &&
 		   (data.m_driverStatus == 1 || data.m_driverStatus == 4);
 }

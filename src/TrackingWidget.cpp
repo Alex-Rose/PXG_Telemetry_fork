@@ -36,6 +36,7 @@ void TrackingWidget::saveSettings(QSettings *settings)
 	settings->setValue("dataDirectory", ui->leDataDir->text());
 	settings->setValue("trackPlayer", ui->player->isChecked());
 	settings->setValue("trackTeammate", ui->teammate->isChecked());
+	settings->setValue("trackGhosts", ui->ttghosts->isChecked());
 	settings->endGroup();
 }
 
@@ -46,6 +47,7 @@ void TrackingWidget::loadSettings(QSettings *settings)
 	QDir::setCurrent(settings->value("dataDirectory").toString());
 	ui->player->setChecked(settings->value("trackPlayer").toBool());
 	ui->teammate->setChecked(settings->value("trackTeammate").toBool());
+	ui->ttghosts->setChecked(settings->value("trackGhosts").toBool());
 	settings->endGroup();
 }
 

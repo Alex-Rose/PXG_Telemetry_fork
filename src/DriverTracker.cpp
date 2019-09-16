@@ -111,20 +111,15 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 	auto lastRaceLap = isLastRaceLap(lapData);
 
-	if(!_isLapRecorded && lapData.m_driverStatus == 3 && lapData.m_pitStatus == 0 &&
-	   ((lapData.m_lapDistance > 0 && lapData.m_lapDistance < _currentSessionData.m_trackLength / 4.0) ||
-		(lapData.m_lapDistance < 0 && lapData.m_lapDistance < -3.0 * _currentSessionData.m_trackLength / 4.0))) // out lap
-	{
-		qInfo() << "In Lap Started, TimeDif = " << lapData.m_currentLapTime;
-		startLap(lapData);
-		_timeDiff = lapData.m_currentLapTime;
-		_currentLap->isOutLap = true;
-	}
-
+	// Out lap recording - désactivated because telemetry during this lap is not working properly
+	//	if(!_isLapRecorded && lapData.m_driverStatus == 3 && lapData.m_pitStatus == 0 &&
+	//	   ((lapData.m_lapDistance > 0 && lapData.m_lapDistance < _currentSessionData.m_trackLength / 4.0) ||
+	//		(lapData.m_lapDistance < 0 && lapData.m_lapDistance < -3.0 * _currentSessionData.m_trackLength / 4.0))) // out lap
 	//	{
-	//			qInfo() << "Driver:" << _driverIndex << _currentLap->driver.m_name << "Distance:" << lapData.m_lapDistance << "LapDistance:" << _currentSessionData.m_trackLength
-	//					<< "BestTime: " << _currentSessionData.m_trackLength / 4.0 << "Status:" << lapData.m_driverStatus << "Pit:" << lapData.m_pitStatus;
-
+	//		qInfo() << "In Lap Started, TimeDif = " << lapData.m_currentLapTime;
+	//		startLap(lapData);
+	//		_timeDiff = lapData.m_currentLapTime;
+	//		_currentLap->isOutLap = true;
 	//	}
 
 	if(_isLapRecorded && flashbackDetected(lapData)) {

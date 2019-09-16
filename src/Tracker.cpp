@@ -256,6 +256,14 @@ void Tracker::motionData(const PacketHeader &header, const PacketMotionData &dat
 
 void Tracker::eventData(const PacketHeader &header, const PacketEventData &data)
 {
+	switch(data.event) {
+		case Event::SessionEnded:
+			emit sessionChanged("");
+			break;
+		default:
+			break;
+	}
+
 	if(!_isRunning)
 		return;
 

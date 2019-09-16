@@ -201,17 +201,20 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
 	_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
 	_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
+	QString lapType;
 	if(_currentLap->isInLap) {
 		_currentLap->lapTime = lapData.m_currentLapTime;
 		_currentLap->sector1Time = lapData.m_sector1Time;
 		_currentLap->sector2Time = lapData.m_sector2Time;
 		_currentLap->sector3Time = lapData.m_currentLapTime - lapData.m_sector2Time - lapData.m_sector1Time;
+		lapType = "_(In)";
 	} else if(_currentLap->isOutLap) {
 		_currentLap->lapTime = _previousLapData.m_currentLapTime - _timeDiff;
 		_currentLap->sector1Time = _previousLapData.m_sector1Time;
 		_currentLap->sector2Time = _previousLapData.m_sector2Time;
 		_currentLap->sector3Time =
 		_previousLapData.m_currentLapTime - _timeDiff - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+		lapType = "_(Out)";
 	} else {
 		_currentLap->lapTime = lapData.m_lastLapTime;
 		_currentLap->sector1Time = _previousLapData.m_sector1Time;
@@ -228,7 +231,8 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 
 	auto lapTime = QTime(0, 0).addMSecs(int(_currentLap->lapTime * 1000.0)).toString("m.ss.zzz");
 
-	auto fileName = "Lap" + QString::number(_currentLapNum) + "_" + lapTime + ".f1lap";
+
+	auto fileName = "Lap" + QString::number(_currentLapNum) + "_" + lapTime + lapType + ".f1lap";
 	auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 	_currentLap->save(filePath);
 	++_currentLapNum;

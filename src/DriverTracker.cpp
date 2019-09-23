@@ -86,7 +86,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		values << balance;
 
 		// Sliding
-		auto rearSlide = (qAbs(slip.rearLeft) + qAbs(slip.rearRight)) / 2.0;
+		auto rearSlide = driverData.m_throttle > 0 ? (qAbs(slip.rearLeft) + qAbs(slip.rearRight)) / 2.0 : 0.0;
 		values << rearSlide;
 	}
 
@@ -143,6 +143,9 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		}
 	}
 
+	//	qInfo() << "Driver:" << _driverIndex << _currentLap->driver.m_name << "Distance:" << lapData.m_lapDistance
+	//			<< "pitStatus:" << lapData.m_pitStatus << "driverStatus: " << lapData.m_driverStatus;
+
 	if((lapData.m_pitStatus > 0 && lapData.m_driverStatus != 3) || lastRaceLap ||
 	   (_currentSessionData.m_sessionTimeLeft < 1 && _currentSessionData.m_sessionType != 12)) {
 		if(lapData.m_driverStatus == 2 && _isLapRecorded) { // In lap
@@ -162,11 +165,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 		}
 	}
 
-	//	qInfo() << "Driver:" << _driverIndex << _currentLap->driver.m_name << "Distance:" << lapData.m_lapDistance << "LapDistance:" << _currentSessionData.m_trackLength
-	//			<< "BestTime: " << double(lapData.m_bestLapTime)  << lapData.m_lastLapTime << "ai:" << _currentLap->driver.m_aiControlled
-	//			   << "team:" << _currentLap->driver.m_teamId
-	//				  << "driverId:" << _currentLap->driver.m_driverId
-	//					 << "raceNum:" << _currentLap->driver.m_raceNumber;
 
 	_previousLapData = LapData(lapData);
 }

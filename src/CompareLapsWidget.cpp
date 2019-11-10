@@ -90,6 +90,8 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 
 	setupItem(tree, lap);
 
+	new QTreeWidgetItem(tree, {"Balance", QString::number(lap->meanBalance)});
+
 	auto recordItem = new QTreeWidgetItem(tree, {"Record Date", lap->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
 	new QTreeWidgetItem(recordItem, {"Flashbacks", QString::number(lap->nbFlashback)});
 

@@ -26,6 +26,36 @@ template <typename T> struct TyresData {
 		return *this;
 	}
 
+	TyresData<T> operator*(const TyresData<T> &other)
+	{
+		TyresData<T> result;
+		result.rearLeft = rearLeft * other.rearLeft;
+		result.rearRight = rearRight * other.rearRight;
+		result.frontLeft = frontLeft * other.frontLeft;
+		result.frontRight = frontRight * other.frontRight;
+		return result;
+	}
+
+	TyresData<T> operator*(const T &value)
+	{
+		TyresData<T> result;
+		result.rearLeft = rearLeft * value;
+		result.rearRight = rearRight * value;
+		result.frontLeft = frontLeft * value;
+		result.frontRight = frontRight * value;
+		return result;
+	}
+
+	TyresData<T> operator+(const T &value)
+	{
+		TyresData<T> result;
+		result.rearLeft = rearLeft + value;
+		result.rearRight = rearRight + value;
+		result.frontLeft = frontLeft + value;
+		result.frontRight = frontRight + value;
+		return result;
+	}
+
 	QVector<T *> asList() { return {&rearLeft, &rearRight, &frontLeft, &frontRight}; }
 
 	T &operator[](int index)
@@ -70,6 +100,16 @@ template <typename T> struct TyresData {
 			func(index, *obj);
 			++index;
 		}
+	}
+
+	float mean() { return (rearLeft + rearRight + frontLeft + frontRight) / 4.0; }
+
+	void abs()
+	{
+		rearLeft = qAbs(rearLeft);
+		rearRight = qAbs(rearRight);
+		frontLeft = qAbs(frontLeft);
+		frontRight = qAbs(frontRight);
 	}
 };
 

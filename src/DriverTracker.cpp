@@ -8,10 +8,13 @@
 #include <QtGlobal>
 #include <cmath>
 
-const QStringList TELEMETRY_NAMES =
-{"Speed", "Throttle", "Brake", "Steering", "Gear", "Time", "Front Left Tyre Temp.", "Front Right Tyre Temp.", "Rear Left Tyre Temp.", "Rear Right Tyre Temp."};
+const QStringList TELEMETRY_NAMES = {
+"Speed", "Throttle", "Brake", "Steering", "Gear", "Time", "Max Tyre Surface Temp.", "ERS Balance"};
 
-const QStringList EXTENDED_TELEMETRY_NAMES = {"Locking", "Balance", "Rear Sliding"};
+const QStringList EXTENDED_TELEMETRY_NAMES = {"Locking", "Balance",
+											  /*"Rear Sliding",*/
+											  "Tyre degradation", "Tyre degradation FL", "Tyre degradation FR",
+											  "Tyre degradation RL", "Tyre degradation RR"};
 
 const QStringList TELEMETRY_STINT_NAMES = {"Lap Times (s)",
 										   "Average Tyre Wear (%)",
@@ -47,32 +50,32 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	if(driverData.m_gear < 0)
 		_isLapRecorded = false; // Rear gear
 
-	auto values =
-	QVector<float>({float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
-					float(driverData.m_steer), float(driverData.m_gear), _previousLapData.m_currentLapTime,
-					float(driverData.m_tyresSurfaceTemperature[2]), float(driverData.m_tyresSurfaceTemperature[3]),
-					float(driverData.m_tyresSurfaceTemperature[0]), float(driverData.m_tyresSurfaceTemperature[1])});
+	TyresData<float> tyreTemp;
+	tyreTemp.setArray(driverData.m_tyresSurfaceTemperature);
+	const auto &tyreTempValues = tyreTemp.asList();
+	auto maxTyreTemp = qAbs(**(std::max_element(tyreTempValues.begin(), tyreTempValues.end(),
+												[](auto v1, auto v2) { return qAbs(*v1) < qAbs(*v2); })));
+
+	auto ersBalance = (_currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK) -
+					  _currentStatusData.m_ersDeployedThisLap;
+	ersBalance = round(ersBalance / 1000.0);
+
+	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
+								  float(driverData.m_steer), float(driverData.m_gear),
+								  _previousLapData.m_currentLapTime, maxTyreTemp, ersBalance});
 
 	if(_extendedPlayerTelemetry) {
 		TyresData<float> slip;
 		slip.setArray(_currentMotionData.m_wheelSlip);
 
-		const auto &slipValuesList = slip.asList();
-
 		// locking
-		auto hasLock = false;
-		for(auto slipValue : slipValuesList) {
-			if(qAbs(*slipValue) > 0.8) {
-				hasLock = true;
-
-				values << qAbs(**(std::max_element(slipValuesList.begin(), slipValuesList.end(),
-												   [](auto v1, auto v2) { return qAbs(*v1) < qAbs(*v2); })));
-				break;
-			}
-		}
-
-		if(!hasLock) {
-			values << 0;
+		const auto &slipValuesList = slip.asList();
+		auto max = qAbs(**(std::max_element(slipValuesList.begin(), slipValuesList.end(),
+											[](auto v1, auto v2) { return qAbs(*v1) < qAbs(*v2); })));
+		if(max > 0.8f) {
+			values << max;
+		} else {
+			values << 0.0;
 		}
 
 		// Balance
@@ -83,11 +86,25 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		auto balance = qAbs(neutralSteer) - qAbs(_currentMotionData.m_frontWheelsAngle);
 		balance *= 180.0;
 		balance /= M_PI;
-		values << balance;
+		values << float(balance);
+		_currentLap->meanBalance = addMean(_currentLap->meanBalance, balance, _currentLap->xValues().count() + 1);
 
-		// Sliding
-		auto rearSlide = driverData.m_throttle > 0 ? (qAbs(slip.rearLeft) + qAbs(slip.rearRight)) / 2.0 : 0.0;
-		values << rearSlide;
+		//		// Sliding
+		//		auto rearSlide = driverData.m_throttle > 0 ? (qAbs(slip.rearLeft) + qAbs(slip.rearRight)) / 2.0 : 0.0;
+		//		values << rearSlide;
+
+		// degradation
+		TyresData<float> wheelSpeed;
+		wheelSpeed.setArray(_currentMotionData.m_wheelSpeed);
+
+		TyresData<float> tyreDegradation =
+		wheelSpeed * ((slip * 0.01f) + 1.0f) * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral);
+		tyreDegradation.abs();
+		values << tyreDegradation.mean() << wheelSpeed.frontLeft << wheelSpeed.frontRight << wheelSpeed.rearLeft
+			   << wheelSpeed.rearRight;
+
+		//		qDebug() << "WS" << wheelSpeed.mean() << _currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral
+		//				 << tyreDegradation.mean() << tyreDegradation.frontLeft;
 	}
 
 	_currentLap->addData(_previousLapData.m_lapDistance, values);

@@ -32,6 +32,7 @@ void Lap::resetData()
 	nbFlashback = 0;
 	isOutLap = false;
 	isInLap = false;
+	meanBalance = 0.0;
 }
 
 
@@ -89,7 +90,7 @@ void Lap::saveData(QDataStream &out) const
 	TelemetryData::save(out);
 	out << tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd << ers << energy
 		<< harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance << startTyreWear
-		<< endTyreWear << isInLap << isOutLap << visualTyreCompound;
+		<< endTyreWear << isInLap << isOutLap << visualTyreCompound << meanBalance;
 }
 
 void Lap::loadData(QDataStream &in)
@@ -99,5 +100,5 @@ void Lap::loadData(QDataStream &in)
 	TelemetryData::load(in);
 	in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
 	harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
-	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound;
+	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance;
 }

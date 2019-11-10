@@ -58,6 +58,8 @@ class Lap : public TelemetryData
 	bool isOutLap = false;
 	bool isInLap = false;
 
+	double meanBalance = 0.0;
+
 	// Saving - Loading
 	void save(const QString &filename) const;
 	void load(const QString &filename);

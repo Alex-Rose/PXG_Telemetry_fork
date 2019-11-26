@@ -13,8 +13,7 @@ const QStringList TELEMETRY_NAMES = {
 
 const QStringList EXTENDED_TELEMETRY_NAMES = {"Locking", "Balance",
 											  /*"Rear Sliding",*/
-											  "Tyre degradation", "Tyre degradation FL", "Tyre degradation FR",
-											  "Tyre degradation RL", "Tyre degradation RR"};
+											  "Tyre degradation", "Suspension F/R", "Suspension L/R"};
 
 const QStringList TELEMETRY_STINT_NAMES = {"Lap Times (s)",
 										   "Average Tyre Wear (%)",
@@ -100,11 +99,21 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		TyresData<float> tyreDegradation =
 		wheelSpeed * ((slip * 0.01f) + 1.0f) * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral);
 		tyreDegradation.abs();
-		values << tyreDegradation.mean() << wheelSpeed.frontLeft << wheelSpeed.frontRight << wheelSpeed.rearLeft
-			   << wheelSpeed.rearRight;
+		values << tyreDegradation.mean();
 
 		//		qDebug() << "WS" << wheelSpeed.mean() << _currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral
 		//				 << tyreDegradation.mean() << tyreDegradation.frontLeft;
+
+		// Suspension
+		TyresData<float> suspension;
+		suspension.setArray(_currentMotionData.m_suspensionPosition);
+
+		auto suspFR =
+		((suspension.frontRight + suspension.frontLeft) / 2.0) - ((suspension.rearRight + suspension.rearLeft) / 2.0);
+		auto suspRL =
+		((suspension.frontRight + suspension.rearRight) / 2.0) - ((suspension.frontLeft + suspension.rearLeft) / 2.0);
+
+		values << suspFR << suspRL;
 	}
 
 	_currentLap->addData(_previousLapData.m_lapDistance, values);
@@ -203,6 +212,7 @@ void DriverTracker::saveCurrentStint()
 		Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
 	}
 
+	_currentStint->resetData();
 	_currentStint->clearData();
 }
 
@@ -278,6 +288,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->sector1Time = addMean(_currentStint->sector1Time, lap->sector1Time, _currentStint->nbLaps());
 	_currentStint->sector2Time = addMean(_currentStint->sector2Time, lap->sector2Time, _currentStint->nbLaps());
 	_currentStint->sector3Time = addMean(_currentStint->sector3Time, lap->sector3Time, _currentStint->nbLaps());
+	_currentStint->meanBalance = addMean(_currentStint->meanBalance, lap->meanBalance, _currentStint->nbLaps());
 	_currentStint->lapTimes.append(lap->lapTime);
 	if(lap->isOutLap)
 		_currentStint->isOutLap = true;

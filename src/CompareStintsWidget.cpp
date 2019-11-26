@@ -102,6 +102,8 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 
 	setupItem(tree, stint);
 
+	new QTreeWidgetItem(tree, {"Balance", QString::number(stint->meanBalance)});
+
 	new QTreeWidgetItem(tree, {"Record Date", stint->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
 
 	tree->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

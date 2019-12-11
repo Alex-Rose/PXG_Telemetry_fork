@@ -3,9 +3,11 @@
 
 #include "Lap.h"
 
+#include <QAbstractSeries>
 #include <QChartView>
 #include <QCheckBox>
 #include <QLineSeries>
+#include <QRadioButton>
 #include <QSettings>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -41,6 +43,7 @@ class CompareTelemetryWidget : public QWidget
 	TelemetryDataTableModel *_telemetryDataModel;
 	QList<QCheckBox *> _variableCheckboxes;
 	QList<QCheckBox *> _diffCheckboxes;
+	QList<QCheckBox *> _statsCheckboxes;
 	QList<TelemetryChartView *> _variablesCharts;
 	QStringList _variables;
 	QToolBar *_toolbar;
@@ -48,13 +51,27 @@ class CompareTelemetryWidget : public QWidget
 	int _trackIndex = -1;
 
 	void initActions();
-	void reloadVariableSeries(QtCharts::QChart *chart, const QVector<TelemetryData *> &telemetryData, int varIndex, bool diff, QList<QColor> colors);
+	void reloadVariableSeries(QtCharts::QChart *chart,
+							  const QVector<TelemetryData *> &telemetryData,
+							  int varIndex,
+							  bool diff,
+							  bool stats,
+							  QList<QColor> colors);
+	QtCharts::QAbstractSeries *
+	createTelemetryLine(TelemetryData *data, int varIndex, const TelemetryData *refData, bool diff, const QColor &color);
+	QtCharts::QAbstractSeries *createTelemetryStat(TelemetryData *data, int varIndex, const QColor &color);
 
 	void setTelemetry(const QVector<TelemetryData *> &telemetry);
 	void setTelemetryVisibility(const QVector<bool> &visibility);
 	void clearVariables();
 	void createVariables(const QStringList &variables);
-	void createAxis(QtCharts::QChart *chart);
+	void createAxis(QtCharts::QChart *chart, bool stats);
+
+	float findMedian(int begin, int end, const QVector<float> &data);
+
+	int nbDigit(int num) const;
+	int ceilToDigit(int num, int roundFactor = 2) const;
+	int floorToDigit(int num, int roundFactor = 2) const;
 
   protected slots:
 	virtual void browseData() {}
@@ -79,6 +96,7 @@ class CompareTelemetryWidget : public QWidget
 	void distanceZoomChanged(qreal min, qreal max);
 	void telemetryDataSelected(const QModelIndex &current, const QModelIndex &previous);
 	void changeVariableDiff(bool value);
+	void changeStats(bool value);
 	void telemetryTableContextMenu(const QPoint &pos);
 	void changeReferenceData();
 	void removeData();

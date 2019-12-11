@@ -4,14 +4,17 @@
 #include "ui_CompareTelemetryWidget.h"
 
 #include <QBarCategoryAxis>
+#include <QBoxPlotSeries>
 #include <QCategoryAxis>
 #include <QFileDialog>
 #include <QGraphicsProxyWidget>
 #include <QLineSeries>
 #include <QMenu>
+#include <QRadioButton>
 #include <QValueAxis>
 #include <QtDebug>
 
+#include <algorithm>
 #include <cmath>
 
 using namespace QtCharts;
@@ -81,110 +84,178 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 												  const QVector<TelemetryData *> &telemetryData,
 												  int varIndex,
 												  bool diff,
+												  bool stats,
 												  QList<QColor> colors)
 {
 	qApp->setOverrideCursor(Qt::WaitCursor);
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-	auto refLap = _telemetryDataModel->getReferenceData();
-	if(!refLap)
+	auto refData = _telemetryDataModel->getReferenceData();
+	if(!refData)
 		return;
 
 	chart->removeAllSeries();
 	for(auto data : telemetryData) {
-		const auto &values = data->data(varIndex);
-		if(values.isEmpty())
-			continue;
 
-		auto series = new QLineSeries();
-		series->setName(data->description());
+		auto color = colors.isEmpty() ? QColor() : colors.takeFirst();
 
-		const auto &distances = data->xValues();
-		const auto &refDist = refLap->xValues();
-		const auto &ref = refLap->data(varIndex);
-		auto itDistance = distances.constBegin();
-		auto itValues = values.constBegin();
-		auto itRef = ref.constBegin();
-		auto itRefDist = refDist.constBegin();
-		while(itDistance != distances.constEnd() && itValues != values.constEnd() && itRef != ref.constEnd() &&
-			  itRefDist != refDist.constEnd()) {
-			if(!std::isnan(*itValues)) {
-				auto value = double(*itValues);
-				auto distance = double(*itDistance);
-				if(diff) {
-					while(double(*itRefDist) < distance && itRefDist != refDist.constEnd()) {
-						++itRef;
-						++itRefDist;
-					}
-					if(double(*itRefDist) < distance)
-						break;
-
-					if(!std::isnan(*itRef)) {
-						auto refValue = double(*itRef);
-						auto refDist = double(*itRefDist);
-						if(refDist > distance && itRef != ref.constBegin()) {
-							// Linear interpolation
-							auto prevRefValue = double(*(itRef - 1));
-							auto prevDistance = double(*(itRefDist - 1));
-							refValue = prevRefValue + (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
-						} else if(itRef == ref.constBegin()) {
-							++itValues;
-							++itDistance;
-							continue;
-						}
-						value -= refValue;
-					}
-				}
-				series->append(distance, value);
+		if(!stats) {
+			auto lineSeries = createTelemetryLine(data, varIndex, refData, diff, color);
+			if(lineSeries) {
+				chart->addSeries(lineSeries);
 			}
-			++itValues;
-			++itDistance;
+		} else {
+			auto statsSeries = createTelemetryStat(data, varIndex, color);
+			if(statsSeries) {
+				chart->addSeries(statsSeries);
+			}
 		}
 
-		chart->addSeries(series);
-
-		if(!colors.isEmpty())
-			series->setColor(colors.takeFirst());
 
 		// Uncomment to print the track distance under the mouse
-		// connect(series, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
+		// connect(lineSeries, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
 
-	createAxis(chart);
-	connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+	if(stats) {
+		for(int i = telemetryData.count(); i < 20; ++i) {
+			auto series = new QBoxPlotSeries();
+			chart->addSeries(series);
+		}
+	}
+
+	createAxis(chart, stats);
+	if(!stats) {
+		connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+	}
+
+	auto view = _variablesCharts.value(varIndex);
+	view->setZoomEnabled(!stats);
 
 	qApp->restoreOverrideCursor();
 }
 
-void CompareTelemetryWidget::createAxis(QChart *chart)
+QAbstractSeries *
+CompareTelemetryWidget::createTelemetryLine(TelemetryData *data, int varIndex, const TelemetryData *refData, bool diff, const QColor &color)
+{
+	const auto &values = data->data(varIndex);
+	if(values.isEmpty())
+		return nullptr;
+
+	auto series = new QLineSeries();
+	series->setName(data->description());
+	if(color.isValid()) {
+		series->setColor(color);
+	}
+
+	const auto &distances = data->xValues();
+	const auto &refDist = refData->xValues();
+	const auto &ref = refData->data(varIndex);
+	auto itDistance = distances.constBegin();
+	auto itValues = values.constBegin();
+	auto itRef = ref.constBegin();
+	auto itRefDist = refDist.constBegin();
+	while(itDistance != distances.constEnd() && itValues != values.constEnd() && itRef != ref.constEnd() &&
+		  itRefDist != refDist.constEnd()) {
+		if(!std::isnan(*itValues)) {
+			auto value = double(*itValues);
+			auto distance = double(*itDistance);
+			if(diff) {
+				while(double(*itRefDist) < distance && itRefDist != refDist.constEnd()) {
+					++itRef;
+					++itRefDist;
+				}
+				if(double(*itRefDist) < distance)
+					break;
+
+				if(!std::isnan(*itRef)) {
+					auto refValue = double(*itRef);
+					auto refDist = double(*itRefDist);
+					if(refDist > distance && itRef != ref.constBegin()) {
+						// Linear interpolation
+						auto prevRefValue = double(*(itRef - 1));
+						auto prevDistance = double(*(itRefDist - 1));
+						refValue = prevRefValue + (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
+					} else if(itRef == ref.constBegin()) {
+						++itValues;
+						++itDistance;
+						continue;
+					}
+					value -= refValue;
+				}
+			}
+			series->append(distance, value);
+		}
+		++itValues;
+		++itDistance;
+	}
+
+	return series;
+}
+
+QAbstractSeries *CompareTelemetryWidget::createTelemetryStat(TelemetryData *data, int varIndex, const QColor &color)
+{
+	const auto &values = data->data(varIndex);
+	if(values.isEmpty())
+		return nullptr;
+
+	auto series = new QBoxPlotSeries();
+	auto p = series->pen();
+	if(color.isValid()) {
+		series->setBrush(color);
+	}
+	p.setWidth(2);
+	series->setPen(p);
+	series->setBoxWidth(0.5);
+
+	auto sortedValues = values;
+	std::sort(sortedValues.begin(), sortedValues.end());
+	int nbValues = sortedValues.count();
+
+	auto box =
+	new QBoxSet(sortedValues.first(), findMedian(0, nbValues / 2, sortedValues), findMedian(0, nbValues, sortedValues),
+				findMedian(nbValues / 2 + (nbValues % 2), nbValues, sortedValues), sortedValues.last(), QString());
+
+	series->append(box);
+
+	return series;
+}
+
+void CompareTelemetryWidget::createAxis(QChart *chart, bool stats)
 {
 	chart->createDefaultAxes();
-	auto xAxis = static_cast<QValueAxis *>(chart->axes(Qt::Horizontal)[0]);
+
 	auto yAxis = static_cast<QValueAxis *>(chart->axes(Qt::Vertical)[0]);
-
-	xAxis->setGridLineVisible(false);
-
 	if(yAxis->min() < 0 && yAxis->max() > 0) {
 		auto absMax = qMax(qAbs(yAxis->min()), yAxis->max());
 		yAxis->setMin(-absMax);
 		yAxis->setMax(absMax);
+	} else {
+		yAxis->applyNiceNumbers();
 	}
 
-	auto trackTurns = UdpSpecification::instance()->turns(_trackIndex);
-	if(!trackTurns.isEmpty()) {
-		auto categoryAxis = new QCategoryAxis();
-		categoryAxis->setMin(0);
-		categoryAxis->setMax(xAxis->max());
-		for(const auto &t : qAsConst(trackTurns)) {
-			categoryAxis->append(TURN_NAMES[t.first - 1], t.second);
+	if(!stats) {
+		auto xAxis = static_cast<QValueAxis *>(chart->axes(Qt::Horizontal)[0]);
+		xAxis->setGridLineVisible(false);
+
+		auto trackTurns = UdpSpecification::instance()->turns(_trackIndex);
+		if(!trackTurns.isEmpty()) {
+			auto categoryAxis = new QCategoryAxis();
+			categoryAxis->setMin(0);
+			categoryAxis->setMax(xAxis->max());
+			for(const auto &t : qAsConst(trackTurns)) {
+				categoryAxis->append(TURN_NAMES[t.first - 1], t.second);
+			}
+			categoryAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
+			auto f = categoryAxis->labelsFont();
+			f.setBold(true);
+			f.setFamily("courrier");
+			categoryAxis->setLabelsFont(f);
+			chart->addAxis(categoryAxis, Qt::AlignTop);
+			chart->series()[0]->attachAxis(categoryAxis);
 		}
-		categoryAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
-		auto f = categoryAxis->labelsFont();
-		f.setBold(true);
-		f.setFamily("courrier");
-		categoryAxis->setLabelsFont(f);
-		chart->addAxis(categoryAxis, Qt::AlignTop);
-		chart->series()[0]->attachAxis(categoryAxis);
+	} else {
+		auto xAxis = static_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal)[0]);
+		xAxis->setLabelsVisible(false);
 	}
 }
 
@@ -198,7 +269,8 @@ void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &teleme
 		int varIndex = 0;
 		for(auto chartView : _variablesCharts) {
 			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
-			reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, colors);
+			auto isStat = _statsCheckboxes.value(varIndex)->isChecked();
+			reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, isStat, colors);
 			chartView->setHomeZoom();
 
 			++varIndex;
@@ -258,6 +330,14 @@ void CompareTelemetryWidget::createVariables(const QStringList &variables)
 			connect(diffCheck, &QCheckBox::toggled, this, &CompareTelemetryWidget::changeVariableDiff);
 			diffProxy->setPos(QPoint(12, 9));
 
+			auto statsProxy = new QGraphicsProxyWidget(chart);
+			auto statsCheck = new QCheckBox("Distribution");
+			statsProxy->setWidget(statsCheck);
+			_statsCheckboxes << statsCheck;
+			connect(statsCheck, &QCheckBox::toggled, this, &CompareTelemetryWidget::changeStats);
+			auto px = diffProxy->pos().x() + diffProxy->rect().width();
+			statsProxy->setPos(QPoint(px, 9));
+
 			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			pol.setVerticalStretch(1);
 
@@ -266,7 +346,6 @@ void CompareTelemetryWidget::createVariables(const QStringList &variables)
 			view->setSizePolicy(pol);
 			_variablesCharts << view;
 			view->setVisible(checkbox->isChecked());
-			view->setRubberBand(QChartView::RectangleRubberBand);
 
 			ui->graphLayout->addWidget(view);
 		}
@@ -330,6 +409,7 @@ void CompareTelemetryWidget::clearVariables()
 	_variableCheckboxes.clear();
 	_variablesCharts.clear();
 	_diffCheckboxes.clear();
+	_statsCheckboxes.clear();
 	_variables.clear();
 }
 
@@ -391,12 +471,27 @@ void CompareTelemetryWidget::changeVariableDiff(bool value)
 	auto prevAxis = qobject_cast<QValueAxis *>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	auto prevMin = prevAxis->min();
 	auto prevMax = prevAxis->max();
-	reloadVariableSeries(chartView->chart(), _telemetryDataModel->getTelemetryData(), varIndex, value,
+	reloadVariableSeries(chartView->chart(), _telemetryDataModel->getTelemetryData(), varIndex, value, false,
 						 _telemetryDataModel->colors());
 	auto newAxis = qobject_cast<QValueAxis *>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	newAxis->setRange(prevMin, prevMax);
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
 }
+
+void CompareTelemetryWidget::changeStats(bool value)
+{
+	auto statsCheckbox = qobject_cast<QCheckBox *>(sender());
+	auto varIndex = _statsCheckboxes.indexOf(statsCheckbox);
+	auto diffCheckbox = _diffCheckboxes.value(varIndex);
+	diffCheckbox->setEnabled(!value);
+	auto chartView = _variablesCharts.value(varIndex, nullptr);
+
+	reloadVariableSeries(chartView->chart(), _telemetryDataModel->getTelemetryData(), varIndex,
+						 diffCheckbox->isChecked(), value, _telemetryDataModel->colors());
+
+	setTelemetryVisibility(_telemetryDataModel->getVisibility());
+}
+
 
 void CompareTelemetryWidget::telemetryTableContextMenu(const QPoint &pos)
 {
@@ -513,4 +608,35 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget *tree, const Lap *
 	tyreWearItem,
 	{"Rear Right", QString("%1% (%2% -> %3%)").arg(rearRightWear).arg(lap->startTyreWear.rearRight).arg(lap->endTyreWear.rearRight)});
 	return tyreWearItem;
+}
+
+float CompareTelemetryWidget::findMedian(int begin, int end, const QVector<float> &data)
+{
+	int count = end - begin;
+	if(count % 2) {
+		return data.at(count / 2 + begin);
+	} else {
+		qreal right = data.at(count / 2 + begin);
+		qreal left = data.at(count / 2 - 1 + begin);
+		return (right + left) / 2.0;
+	}
+}
+
+int CompareTelemetryWidget::nbDigit(int num) const { return int(floor(log10(num))) + 1; }
+
+int CompareTelemetryWidget::ceilToDigit(int num, int roundFactor) const
+{
+	auto doubleNum = num * roundFactor;
+	auto q = pow(10, nbDigit(num) - 1);
+	return int(ceil(doubleNum / q) * q) / roundFactor;
+}
+
+int CompareTelemetryWidget::floorToDigit(int num, int roundFactor) const
+{
+	if(num == 0)
+		return 0;
+
+	auto doubleNum = num * roundFactor;
+	auto q = pow(10, nbDigit(num) - 1);
+	return int(floor(doubleNum / q) * q) / roundFactor;
 }

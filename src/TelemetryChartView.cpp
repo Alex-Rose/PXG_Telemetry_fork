@@ -6,7 +6,10 @@ using namespace QtCharts;
 
 const constexpr double FACTOR = 1.3;
 
-TelemetryChartView::TelemetryChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent) {}
+TelemetryChartView::TelemetryChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
+{
+	setRubberBand(QChartView::RectangleRubberBand);
+}
 
 void TelemetryChartView::setHomeZoom()
 {
@@ -26,23 +29,29 @@ void TelemetryChartView::home()
 
 void TelemetryChartView::wheelEvent(QWheelEvent *event)
 {
-	auto xAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
-	auto yAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
+	if(_zoomEnabled) {
+		auto xAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
+		auto yAxis = static_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
 
-	auto zoomScale = event->delta() < 0 ? FACTOR : 1.0 / FACTOR;
-	auto zoomPoint = mapFromGlobal(event->globalPos());
-	auto zoomValue = chart()->mapToValue(zoomPoint);
+		auto zoomScale = event->delta() < 0 ? FACTOR : 1.0 / FACTOR;
+		auto zoomPoint = mapFromGlobal(event->globalPos());
+		auto zoomValue = chart()->mapToValue(zoomPoint);
 
-	auto oldRect = QRectF(xAxis->min(), yAxis->min(), xAxis->max() - xAxis->min(), yAxis->max() - yAxis->min());
-	auto newRect = oldRect;
-	newRect.setWidth(oldRect.width() * zoomScale);
-	newRect.setHeight(oldRect.height() * zoomScale);
+		auto oldRect = QRectF(xAxis->min(), yAxis->min(), xAxis->max() - xAxis->min(), yAxis->max() - yAxis->min());
+		auto newRect = oldRect;
+		newRect.setWidth(oldRect.width() * zoomScale);
+		newRect.setHeight(oldRect.height() * zoomScale);
 
-	auto d = (zoomValue - oldRect.center());
-	newRect.moveLeft(oldRect.center().x() - newRect.width() / 2.0);
-	newRect.moveTop(oldRect.center().y() - newRect.height() / 2.0);
-	newRect.translate(d - d * zoomScale);
+		auto d = (zoomValue - oldRect.center());
+		newRect.moveLeft(oldRect.center().x() - newRect.width() / 2.0);
+		newRect.moveTop(oldRect.center().y() - newRect.height() / 2.0);
+		newRect.translate(d - d * zoomScale);
 
-	xAxis->setRange(newRect.left(), newRect.right());
-	yAxis->setRange(newRect.top(), newRect.bottom());
+		xAxis->setRange(newRect.left(), newRect.right());
+		yAxis->setRange(newRect.top(), newRect.bottom());
+	}
 }
+
+bool TelemetryChartView::zoomEnabled() const { return _zoomEnabled; }
+
+void TelemetryChartView::setZoomEnabled(bool zoomEnabled) { _zoomEnabled = zoomEnabled; }

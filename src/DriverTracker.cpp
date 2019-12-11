@@ -96,13 +96,21 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		TyresData<float> wheelSpeed;
 		wheelSpeed.setArray(_currentMotionData.m_wheelSpeed);
 
-		TyresData<float> tyreDegradation =
-		wheelSpeed * ((slip * 0.01f) + 1.0f) * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral);
-		tyreDegradation.abs();
-		values << tyreDegradation.mean();
+		auto velocity = sqrt(_currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityX *
+							 _currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityX +
+							 _currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityY *
+							 _currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityY);
 
-		//		qDebug() << "WS" << wheelSpeed.mean() << _currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral
-		//				 << tyreDegradation.mean() << tyreDegradation.frontLeft;
+		TyresData<float> tyreDegradationLat =
+		(slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral);
+		tyreDegradationLat.abs();
+
+		TyresData<float> tyreDegradationLon =
+		slip * 10.0 * driverData.m_speed * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLongitudinal);
+		tyreDegradationLon.abs();
+
+
+		values << tyreDegradationLat.mean() + tyreDegradationLon.mean();
 
 		// Suspension
 		TyresData<float> suspension;

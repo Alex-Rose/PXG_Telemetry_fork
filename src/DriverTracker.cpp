@@ -424,11 +424,16 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 		case Event::SessionEnded:
 		case Event::RaceWinner:
 		case Event::ChequeredFlag:
+			if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {
+				saveCurrentLap(_previousLapData);
+			}
 			saveCurrentStint();
 			break;
 		default:
 			break;
 	}
+
+	qDebug() << "Event Received : " << data.m_eventStringCode << int(data.event);
 }
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const

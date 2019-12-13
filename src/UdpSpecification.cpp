@@ -416,23 +416,23 @@ QDataStream &operator>>(QDataStream &in, PacketEventData &packet)
 
 Event stringToEvent(const QString str)
 {
-	if(str == "SSTA")
+	if(str.startsWith("SSTA"))
 		return Event::SessionStarted;
-	if(str == "SEND")
+	if(str.startsWith("SEND"))
 		return Event::SessionEnded;
-	if(str == "FTLP")
+	if(str.startsWith("FTLP"))
 		return Event::FastestLap;
-	if(str == "RTMT")
+	if(str.startsWith("RTMT"))
 		return Event::Retirement;
-	if(str == "DRSE")
+	if(str.startsWith("DRSE"))
 		return Event::DrsEnabled;
-	if(str == "DRSD")
+	if(str.startsWith("DRSD"))
 		return Event::DrsDisabled;
-	if(str == "TMPT")
+	if(str.startsWith("TMPT"))
 		return Event::TeammateInPits;
-	if(str == "CHQF")
+	if(str.startsWith("CHQF"))
 		return Event::ChequeredFlag;
-	if(str == "RCWN")
+	if(str.startsWith("RCWN"))
 		return Event::RaceWinner;
 
 	return Event::Unknown;

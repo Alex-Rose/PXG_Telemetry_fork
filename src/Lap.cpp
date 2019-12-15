@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QtDebug>
 
-Lap::Lap(const QStringList &telemetryDataNames) : TelemetryData(telemetryDataNames) {}
+Lap::Lap(const QVector<TelemetryInfo> &dataInfo) : TelemetryData(dataInfo) {}
 
 QString Lap::description() const
 {

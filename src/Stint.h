@@ -13,7 +13,7 @@
 class Stint : public Lap
 {
   public:
-	Stint(const QStringList &dataNames = {});
+	Stint(const QVector<TelemetryInfo> &dataInfo = {});
 
 	QString description() const;
 

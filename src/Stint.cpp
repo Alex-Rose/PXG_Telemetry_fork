@@ -6,7 +6,7 @@
 #include <QtDebug>
 
 
-Stint::Stint(const QStringList &dataNames) : Lap(dataNames) {}
+Stint::Stint(const QVector<TelemetryInfo> &dataInfo) : Lap(dataInfo) {}
 
 QString Stint::description() const
 {

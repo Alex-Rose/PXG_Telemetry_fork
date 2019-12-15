@@ -296,7 +296,7 @@ void CompareTelemetryWidget::setTelemetryVisibility(const QVector<bool> &visibil
 	}
 }
 
-void CompareTelemetryWidget::createVariables(const QStringList &variables)
+void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &variables)
 {
 	if(variables.count() <= _variables.count())
 		return;
@@ -312,7 +312,9 @@ void CompareTelemetryWidget::createVariables(const QStringList &variables)
 		if(varIndex < _variables.count()) {
 			ui->variableLayout->addWidget(_variableCheckboxes[varIndex], varCurrentRow, varCurrentCol);
 		} else {
-			auto checkbox = new QCheckBox(var, this);
+			auto checkbox = new QCheckBox(var.name, this);
+			auto tooltip = var.description;
+			checkbox->setToolTip(var.completeDescription());
 			connect(checkbox, &QCheckBox::toggled, this, &CompareTelemetryWidget::variableChecked);
 			_variableCheckboxes << checkbox;
 			ui->variableLayout->addWidget(checkbox, varCurrentRow, varCurrentCol);
@@ -321,7 +323,7 @@ void CompareTelemetryWidget::createVariables(const QStringList &variables)
 			chart->setMargins(QMargins());
 			chart->setContentsMargins(0, 0, 0, 0);
 			chart->legend()->hide();
-			chart->setTitle(var);
+			chart->setTitle(var.completeName());
 
 			auto diffProxy = new QGraphicsProxyWidget(chart);
 			auto diffCheck = new QCheckBox("Diff with reference lap");

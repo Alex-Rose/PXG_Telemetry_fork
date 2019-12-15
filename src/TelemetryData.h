@@ -5,11 +5,19 @@
 #include <QStringList>
 #include <QVector>
 
+struct TelemetryInfo {
+	QString name;
+	QString description;
+	QString unit;
+
+	QString completeDescription() const;
+	QString completeName() const;
+};
 
 class TelemetryData
 {
   public:
-	TelemetryData(const QStringList &dataNames = {});
+	TelemetryData(const QVector<TelemetryInfo> &dataInfo = {});
 	virtual ~TelemetryData() = default;
 
 	virtual QString description() const = 0;
@@ -24,17 +32,20 @@ class TelemetryData
 	QVector<float> xValues() const;
 	QVector<float> data(int index) const;
 
-	void setDataNames(const QStringList &dataNames);
-	QStringList availableData() const { return _dataNames; }
+	void setTelemetryInfo(const QVector<TelemetryInfo> &dataNames);
+	virtual QVector<TelemetryInfo> availableData() const { return _telemetryInfo; }
 
   protected:
 	QVector<float> _xValues;
 	QVector<QVector<float>> _data;
-	QStringList _dataNames;
+	QVector<TelemetryInfo> _telemetryInfo;
 
 	// Saving - Loading
 	void save(QDataStream &out) const;
 	void load(QDataStream &in);
 };
+
+QDataStream &operator>>(QDataStream &in, TelemetryInfo &data);
+QDataStream &operator<<(QDataStream &out, const TelemetryInfo &data);
 
 #endif // TELEMETRYDATA_H

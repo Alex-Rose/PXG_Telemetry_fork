@@ -8,28 +8,43 @@
 #include <QtGlobal>
 #include <cmath>
 
-const QStringList TELEMETRY_NAMES = {
-"Speed", "Throttle", "Brake", "Steering", "Gear", "Time", "Max Tyre Surface Temp.", "ERS Balance"};
+const QVector<TelemetryInfo> TELEMETRY_INFO = {
+TelemetryInfo{"Speed", "Speed of the car", "km/h"},
+TelemetryInfo{"Throttle", "Percentage of throttle pressed by the driver", "%"},
+TelemetryInfo{"Brake", "Percentage of brake pressed by the driver", "%"},
+TelemetryInfo{"Steering", "Percentage of steering applied by the driver (>0: toward the right, <0: roward the left)", "%"},
+TelemetryInfo{"Gear", "", ""},
+TelemetryInfo{"Time", "", "s"},
+TelemetryInfo{"Max Tyre Surface Temp.", "Temperature of the surface part of hotter tyre", "°C"},
+TelemetryInfo{"ERS Balance", "Energy harvested - energy deployed", "kJ"},
+};
 
-const QStringList EXTENDED_TELEMETRY_NAMES = {"Locking", "Balance",
-											  /*"Rear Sliding",*/
-											  "Tyre degradation", "Suspension F/R", "Suspension L/R"};
+const QVector<TelemetryInfo> EXTENDED_TELEMETRY_INFO = {
+TelemetryInfo{"Locking", "Tyre locking and severity during the lap", ""},
+TelemetryInfo{"Balance", "General balance of the car (>0: oversteering, <0: understeering)", ""},
+TelemetryInfo{"Tyre degradation", "Estimated tyre degradation", ""},
+TelemetryInfo{"Suspension F/R",
+			  "Front / Rear suspension balance (>0: the car tilt toward the front, <0: the car tilt toward the rear)", ""},
+TelemetryInfo{"Suspension R/L",
+			  "Right / Left suspension balance (>0: the car tilt toward the right, <0: the car tilt toward the left)", ""},
+};
 
-const QStringList TELEMETRY_STINT_NAMES = {"Lap Times (s)",
-										   "Average Tyre Wear (%)",
-										   "Fuel (kg)",
-										   "Stored Energy (kJ)",
-										   "Energy Deployed (kJ)",
-										   "Energy Harvested (kJ)",
-										   "Front Left Tyre Temperature",
-										   "Front Right Tyre Temperature",
-										   "Rear Left Tyre Temperature",
-										   "Rear Left Tyre Temperature"};
+const QVector<TelemetryInfo> TELEMETRY_STINT_INFO = {
+TelemetryInfo{"Lap Times", "", "s"},
+TelemetryInfo{"Average Tyre Wear", "", "%"},
+TelemetryInfo{"Fuel", "", "kg"},
+TelemetryInfo{"Stored Enegery", "", "kJ"},
+TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
+TelemetryInfo{"Front Right Tyre Temperature", "", "°C"},
+TelemetryInfo{"Rear Left Tyre Temperature", "", "°C"},
+TelemetryInfo{"Rear Right Tyre Temperature", "", "°C"},
+};
+
 
 DriverTracker::DriverTracker(int driverIndex) : _driverIndex(driverIndex)
 {
-	_currentLap = new Lap(TELEMETRY_NAMES);
-	_currentStint = new Stint(TELEMETRY_STINT_NAMES);
+	_currentLap = new Lap(TELEMETRY_INFO);
+	_currentStint = new Stint(TELEMETRY_STINT_INFO);
 }
 
 void DriverTracker::init(const QDir &directory)
@@ -37,7 +52,7 @@ void DriverTracker::init(const QDir &directory)
 	dataDirectory = directory;
 	driverDirDefined = false;
 	_extendedPlayerTelemetry = false;
-	_currentLap->setDataNames(TELEMETRY_NAMES);
+	_currentLap->setTelemetryInfo(TELEMETRY_INFO);
 	_isLapRecorded = false;
 }
 
@@ -59,9 +74,9 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 					  _currentStatusData.m_ersDeployedThisLap;
 	ersBalance = round(ersBalance / 1000.0);
 
-	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle), float(driverData.m_brake),
-								  float(driverData.m_steer), float(driverData.m_gear),
-								  _previousLapData.m_currentLapTime, maxTyreTemp, ersBalance});
+	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle * 100.0),
+								  float(driverData.m_brake * 100.0), float(driverData.m_steer * 100.0),
+								  float(driverData.m_gear), _previousLapData.m_currentLapTime, maxTyreTemp, ersBalance});
 
 	if(_extendedPlayerTelemetry) {
 		TyresData<float> slip;
@@ -284,8 +299,6 @@ void DriverTracker::addLapToStint(Lap *lap)
 				   float(lap->averageEndTyreWear - _currentStint->averageStartTyreWear),
 				   float(lap->fuelOnEnd),
 				   float(lap->energy / 1000.0),
-				   float(lap->deployedEnergy / 1000.0),
-				   float(lap->harvestedEnergy / 1000.0),
 				   float(lap->innerTemperatures.frontLeft.mean),
 				   float(lap->innerTemperatures.frontRight.mean),
 				   float(lap->innerTemperatures.rearLeft.mean),
@@ -413,7 +426,7 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 
 		if(header.m_playerCarIndex == _driverIndex) {
 			_extendedPlayerTelemetry = true;
-			_currentLap->setDataNames(TELEMETRY_NAMES + EXTENDED_TELEMETRY_NAMES);
+			_currentLap->setTelemetryInfo(TELEMETRY_INFO + EXTENDED_TELEMETRY_INFO);
 		}
 	}
 }

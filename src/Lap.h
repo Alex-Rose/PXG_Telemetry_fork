@@ -14,7 +14,7 @@
 class Lap : public TelemetryData
 {
   public:
-	Lap(const QStringList &telemetryDataNames = {});
+	Lap(const QVector<TelemetryInfo> &dataInfo = {});
 
 	virtual QString description() const;
 

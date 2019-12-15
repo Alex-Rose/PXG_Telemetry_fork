@@ -45,7 +45,7 @@ class CompareTelemetryWidget : public QWidget
 	QList<QCheckBox *> _diffCheckboxes;
 	QList<QCheckBox *> _statsCheckboxes;
 	QList<TelemetryChartView *> _variablesCharts;
-	QStringList _variables;
+	QVector<TelemetryInfo> _variables;
 	QToolBar *_toolbar;
 	QMenu *_telemetryContextMenu;
 	int _trackIndex = -1;
@@ -64,7 +64,7 @@ class CompareTelemetryWidget : public QWidget
 	void setTelemetry(const QVector<TelemetryData *> &telemetry);
 	void setTelemetryVisibility(const QVector<bool> &visibility);
 	void clearVariables();
-	void createVariables(const QStringList &variables);
+	void createVariables(const QVector<TelemetryInfo> &variables);
 	void createAxis(QtCharts::QChart *chart, bool stats);
 
 	float findMedian(int begin, int end, const QVector<float> &data);
@@ -79,8 +79,8 @@ class CompareTelemetryWidget : public QWidget
   protected:
 	virtual void fillInfoTree(QTreeWidget *tree, const TelemetryData *data)
 	{
-		Q_UNUSED(tree);
-		Q_UNUSED(data);
+		Q_UNUSED(tree)
+		Q_UNUSED(data)
 	}
 
 	QTreeWidgetItem *setupItem(QTreeWidget *tree, const Lap *lap) const;

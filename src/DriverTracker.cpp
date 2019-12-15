@@ -109,8 +109,9 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		slip * 10.0 * driverData.m_speed * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLongitudinal);
 		tyreDegradationLon.abs();
 
-
-		values << tyreDegradationLat.mean() + tyreDegradationLon.mean();
+		auto meanDegradation = tyreDegradationLat.mean() + tyreDegradationLon.mean();
+		values << meanDegradation;
+		_currentLap->calculatedTyreDegradation += meanDegradation / 100.0;
 
 		// Suspension
 		TyresData<float> suspension;
@@ -234,6 +235,8 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
 	_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
 	_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
+	_currentLap->energyBalance = _currentStatusData.m_ersStoreEnergy - _currentLap->energyBalance;
+
 	QString lapType;
 	if(_currentLap->isInLap) {
 		_currentLap->lapTime = lapData.m_currentLapTime;
@@ -297,6 +300,8 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->sector2Time = addMean(_currentStint->sector2Time, lap->sector2Time, _currentStint->nbLaps());
 	_currentStint->sector3Time = addMean(_currentStint->sector3Time, lap->sector3Time, _currentStint->nbLaps());
 	_currentStint->meanBalance = addMean(_currentStint->meanBalance, lap->meanBalance, _currentStint->nbLaps());
+	_currentStint->calculatedTyreDegradation =
+	addMean(_currentStint->calculatedTyreDegradation, lap->calculatedTyreDegradation, _currentStint->nbLaps());
 	_currentStint->lapTimes.append(lap->lapTime);
 	if(lap->isOutLap)
 		_currentStint->isOutLap = true;
@@ -335,6 +340,8 @@ void DriverTracker::startLap(const LapData &lapData)
 	_currentLap->visualTyreCompound = _currentStatusData.m_tyreVisualCompound;
 	_currentLap->fuelOnStart = double(_currentStatusData.m_fuelInTank);
 	_currentLap->maxSpeed = 0;
+	_currentLap->energyBalance = _currentStatusData.m_ersStoreEnergy;
+
 
 	if(!_currentStint->hasData() and driverDirDefined) {
 		qDebug() << "STINT Started : " << driverDataDirectory.dirName();

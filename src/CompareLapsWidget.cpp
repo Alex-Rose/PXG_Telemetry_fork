@@ -80,6 +80,7 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	new QTreeWidgetItem(fuelItem, {"End", QString::number(lap->fuelOnEnd) + "kg"});
 
 	auto ersItem = new QTreeWidgetItem(tree, {"ERS Energy", QString::number(int(lap->energy / 1000.0)) + "kJ"});
+	new QTreeWidgetItem(ersItem, {"Balance", QString::number(int(lap->energyBalance / 1000.0)) + "kJ"});
 	new QTreeWidgetItem(ersItem, {"Deployed", QString::number(int(lap->deployedEnergy / 1000.0)) + "kJ"});
 	new QTreeWidgetItem(ersItem, {"Harvested", QString::number(int(lap->harvestedEnergy / 1000.0)) + "kJ"});
 	for(auto it = lap->ers.distancesPerMode.constBegin(); it != lap->ers.distancesPerMode.constEnd(); ++it) {

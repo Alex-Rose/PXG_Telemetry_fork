@@ -51,6 +51,7 @@ class Lap : public TelemetryData
 	double energy = 0;
 	double harvestedEnergy = 0;
 	double deployedEnergy = 0;
+	double energyBalance = 0;
 	TyresData<TemperatureData> innerTemperatures;
 	int nbFlashback = 0;
 	double trackDistance = 0;
@@ -59,6 +60,7 @@ class Lap : public TelemetryData
 	bool isInLap = false;
 
 	double meanBalance = 0.0;
+	double calculatedTyreDegradation = 0.0;
 
 	// Saving - Loading
 	void save(const QString &filename) const;

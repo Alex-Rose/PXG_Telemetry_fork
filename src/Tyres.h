@@ -102,7 +102,12 @@ template <typename T> struct TyresData {
 		}
 	}
 
-	float mean() { return (rearLeft + rearRight + frontLeft + frontRight) / 4.0; }
+	float mean() const { return (rearLeft + rearRight + frontLeft + frontRight) / 4.0; }
+
+	float min() const { return std::min({rearLeft, rearRight, frontLeft, frontRight}); }
+
+	float max() const { return std::max({rearLeft, rearRight, frontLeft, frontRight}); }
+
 
 	void abs()
 	{

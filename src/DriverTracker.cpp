@@ -24,16 +24,17 @@ TelemetryInfo{"Locking", "Tyre locking and severity during the lap", ""},
 TelemetryInfo{"Balance", "General balance of the car (>0: oversteering, <0: understeering)", ""},
 TelemetryInfo{"Tyre degradation", "Estimated tyre degradation", ""},
 TelemetryInfo{"Suspension F/R",
-			  "Front / Rear suspension balance (>0: the car tilt toward the front, <0: the car tilt toward the rear)", ""},
+			  "Front / Rear suspension balance (>0: the car tilt toward the front, <0: the car tilt toward the rear)", "mm"},
 TelemetryInfo{"Suspension R/L",
-			  "Right / Left suspension balance (>0: the car tilt toward the right, <0: the car tilt toward the left)", ""},
+			  "Right / Left suspension balance (>0: the car tilt toward the right, <0: the car tilt toward the left)", "mm"},
 };
 
 const QVector<TelemetryInfo> TELEMETRY_STINT_INFO = {
 TelemetryInfo{"Lap Times", "", "s"},
-TelemetryInfo{"Average Tyre Wear", "", "%"},
-TelemetryInfo{"Fuel", "", "kg"},
-TelemetryInfo{"Stored Enegery", "", "kJ"},
+TelemetryInfo{"Tyres Life", "Average remaing life of the tyres", "%"},
+TelemetryInfo{"Calculated Tyres Degradation", "Cumulated estimated tyre degradation over each lap", ""},
+TelemetryInfo{"Fuel", "Remaining fuel in the car", "kg"},
+TelemetryInfo{"Stored Enegery", "Energy remaining in the battery", "kJ"},
 TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
 TelemetryInfo{"Front Right Tyre Temperature", "", "°C"},
 TelemetryInfo{"Rear Left Tyre Temperature", "", "°C"},
@@ -297,6 +298,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 {
 	auto values = {lap->lapTime,
 				   float(lap->averageEndTyreWear - _currentStint->averageStartTyreWear),
+				   float(lap->calculatedTyreDegradation),
 				   float(lap->fuelOnEnd),
 				   float(lap->energy / 1000.0),
 				   float(lap->innerTemperatures.frontLeft.mean),
@@ -462,7 +464,7 @@ bool DriverTracker::finishLineCrossed(const LapData &data) const
 		   ((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
 			(data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12) &&
 		   data.m_pitStatus == 0 && _previousLapData.m_pitStatus == 0 &&
-		   (data.m_driverStatus == 1 || data.m_driverStatus == 4);
+		   (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
 }
 
 

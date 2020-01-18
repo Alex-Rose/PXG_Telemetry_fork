@@ -175,7 +175,7 @@ void Tracker::lapData(const PacketHeader &header, const PacketLapData &data)
 
 void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &data)
 {
-	_do_start = !hasSession() and _autoStart;
+	_do_start = (!hasSession() && _autoStart) || _do_start;
 
 	if(header.m_sessionUID != _header.m_sessionUID) {
 		emit sessionChanged(sessionName(data));
@@ -189,7 +189,6 @@ void Tracker::sessionData(const PacketHeader &header, const PacketSessionData &d
 
 	_session = data;
 	_header = header;
-
 
 	if(_do_start && _hasParticipants)
 		start();

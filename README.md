@@ -25,10 +25,12 @@ Data of the selected drivers is recorded on the hard drive during the session an
 - Time differences
 - Tyre wear
 - Tyre temperatures
-- ERS energy
-- Multiple laps comparison
+- Tyre degradation
+- Suspension
+- ERS balance
 - Tyres lockup
-- Car balance i.e. oversteer / understeer (wip)
+- Car balance i.e. oversteer / understeer
+- Multiple laps comparison
 
 ![Comparaison of laps](Screenshots/Laps.png)
 

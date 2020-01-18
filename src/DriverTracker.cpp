@@ -23,6 +23,7 @@ const QVector<TelemetryInfo> EXTENDED_TELEMETRY_INFO = {
 TelemetryInfo{"Locking", "Tyre locking and severity during the lap", ""},
 TelemetryInfo{"Balance", "General balance of the car (>0: oversteering, <0: understeering)", ""},
 TelemetryInfo{"Tyre degradation", "Estimated tyre degradation", ""},
+// TelemetryInfo{"Traction", "Minimum available traction", "%"},
 TelemetryInfo{"Suspension F/R",
 			  "Front / Rear suspension balance (>0: the car tilt toward the front, <0: the car tilt toward the rear)", "mm"},
 TelemetryInfo{"Suspension R/L",
@@ -104,10 +105,6 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		values << float(balance);
 		_currentLap->meanBalance = addMean(_currentLap->meanBalance, balance, _currentLap->xValues().count() + 1);
 
-		//		// Sliding
-		//		auto rearSlide = driverData.m_throttle > 0 ? (qAbs(slip.rearLeft) + qAbs(slip.rearRight)) / 2.0 : 0.0;
-		//		values << rearSlide;
-
 		// degradation
 		TyresData<float> wheelSpeed;
 		wheelSpeed.setArray(_currentMotionData.m_wheelSpeed);
@@ -128,6 +125,12 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		auto meanDegradation = tyreDegradationLat.mean() + tyreDegradationLon.mean();
 		values << meanDegradation;
 		_currentLap->calculatedTyreDegradation += meanDegradation / 100.0;
+
+		// Traction
+		//		auto tractionRight = slip.rearRight < 0 ? 100.0f + slip.rearRight * 100.0f : 100.0f;
+		//		auto tractionLeft = slip.rearLeft < 0 ? 100.0f + slip.rearLeft * 100.0f : 100.0f;
+		//		auto traction = std::min(tractionRight, tractionLeft);
+		//		values << traction;
 
 		// Suspension
 		TyresData<float> suspension;
@@ -446,6 +449,8 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 		case Event::SessionEnded:
 		case Event::RaceWinner:
 		case Event::ChequeredFlag:
+			qInfo() << _previousLapData.m_lapDistance << _currentSessionData.m_trackLength
+					<< _previousLapData.m_pitStatus << _previousLapData.m_driverStatus;
 			if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {
 				saveCurrentLap(_previousLapData);
 			}
@@ -463,8 +468,7 @@ bool DriverTracker::finishLineCrossed(const LapData &data) const
 	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
 		   ((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
 			(data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12) &&
-		   data.m_pitStatus == 0 && _previousLapData.m_pitStatus == 0 &&
-		   (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
+		   data.m_pitStatus == 0 && (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
 }
 
 

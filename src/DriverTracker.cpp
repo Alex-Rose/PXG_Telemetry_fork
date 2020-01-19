@@ -15,7 +15,7 @@ TelemetryInfo{"Brake", "Percentage of brake pressed by the driver", "%"},
 TelemetryInfo{"Steering", "Percentage of steering applied by the driver (>0: toward the right, <0: roward the left)", "%"},
 TelemetryInfo{"Gear", "", ""},
 TelemetryInfo{"Time", "", "s"},
-TelemetryInfo{"Max Tyre Surface Temp.", "Temperature of the surface part of hotter tyre", "°C"},
+TelemetryInfo{"Max Tyre Surface Temp.", "Surface temperature of the hotter tyre", "°C"},
 TelemetryInfo{"ERS Balance", "Energy harvested - energy deployed", "kJ"},
 };
 
@@ -200,8 +200,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	//	qInfo() << "Driver:" << _driverIndex << _currentLap->driver.m_name << "Distance:" << lapData.m_lapDistance
 	//			<< "pitStatus:" << lapData.m_pitStatus << "driverStatus: " << lapData.m_driverStatus;
 
-	if((lapData.m_pitStatus > 0 && lapData.m_driverStatus != 3) || lastRaceLap ||
-	   (_currentSessionData.m_sessionTimeLeft < 1 && _currentSessionData.m_sessionType != 12)) {
+	if((lapData.m_pitStatus > 0 && lapData.m_driverStatus != 3) || lastRaceLap) {
 		if(lapData.m_driverStatus == 2 && _isLapRecorded) { // In lap
 			_currentLap->isInLap = true;
 			saveCurrentLap(lapData);
@@ -238,6 +237,8 @@ void DriverTracker::saveCurrentStint()
 		_currentStint->save(filePath);
 		++_currentStintNum;
 		Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
+	} else {
+		qWarning() << "Save empty strint !";
 	}
 
 	_currentStint->resetData();
@@ -449,8 +450,8 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 		case Event::SessionEnded:
 		case Event::RaceWinner:
 		case Event::ChequeredFlag:
-			qInfo() << _previousLapData.m_lapDistance << _currentSessionData.m_trackLength
-					<< _previousLapData.m_pitStatus << _previousLapData.m_driverStatus;
+			//			qInfo() << "E" << _previousLapData.m_lapDistance << _currentSessionData.m_trackLength
+			//					<< _previousLapData.m_pitStatus << _previousLapData.m_driverStatus;
 			if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {
 				saveCurrentLap(_previousLapData);
 			}
@@ -465,10 +466,15 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
-	return (_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
-		   ((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
-			(data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12) &&
-		   data.m_pitStatus == 0 && (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
+	auto cross =
+	(_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
+	((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
+	 ((data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12));
+
+	//	qInfo() << "CR" << _previousLapData.m_lapDistance << data.m_lapDistance << _currentSessionData.m_trackLength
+	//			<< data.m_pitStatus << data.m_driverStatus << _isLapRecorded;
+
+	return cross && data.m_pitStatus == 0 && (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
 }
 
 

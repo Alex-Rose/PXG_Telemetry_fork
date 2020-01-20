@@ -1,6 +1,8 @@
-# What's new
+## PXG F1 Telemetry Changelog
 
-## Version 1.3
+
+### Version 1.3
+
 
 - Tyre degradation telemetry
 - Suspension position telemetry
@@ -9,7 +11,8 @@
 - Fix last lap recording in qualification
 - Tooltips explaining most telemetry variable
 
-## Version 1.2
+
+### Version 1.2
 
 - New option to records all time trial ghosts
 - Record of the "in lap" of a stint

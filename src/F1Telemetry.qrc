@@ -1,8 +1,8 @@
 <RCC>
-    <qresource prefix="/tabIcons"/>
-    <qresource prefix="/icon"/>
     <qresource prefix="/">
         <file>../Ressources/F1Telemetry.png</file>
+	<file alias="changelog">../Changelog.md</file>
+	<file alias="version">../VERSION</file>
     </qresource>
     <qresource prefix="/track">
         <file alias="Hockenheim">../Ressources/TrackLayouts/Hockenheim2012.png</file>

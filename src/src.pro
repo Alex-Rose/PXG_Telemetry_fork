@@ -25,6 +25,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 SOURCES += \
+    CheckUpdatesDialog.cpp \
+    FileDownloader.cpp \
     TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
         main.cpp \
@@ -47,8 +49,10 @@ SOURCES += \
     AboutDialog.cpp
 
 HEADERS += \
+    CheckUpdatesDialog.h \
         F1Telemetry.h \
     F1Listener.h \
+    FileDownloader.h \
     TTGhostsTracker.h \
     TelemetryChartView.h \
     UdpSpecification.h \
@@ -68,6 +72,7 @@ HEADERS += \
     AboutDialog.h
 
 FORMS += \
+    CheckUpdatesDialog.ui \
         F1Telemetry.ui \
     TrackingWidget.ui \
     CompareTelemetryWidget.ui \

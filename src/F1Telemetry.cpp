@@ -1,9 +1,15 @@
 #include "F1Telemetry.h"
 #include "AboutDialog.h"
+#include "CheckUpdatesDialog.h"
+#include "FileDownloader.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
+#include <QDesktopServices>
 #include <QMessageBox>
+#include <QNetworkReply>
+#include <QPushButton>
+#include <QTextEdit>
 
 F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Telemetry)
 {
@@ -25,6 +31,11 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 	loadSettings();
 
 	initMenu();
+
+	_downloader = new FileDownloader(this);
+	connect(_downloader, &FileDownloader::fileDownloaded, this, &F1Telemetry::fileDownloaded);
+
+	_updateDialog = new CheckUpdatesDialog(this);
 }
 
 F1Telemetry::~F1Telemetry() { delete ui; }
@@ -62,7 +73,26 @@ void F1Telemetry::initMenu()
 		AboutDialog dlg(this);
 		dlg.exec();
 	});
+
 	helpMenu->addAction("Quick Instructions", ui->trackingWidget, &TrackingWidget::showQuickInstructions);
+	helpMenu->addSeparator();
+	helpMenu->addAction("Check for updates", this, &F1Telemetry::checkUpdates);
+	helpMenu->addAction("Changelog...", this, &F1Telemetry::showChangeLog);
+}
+
+bool F1Telemetry::isGreaterVersion(const QString &version)
+{
+	auto oldVersion = qApp->applicationVersion().split('.');
+	auto newVersion = version.split('.');
+
+	auto nbElement = qMax(oldVersion.count(), newVersion.count());
+	for(int i = 0; i < nbElement; ++i) {
+		if(newVersion.value(i, "0").toInt() > oldVersion.value(i, "0").toInt()) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void F1Telemetry::closeEvent(QCloseEvent *event)
@@ -84,4 +114,43 @@ void F1Telemetry::startTracking(bool trackPlayer, bool trackTeammate, bool track
 		_tracker->trackDriver(id);
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
 	_tracker->start();
+}
+
+void F1Telemetry::checkUpdates()
+{
+	auto url = QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry.git/raw/master/VERSION");
+	_downloader->downloadFile(url, VersionFile);
+}
+
+void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
+{
+	if(type == VersionFile) {
+		qInfo() << "Software latest version is " << data;
+		if(isGreaterVersion(data)) {
+			qInfo() << "A newer version is available";
+			_downloader->downloadFile(QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/WhatsNew.md"), ChangelogFile);
+			_updateDialog->setAvailableVersion(data);
+			_updateDialog->exec();
+		}
+	} else if(type == ChangelogFile) {
+		_updateDialog->setChangeLog(data);
+	}
+}
+
+void F1Telemetry::showChangeLog()
+{
+	QDialog dialog(this);
+	auto edit = new QTextEdit(&dialog);
+	edit->setReadOnly(true);
+
+	auto layout = new QVBoxLayout(&dialog);
+	layout->addWidget(edit);
+
+	QFile changes(":/changelog");
+	if(changes.open(QIODevice::ReadOnly)) {
+		edit->setStyleSheet("h1 {margin-top: 10px;}");
+		edit->setMarkdown(changes.readAll());
+		dialog.resize(700, 700);
+		dialog.exec();
+	}
 }

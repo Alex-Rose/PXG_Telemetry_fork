@@ -1,7 +1,16 @@
 #include "F1Telemetry.h"
 #include <QApplication>
+#include <QFile>
 
-const QString &VERSION = "1.2";
+QString readVersion()
+{
+	QFile versionFile(":/version");
+	if(versionFile.open(QIODevice::ReadOnly)) {
+		return versionFile.readAll();
+	}
+
+	return QString();
+}
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +18,7 @@ int main(int argc, char *argv[])
 
 	a.setOrganizationName("Pixelgames");
 	a.setApplicationName("PXG F1 Telemetry");
-	a.setApplicationVersion(VERSION);
+	a.setApplicationVersion(readVersion());
 
 	F1Telemetry w;
 	w.show();

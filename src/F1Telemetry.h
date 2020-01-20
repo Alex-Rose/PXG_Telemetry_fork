@@ -5,6 +5,8 @@
 
 #include <QCheckBox>
 #include <QMainWindow>
+#include <QMessageBox>
+#include <QNetworkAccessManager>
 
 namespace Ui
 {
@@ -12,6 +14,8 @@ class F1Telemetry;
 }
 
 class Tracker;
+class FileDownloader;
+class CheckUpdatesDialog;
 
 class F1Telemetry : public QMainWindow
 {
@@ -25,17 +29,27 @@ class F1Telemetry : public QMainWindow
 	Ui::F1Telemetry *ui;
 	F1Listener *_listener;
 	Tracker *_tracker;
+	FileDownloader *_downloader;
+	CheckUpdatesDialog *_updateDialog;
+
+	enum DownloadingFileTypes { VersionFile, ChangelogFile };
 
 	void loadSettings();
 	void saveSetings();
 
 	void initMenu();
 
+	bool isGreaterVersion(const QString &version);
+
   protected:
 	void closeEvent(QCloseEvent *event);
 
   private slots:
 	void startTracking(bool trackPlayer, bool trackTeammate, bool trackTTGHosts, const QVector<int> &trackedDriverIds);
+
+	void checkUpdates();
+	void fileDownloaded(int type, const QByteArray &data);
+	void showChangeLog();
 };
 
 #endif // F1TELEMETRY_H

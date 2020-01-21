@@ -31,6 +31,7 @@ class F1Telemetry : public QMainWindow
 	Tracker *_tracker;
 	FileDownloader *_downloader;
 	CheckUpdatesDialog *_updateDialog;
+	bool _isAutoCheckUpdates = false;
 
 	enum DownloadingFileTypes { VersionFile, ChangelogFile };
 
@@ -50,6 +51,7 @@ class F1Telemetry : public QMainWindow
 	void checkUpdates();
 	void fileDownloaded(int type, const QByteArray &data);
 	void showChangeLog();
+	void changelogAutoDisplay();
 };
 
 #endif // F1TELEMETRY_H

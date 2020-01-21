@@ -10,6 +10,7 @@
 #include <QNetworkReply>
 #include <QPushButton>
 #include <QTextEdit>
+#include <QTimer>
 
 F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Telemetry)
 {
@@ -27,6 +28,8 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 	connect(ui->trackingWidget, &TrackingWidget::startTracking, this, &F1Telemetry::startTracking);
 	connect(ui->trackingWidget, &TrackingWidget::stopStracking, _tracker, &Tracker::stop);
 
+	changelogAutoDisplay();
+
 	resize(1400, 800);
 	loadSettings();
 
@@ -36,6 +39,9 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 	connect(_downloader, &FileDownloader::fileDownloaded, this, &F1Telemetry::fileDownloaded);
 
 	_updateDialog = new CheckUpdatesDialog(this);
+
+	_isAutoCheckUpdates = true;
+	checkUpdates();
 }
 
 F1Telemetry::~F1Telemetry() { delete ui; }
@@ -127,10 +133,22 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 	if(type == VersionFile) {
 		qInfo() << "Software latest version is " << data;
 		if(isGreaterVersion(data)) {
+
 			qInfo() << "A newer version is available";
-			_downloader->downloadFile(QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/WhatsNew.md"), ChangelogFile);
-			_updateDialog->setAvailableVersion(data);
-			_updateDialog->exec();
+			QSettings settings;
+			if(!_isAutoCheckUpdates || settings.value("skipedVersion") != data) {
+				_downloader->downloadFile(QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/WhatsNew.md"), ChangelogFile);
+				_updateDialog->setAvailableVersion(data);
+				if(_updateDialog->exec() == QDialog::Rejected) {
+					settings.setValue("skipedVersion", QString(data));
+				} else {
+					settings.setValue("skipedVersion", QString());
+				}
+			} else {
+				qInfo() << "Version Skipped";
+			}
+
+			_isAutoCheckUpdates = false;
 		}
 	} else if(type == ChangelogFile) {
 		_updateDialog->setChangeLog(data);
@@ -140,6 +158,7 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 void F1Telemetry::showChangeLog()
 {
 	QDialog dialog(this);
+	dialog.setWindowTitle("PXG F1 Telemetry Changelog");
 	auto edit = new QTextEdit(&dialog);
 	edit->setReadOnly(true);
 
@@ -152,5 +171,14 @@ void F1Telemetry::showChangeLog()
 		edit->setMarkdown(changes.readAll());
 		dialog.resize(700, 700);
 		dialog.exec();
+	}
+}
+
+void F1Telemetry::changelogAutoDisplay()
+{
+	QSettings settings;
+	if(!settings.allKeys().isEmpty() && settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
+		QTimer::singleShot(0, this, &F1Telemetry::showChangeLog);
+		settings.setValue("lastChangelogAutoDisplay", qApp->applicationVersion());
 	}
 }

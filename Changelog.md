@@ -10,6 +10,7 @@
 - F2 2019 teams
 - Fix last lap recording in qualification
 - Tooltips explaining most telemetry variable
+- Add an automatic update check
 
 
 ### Version 1.2

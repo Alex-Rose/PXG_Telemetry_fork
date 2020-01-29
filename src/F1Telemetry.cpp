@@ -147,9 +147,12 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 			} else {
 				qInfo() << "Version Skipped";
 			}
-
-			_isAutoCheckUpdates = false;
+		} else if(!_isAutoCheckUpdates) {
+			qInfo() << "Up to date !";
+			QMessageBox::information(this, "Software update", "You're up to date!\nThere is no newer version available.");
 		}
+
+		_isAutoCheckUpdates = false;
 	} else if(type == ChangelogFile) {
 		_updateDialog->setChangeLog(data);
 	}

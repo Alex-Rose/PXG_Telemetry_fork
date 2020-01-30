@@ -48,7 +48,7 @@ Data of the selected drivers is recorded on the hard drive during the session an
 
 ## Compilation
 
-- Download and install Qt 5.13.0 or higher from www.qt.io
+- Download and install Qt 5.14.1 or higher from www.qt.io
 - Open "F1Telemetry.pro" with Qt creator and compile the project
 
 

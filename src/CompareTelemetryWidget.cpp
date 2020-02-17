@@ -103,6 +103,8 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 			auto lineSeries = createTelemetryLine(data, varIndex, refData, diff, color);
 			if(lineSeries) {
 				chart->addSeries(lineSeries);
+			} else {
+				chart->addSeries(new QLineSeries());
 			}
 		} else {
 			auto statsSeries = createTelemetryStat(data, varIndex, color);
@@ -115,6 +117,11 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 		// Uncomment to print the track distance under the mouse
 		// connect(lineSeries, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
+
+	if(chart->series().isEmpty()) {
+		return;
+	}
+
 
 	if(stats) {
 		for(int i = telemetryData.count(); i < 20; ++i) {

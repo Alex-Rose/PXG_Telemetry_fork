@@ -20,7 +20,8 @@ TelemetryInfo{"ERS Balance", "Energy harvested - energy deployed", "kJ"},
 };
 
 const QVector<TelemetryInfo> EXTENDED_TELEMETRY_INFO = {
-TelemetryInfo{"Locking", "Tyre locking and severity during the lap", ""},
+TelemetryInfo{"Front Locking", "Tyre locking and severity during the lap", "%"},
+TelemetryInfo{"Rear Locking", "Tyre locking and severity during the lap", "%"},
 TelemetryInfo{"Balance", "General balance of the car (>0: oversteering, <0: understeering)", ""},
 TelemetryInfo{"Tyre degradation", "Estimated tyre degradation", ""},
 // TelemetryInfo{"Traction", "Minimum available traction", "%"},
@@ -85,13 +86,11 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		slip.setArray(_currentMotionData.m_wheelSlip);
 
 		// locking
-		const auto &slipValuesList = slip.asList();
-		auto max = qAbs(**(std::max_element(slipValuesList.begin(), slipValuesList.end(),
-											[](auto v1, auto v2) { return qAbs(*v1) < qAbs(*v2); })));
-		if(max > 0.8f) {
-			values << max;
+		if(driverData.m_brake > 0.05f) {
+			values << abs(slip.frontLeft + slip.frontRight) * 100.0;
+			values << abs(slip.rearLeft + slip.rearRight) * 100.0;
 		} else {
-			values << 0.0;
+			values << 0.0 << 0.0;
 		}
 
 		// Balance

@@ -25,6 +25,8 @@ const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
 const QString TURN_NAMES = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
 
+enum class ChartConfigurationWidgetType { Diff = 0, Stats = 1 };
+
 CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) : QWidget(parent), ui(new Ui::CompareTelemetryWidget)
 {
 	ui->setupUi(this);
@@ -47,6 +49,12 @@ CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) : QWidget(parent
 	connect(ui->checkTrackLayout, &QCheckBox::toggled, this, &CompareTelemetryWidget::showTrackLayout);
 
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
+
+	_diffCheckMapper = new QSignalMapper(this);
+	connect(_diffCheckMapper, qOverload<int>(&QSignalMapper::mapped), this, &CompareTelemetryWidget::changeVariableDiff);
+
+	_statsCheckMapper = new QSignalMapper(this);
+	connect(_statsCheckMapper, qOverload<int>(&QSignalMapper::mapped), this, &CompareTelemetryWidget::changeStats);
 
 	ui->trackWidget->hide();
 }
@@ -275,8 +283,10 @@ void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &teleme
 		QList<QColor> colors = _telemetryDataModel->colors();
 		int varIndex = 0;
 		for(auto chartView : _variablesCharts) {
-			auto isDiff = _diffCheckboxes.value(varIndex)->isChecked();
-			auto isStat = _statsCheckboxes.value(varIndex)->isChecked();
+			auto isDiff =
+			qobject_cast<QCheckBox *>(_variablesCharts.value(varIndex)->configurationWidgets().value(0))->isChecked();
+			auto isStat =
+			qobject_cast<QCheckBox *>(_variablesCharts.value(varIndex)->configurationWidgets().value(1))->isChecked();
 			reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, isStat, colors);
 			chartView->setHomeZoom();
 
@@ -332,20 +342,6 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 			chart->legend()->hide();
 			chart->setTitle(var.completeName());
 
-			auto diffProxy = new QGraphicsProxyWidget(chart);
-			auto diffCheck = new QCheckBox("Diff with reference lap");
-			diffProxy->setWidget(diffCheck);
-			_diffCheckboxes << diffCheck;
-			connect(diffCheck, &QCheckBox::toggled, this, &CompareTelemetryWidget::changeVariableDiff);
-			diffProxy->setPos(QPoint(12, 9));
-
-			auto statsProxy = new QGraphicsProxyWidget(chart);
-			auto statsCheck = new QCheckBox("Distribution");
-			statsProxy->setWidget(statsCheck);
-			_statsCheckboxes << statsCheck;
-			connect(statsCheck, &QCheckBox::toggled, this, &CompareTelemetryWidget::changeStats);
-			auto px = diffProxy->pos().x() + diffProxy->rect().width();
-			statsProxy->setPos(QPoint(px, 9));
 
 			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			pol.setVerticalStretch(1);
@@ -355,6 +351,17 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 			view->setSizePolicy(pol);
 			_variablesCharts << view;
 			view->setVisible(checkbox->isChecked());
+
+			auto diffCheck = new QCheckBox("Diff with reference lap");
+			connect(diffCheck, &QCheckBox::toggled, _diffCheckMapper, qOverload<>(&QSignalMapper::map));
+			_diffCheckMapper->setMapping(diffCheck, varIndex);
+			view->addConfigurationWidget(diffCheck);
+
+			auto statsCheck = new QCheckBox("Distribution");
+			_statsCheckboxes << statsCheck;
+			connect(statsCheck, &QCheckBox::toggled, _statsCheckMapper, qOverload<>(&QSignalMapper::map));
+			_statsCheckMapper->setMapping(statsCheck, varIndex);
+			view->addConfigurationWidget(statsCheck);
 
 			ui->graphLayout->addWidget(view);
 		}
@@ -417,8 +424,6 @@ void CompareTelemetryWidget::clearVariables()
 
 	_variableCheckboxes.clear();
 	_variablesCharts.clear();
-	_diffCheckboxes.clear();
-	_statsCheckboxes.clear();
 	_variables.clear();
 }
 
@@ -472,11 +477,11 @@ void CompareTelemetryWidget::telemetryDataSelected(const QModelIndex &current, c
 	//	ui->lapInfo->setLap(data);
 }
 
-void CompareTelemetryWidget::changeVariableDiff(bool value)
+void CompareTelemetryWidget::changeVariableDiff(int varIndex)
 {
-	auto diffCheckbox = qobject_cast<QCheckBox *>(sender());
-	auto varIndex = _diffCheckboxes.indexOf(diffCheckbox);
 	auto chartView = _variablesCharts.value(varIndex, nullptr);
+	auto diffCheckbox = qobject_cast<QCheckBox *>(chartView->configurationWidgets().value(0));
+	auto value = diffCheckbox->isChecked();
 	auto prevAxis = qobject_cast<QValueAxis *>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	auto prevMin = prevAxis->min();
 	auto prevMax = prevAxis->max();
@@ -487,13 +492,13 @@ void CompareTelemetryWidget::changeVariableDiff(bool value)
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
 }
 
-void CompareTelemetryWidget::changeStats(bool value)
+void CompareTelemetryWidget::changeStats(int varIndex)
 {
-	auto statsCheckbox = qobject_cast<QCheckBox *>(sender());
-	auto varIndex = _statsCheckboxes.indexOf(statsCheckbox);
-	auto diffCheckbox = _diffCheckboxes.value(varIndex);
-	diffCheckbox->setEnabled(!value);
 	auto chartView = _variablesCharts.value(varIndex, nullptr);
+	auto statsCheckbox = qobject_cast<QCheckBox *>(chartView->configurationWidgets().value(1));
+	auto value = statsCheckbox->isChecked();
+	auto diffCheckbox = qobject_cast<QCheckBox *>(chartView->configurationWidgets().value(0));
+	diffCheckbox->setEnabled(!value);
 
 	reloadVariableSeries(chartView->chart(), _telemetryDataModel->getTelemetryData(), varIndex,
 						 diffCheckbox->isChecked(), value, _telemetryDataModel->colors());

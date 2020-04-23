@@ -9,6 +9,7 @@
 #include <QLineSeries>
 #include <QRadioButton>
 #include <QSettings>
+#include <QSignalMapper>
 #include <QToolBar>
 #include <QTreeWidget>
 #include <QWidget>
@@ -49,6 +50,10 @@ class CompareTelemetryWidget : public QWidget
 	QToolBar *_toolbar;
 	QMenu *_telemetryContextMenu;
 	int _trackIndex = -1;
+
+	QSignalMapper *_diffCheckMapper;
+	QSignalMapper *_statsCheckMapper;
+
 
 	void initActions();
 	void reloadVariableSeries(QtCharts::QChart *chart,
@@ -95,8 +100,8 @@ class CompareTelemetryWidget : public QWidget
 	void home();
 	void distanceZoomChanged(qreal min, qreal max);
 	void telemetryDataSelected(const QModelIndex &current, const QModelIndex &previous);
-	void changeVariableDiff(bool value);
-	void changeStats(bool value);
+	void changeVariableDiff(int varIndex);
+	void changeStats(int varIndex);
 	void telemetryTableContextMenu(const QPoint &pos);
 	void changeReferenceData();
 	void removeData();

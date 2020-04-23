@@ -1,4 +1,5 @@
 #include "TelemetryChartView.h"
+#include <QGraphicsProxyWidget>
 #include <QValueAxis>
 #include <QtDebug>
 
@@ -9,6 +10,9 @@ const constexpr double FACTOR = 1.3;
 TelemetryChartView::TelemetryChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
 {
 	setRubberBand(QChartView::RectangleRubberBand);
+	_posLabel = new QLabel(this);
+	_posLabel->setStyleSheet("color: black");
+	updateLabelsPosition();
 }
 
 void TelemetryChartView::setHomeZoom()
@@ -52,6 +56,40 @@ void TelemetryChartView::wheelEvent(QWheelEvent *event)
 	}
 }
 
+void TelemetryChartView::mouseMoveEvent(QMouseEvent *event)
+{
+	auto chartValue = chart()->mapToValue(event->localPos());
+	//	qInfo() << chartValue;
+	_posLabel->setText(QString::number(chartValue.x()) + "/" + QString::number(chartValue.y()));
+	_posLabel->resize(_posLabel->sizeHint());
+	updateLabelsPosition();
+	QChartView::mouseMoveEvent(event);
+}
+
+void TelemetryChartView::resizeEvent(QResizeEvent *event)
+{
+	updateLabelsPosition();
+	QChartView::resizeEvent(event);
+}
+
+void TelemetryChartView::updateLabelsPosition() { _posLabel->move(width() - _posLabel->sizeHint().width() - 10, 10); }
+
 bool TelemetryChartView::zoomEnabled() const { return _zoomEnabled; }
 
 void TelemetryChartView::setZoomEnabled(bool zoomEnabled) { _zoomEnabled = zoomEnabled; }
+
+void TelemetryChartView::addConfigurationWidget(QWidget *widget)
+{
+	auto proxy = new QGraphicsProxyWidget(chart());
+	proxy->setWidget(widget);
+	_configWidgets << widget;
+
+	auto x = 12;
+	for(auto i = 1; i < _configWidgets.count(); ++i) {
+		x += _configWidgets[i - 1]->sizeHint().width();
+	}
+
+	proxy->setPos(QPoint(x, 9));
+}
+
+const QList<QWidget *> &TelemetryChartView::configurationWidgets() const { return _configWidgets; }

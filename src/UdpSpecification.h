@@ -163,6 +163,8 @@ class LapData
 	quint8 m_resultStatus;           // Result status - 0 = invalid, 1 = inactive, 2 = active
 									 // 3 = finished, 4 = disqualified, 5 = not classified
 									 // 6 = retired
+
+	bool isValid() const { return m_lapDistance != -999999; }
 };
 
 struct PacketLapData {

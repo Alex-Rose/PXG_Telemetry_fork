@@ -477,12 +477,13 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
 	auto cross =
+	_previousLapData.isValid() &&
 	(_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
 	((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
 	 ((data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12));
 
 	//	qInfo() << "CR" << _previousLapData.m_lapDistance << data.m_lapDistance << _currentSessionData.m_trackLength
-	//			<< data.m_pitStatus << data.m_driverStatus << _isLapRecorded;
+	//			<< data.m_pitStatus << data.m_driverStatus << _isLapRecorded << cross;
 
 	return cross && data.m_pitStatus == 0 && (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
 }

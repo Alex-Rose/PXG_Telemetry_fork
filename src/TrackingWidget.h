@@ -17,7 +17,7 @@ class TrackingWidget : public QWidget, public LogInterface
 	Q_OBJECT
 
   signals:
-	void startTracking(bool me, bool teammate, bool ghosts, const QVector<int> &driverId);
+	void startTracking(bool me, bool teammate, bool all, const QVector<int> &driverId);
 	void stopStracking();
 
   public:
@@ -49,6 +49,7 @@ class TrackingWidget : public QWidget, public LogInterface
   private slots:
 	void startStop();
 	void browseDataDirectory();
+	void allCarsChecked(bool checked);
 };
 
 #endif // TRACKINGWIDGET_H

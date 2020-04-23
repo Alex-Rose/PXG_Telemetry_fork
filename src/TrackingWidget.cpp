@@ -21,6 +21,7 @@ TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Tr
 	connect(ui->btnTrack, &QPushButton::clicked, this, &TrackingWidget::startStop);
 	connect(ui->btnBrowse, &QPushButton::clicked, this, &TrackingWidget::browseDataDirectory);
 	connect(ui->btnQuickInstructions, &QPushButton::clicked, this, &TrackingWidget::showQuickInstructions);
+	connect(ui->allcars, &QCheckBox::toggled, this, &TrackingWidget::allCarsChecked);
 	setStatus("", false);
 	setDrivers({});
 	setSession("");
@@ -36,7 +37,7 @@ void TrackingWidget::saveSettings(QSettings *settings)
 	settings->setValue("dataDirectory", ui->leDataDir->text());
 	settings->setValue("trackPlayer", ui->player->isChecked());
 	settings->setValue("trackTeammate", ui->teammate->isChecked());
-	settings->setValue("trackGhosts", ui->ttghosts->isChecked());
+	settings->setValue("trackAll", ui->allcars->isChecked());
 	settings->endGroup();
 }
 
@@ -47,7 +48,7 @@ void TrackingWidget::loadSettings(QSettings *settings)
 	QDir::setCurrent(settings->value("dataDirectory").toString());
 	ui->player->setChecked(settings->value("trackPlayer").toBool());
 	ui->teammate->setChecked(settings->value("trackTeammate").toBool());
-	ui->ttghosts->setChecked(settings->value("trackGhosts").toBool());
+	ui->allcars->setChecked(settings->value("trackAll").toBool());
 	settings->endGroup();
 }
 
@@ -130,7 +131,7 @@ void TrackingWidget::startStop()
 			if(_driverCheckBoxes[i]->isChecked())
 				trackedId << i;
 		}
-		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), ui->ttghosts->isChecked(), trackedId);
+		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), ui->allcars->isChecked(), trackedId);
 	} else {
 		emit stopStracking();
 	}
@@ -142,6 +143,13 @@ void TrackingWidget::browseDataDirectory()
 													   ui->leDataDir->text());
 	ui->leDataDir->setText(directory);
 	QDir::setCurrent(directory);
+}
+
+void TrackingWidget::allCarsChecked(bool checked)
+{
+	for(const auto &check : _driverCheckBoxes) {
+		check->setDisabled(checked);
+	}
 }
 
 QString TrackingWidget::getDataDirectory() const { return ui->leDataDir->text(); }

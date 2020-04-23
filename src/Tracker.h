@@ -25,7 +25,7 @@ class Tracker : public QObject, public F1PacketInterface
 	void trackDriver(int index);
 	void trackPlayer();
 	void trackTeammate();
-	void trackTTGhosts();
+	void trackAllCars();
 	void untrackDriver(int index);
 	void clearTrackedDrivers();
 
@@ -43,7 +43,7 @@ class Tracker : public QObject, public F1PacketInterface
 	QSet<int> _autoTrackedIndexes;
 	bool _addPlayerTrackingOnStart = false;
 	bool _addTeammateTrackingOnStart = false;
-	bool _addTTGhostsTrackingOnStart = false;
+	bool _addAllCarsTrackingOnStart = false;
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;

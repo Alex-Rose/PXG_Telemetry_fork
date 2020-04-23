@@ -43,9 +43,10 @@ void Tracker::updateAutoTrackedDrivers()
 		}
 	}
 
-	if(_addTTGhostsTrackingOnStart) {
-		auto tracker = std::make_shared<TTGhostsTracker>();
-		_trackedDrivers.append(tracker);
+	if(_addAllCarsTrackingOnStart) {
+		for(int i = 0; i < _participants.m_numActiveCars; ++i) {
+			_autoTrackedIndexes.insert(i);
+		}
 	}
 
 	for(auto carIndex : _autoTrackedIndexes) {
@@ -105,7 +106,7 @@ void Tracker::trackPlayer() { _addPlayerTrackingOnStart = true; }
 
 void Tracker::trackTeammate() { _addTeammateTrackingOnStart = true; }
 
-void Tracker::trackTTGhosts() { _addTTGhostsTrackingOnStart = true; }
+void Tracker::trackAllCars() { _addAllCarsTrackingOnStart = true; }
 
 void Tracker::untrackDriver(int index)
 {

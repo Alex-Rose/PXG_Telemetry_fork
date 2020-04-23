@@ -46,7 +46,7 @@ class F1Telemetry : public QMainWindow
 	void closeEvent(QCloseEvent *event);
 
   private slots:
-	void startTracking(bool trackPlayer, bool trackTeammate, bool trackTTGHosts, const QVector<int> &trackedDriverIds);
+	void startTracking(bool trackPlayer, bool trackTeammate, bool trackAllCars, const QVector<int> &trackedDriverIds);
 
 	void checkUpdates();
 	void fileDownloaded(int type, const QByteArray &data);

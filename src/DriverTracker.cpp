@@ -17,6 +17,8 @@ TelemetryInfo{"Gear", "", ""},
 TelemetryInfo{"Time", "", "s"},
 TelemetryInfo{"Max Tyre Surface Temp.", "Surface temperature of the hotter tyre", "°C"},
 TelemetryInfo{"ERS Balance", "Energy harvested - energy deployed", "kJ"},
+TelemetryInfo{"Lateral G-Force", "", "g"},
+TelemetryInfo{"Longitudinal G-Force", "", "g"},
 };
 
 const QVector<TelemetryInfo> EXTENDED_TELEMETRY_INFO = {
@@ -24,7 +26,7 @@ TelemetryInfo{"Front Locking", "Tyre locking and severity during the lap", "%"},
 TelemetryInfo{"Rear Locking", "Tyre locking and severity during the lap", "%"},
 TelemetryInfo{"Balance", "General balance of the car (>0: oversteering, <0: understeering)", ""},
 TelemetryInfo{"Tyre degradation", "Estimated tyre degradation", ""},
-// TelemetryInfo{"Traction", "Minimum available traction", "%"},
+TelemetryInfo{"Traction", "Minimum available traction", "%"},
 TelemetryInfo{"Suspension F/R",
 			  "Front / Rear suspension balance (>0: the car tilt toward the front, <0: the car tilt toward the rear)", "mm"},
 TelemetryInfo{"Suspension R/L",
@@ -63,6 +65,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 {
 	Q_UNUSED(header)
 	const auto &driverData = data.m_carTelemetryData[_driverIndex];
+	const auto &motionData = _currentMotionData.m_carMotionData[_driverIndex];
 
 	if(driverData.m_gear < 0)
 		_isLapRecorded = false; // Rear gear
@@ -77,9 +80,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 					  _currentStatusData.m_ersDeployedThisLap;
 	ersBalance = round(ersBalance / 1000.0);
 
-	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle * 100.0),
-								  float(driverData.m_brake * 100.0), float(driverData.m_steer * 100.0),
-								  float(driverData.m_gear), _previousLapData.m_currentLapTime, maxTyreTemp, ersBalance});
+	auto values =
+	QVector<float>({float(driverData.m_speed), float(driverData.m_throttle * 100.0), float(driverData.m_brake * 100.0),
+					float(driverData.m_steer * 100.0), float(driverData.m_gear), _previousLapData.m_currentLapTime,
+					maxTyreTemp, ersBalance, motionData.m_gForceLateral, motionData.m_gForceLongitudinal});
 
 	if(_extendedPlayerTelemetry) {
 		TyresData<float> slip;
@@ -96,7 +100,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		// Balance
 		auto vx = (driverData.m_speed * 1000.0) / 3600.0;
 		auto wb = 3.630;
-		auto ay = _currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral * 10.0;
+		auto ay = motionData.m_gForceLateral * 10.0;
 		auto neutralSteer = (ay * wb) / (vx * vx);
 		auto balance = qAbs(neutralSteer) - qAbs(_currentMotionData.m_frontWheelsAngle);
 		balance *= 180.0;
@@ -108,17 +112,13 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		TyresData<float> wheelSpeed;
 		wheelSpeed.setArray(_currentMotionData.m_wheelSpeed);
 
-		auto velocity = sqrt(_currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityX *
-							 _currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityX +
-							 _currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityY *
-							 _currentMotionData.m_carMotionData[_driverIndex].m_worldVelocityY);
+		auto velocity = sqrt(motionData.m_worldVelocityX * motionData.m_worldVelocityX +
+							 motionData.m_worldVelocityY * motionData.m_worldVelocityY);
 
-		TyresData<float> tyreDegradationLat =
-		(slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLateral);
+		TyresData<float> tyreDegradationLat = (slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(motionData.m_gForceLateral);
 		tyreDegradationLat.abs();
 
-		TyresData<float> tyreDegradationLon =
-		slip * 10.0 * driverData.m_speed * qAbs(_currentMotionData.m_carMotionData[_driverIndex].m_gForceLongitudinal);
+		TyresData<float> tyreDegradationLon = slip * 10.0 * driverData.m_speed * qAbs(motionData.m_gForceLongitudinal);
 		tyreDegradationLon.abs();
 
 		auto meanDegradation = tyreDegradationLat.mean() + tyreDegradationLon.mean();
@@ -126,10 +126,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		_currentLap->calculatedTyreDegradation += meanDegradation / 100.0;
 
 		// Traction
-		//		auto tractionRight = slip.rearRight < 0 ? 100.0f + slip.rearRight * 100.0f : 100.0f;
-		//		auto tractionLeft = slip.rearLeft < 0 ? 100.0f + slip.rearLeft * 100.0f : 100.0f;
-		//		auto traction = std::min(tractionRight, tractionLeft);
-		//		values << traction;
+		auto tractionRight = 100.0f - abs(slip.rearRight) * 100.0f;
+		auto tractionLeft = 100.0f - abs(slip.rearLeft) * 100.0f;
+		auto traction = driverData.m_throttle > 0.0f ? std::min(tractionRight, tractionLeft) : 100.0f;
+		values << traction;
 
 		// Suspension
 		TyresData<float> suspension;

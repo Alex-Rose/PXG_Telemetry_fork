@@ -228,6 +228,8 @@ void DriverTracker::saveCurrentStint()
 
 	if(_currentStint->hasData()) {
 		// A stint ended
+		makeDriverDir();
+
 		auto tyre = UdpSpecification::instance()->visualTyre(_currentStint->visualTyreCompound).remove(' ');
 		auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) +
 						"Laps_" + tyre + ".f1stint";
@@ -287,6 +289,8 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	auto lapTime = QTime(0, 0).addMSecs(int(_currentLap->lapTime * 1000.0)).toString("m.ss.zzz");
 
 
+	makeDriverDir();
+
 	auto fileName = "Lap" + QString::number(_currentLapNum) + "_" + lapTime + lapType + ".f1lap";
 	auto filePath = driverDataDirectory.absoluteFilePath(fileName);
 	_currentLap->save(filePath);
@@ -340,6 +344,8 @@ void DriverTracker::addLapToStint(Lap *lap)
 
 void DriverTracker::startLap(const LapData &lapData)
 {
+	makeDriverDir();
+
 	qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 	// A new lap started
@@ -415,7 +421,12 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 	Q_UNUSED(header)
 	const auto &driverData = data.m_participants[_driverIndex];
 	_currentLap->driver = driverData;
+	_isPlayer = header.m_playerCarIndex == _driverIndex;
+}
 
+void DriverTracker::makeDriverDir()
+{
+	auto driverData = _currentLap->driver;
 	if(!driverDirDefined) {
 		auto team = UdpSpecification::instance()->team(driverData.m_teamId);
 		auto subDirName = driverData.m_name + " " + team;
@@ -429,7 +440,7 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 		qDebug() << driverDataDirectory.absolutePath();
 		driverDirDefined = true;
 
-		if(header.m_playerCarIndex == _driverIndex) {
+		if(_isPlayer) {
 			_extendedPlayerTelemetry = true;
 			_currentLap->setTelemetryInfo(TELEMETRY_INFO + EXTENDED_TELEMETRY_INFO);
 		}

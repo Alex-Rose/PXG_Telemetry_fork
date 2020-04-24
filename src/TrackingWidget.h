@@ -45,11 +45,14 @@ class TrackingWidget : public QWidget, public LogInterface
 	int _nbLogLines = 0;
 
 	QString getLocalIpAddress() const;
+	void updateNetworkData();
 
   private slots:
 	void startStop();
 	void browseDataDirectory();
 	void allCarsChecked(bool checked);
+	void editPort();
+	void editServer();
 };
 
 #endif // TRACKINGWIDGET_H

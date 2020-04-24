@@ -2,6 +2,7 @@
 #include "AboutDialog.h"
 #include "CheckUpdatesDialog.h"
 #include "FileDownloader.h"
+#include "SettingsKeys.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
@@ -20,7 +21,12 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 	setWindowTitle(qApp->applicationName() + " " + qApp->applicationVersion());
 
 	_tracker = new Tracker();
-	_listener = new F1Listener(_tracker, this);
+
+	initDefaultSettings();
+	auto address = QSettings().value(SERVER).toString();
+	auto port = QSettings().value(PORT).toInt();
+
+	_listener = new F1Listener(_tracker, address, port, this);
 
 	connect(_tracker, &Tracker::sessionChanged, ui->trackingWidget, &TrackingWidget::setSession);
 	connect(_tracker, &Tracker::driverChanged, ui->trackingWidget, &TrackingWidget::setDrivers);
@@ -68,6 +74,15 @@ void F1Telemetry::saveSetings()
 	settings.setValue("windowGeometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 	settings.setValue("tab", ui->tabWidget->currentIndex());
+}
+
+void F1Telemetry::initDefaultSettings()
+{
+	QSettings settings;
+	if(!settings.contains(PORT))
+		settings.setValue(PORT, 22777);
+	if(!settings.contains(SERVER))
+		settings.setValue(SERVER, "");
 }
 
 void F1Telemetry::initMenu()

@@ -3,11 +3,12 @@
 #include <QNetworkDatagram>
 
 
-F1Listener::F1Listener(F1PacketInterface *interface, QObject *parent)
+F1Listener::F1Listener(F1PacketInterface *interface, const QString &address, int port, QObject *parent)
 : QObject(parent), _listener(new QUdpSocket(this)), _interface(interface)
 {
 	// bind to listening port
-	_listener->bind(QHostAddress::Any, 20777);
+	auto host = address.isEmpty() ? QHostAddress(QHostAddress::Any) : QHostAddress(address);
+	_listener->bind(host, port);
 
 	connect(_listener, &QUdpSocket::readyRead, this, &F1Listener::readData);
 }

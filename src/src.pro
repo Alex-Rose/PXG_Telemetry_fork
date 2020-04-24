@@ -53,6 +53,7 @@ HEADERS += \
         F1Telemetry.h \
     F1Listener.h \
     FileDownloader.h \
+    SettingsKeys.h \
     TTGhostsTracker.h \
     TelemetryChartView.h \
     UdpSpecification.h \

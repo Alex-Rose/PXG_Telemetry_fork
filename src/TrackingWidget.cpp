@@ -1,8 +1,10 @@
 #include "TrackingWidget.h"
+#include "SettingsKeys.h"
 #include "ui_TrackingWidget.h"
 
 #include <QDateTime>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QNetworkInterface>
 
@@ -11,9 +13,8 @@ const auto MAX_LOG_LINES = 100;
 TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TrackingWidget)
 {
 	ui->setupUi(this);
-	ui->lblIP->setText(getLocalIpAddress());
-	ui->lblPort->setText("20777");
 
+	updateNetworkData();
 	_driverCheckBoxes << ui->driver1 << ui->driver2 << ui->driver3 << ui->driver4 << ui->driver5 << ui->driver6
 					  << ui->driver7 << ui->driver8 << ui->driver9 << ui->driver10 << ui->driver11 << ui->driver12
 					  << ui->driver13 << ui->driver14 << ui->driver15 << ui->driver16 << ui->driver17 << ui->driver18
@@ -22,6 +23,8 @@ TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Tr
 	connect(ui->btnBrowse, &QPushButton::clicked, this, &TrackingWidget::browseDataDirectory);
 	connect(ui->btnQuickInstructions, &QPushButton::clicked, this, &TrackingWidget::showQuickInstructions);
 	connect(ui->allcars, &QCheckBox::toggled, this, &TrackingWidget::allCarsChecked);
+	connect(ui->btnEditPort, &QToolButton::clicked, this, &TrackingWidget::editPort);
+	connect(ui->btnEditServer, &QToolButton::clicked, this, &TrackingWidget::editServer);
 	setStatus("", false);
 	setDrivers({});
 	setSession("");
@@ -115,6 +118,19 @@ QString TrackingWidget::getLocalIpAddress() const
 	return "Unknown";
 }
 
+void TrackingWidget::updateNetworkData()
+{
+	auto serverAddress = QSettings().value(SERVER).toString();
+	if(serverAddress.isEmpty()) {
+		serverAddress = "Any";
+	}
+	auto port = QSettings().value(PORT).toInt();
+
+	ui->lblIP->setText(getLocalIpAddress());
+	ui->lblPort->setText(QString::number(port));
+	ui->lblServer->setText(serverAddress);
+}
+
 void TrackingWidget::startStop()
 {
 	if(!_trackingInProgress) {
@@ -149,6 +165,30 @@ void TrackingWidget::allCarsChecked(bool checked)
 {
 	for(const auto &check : _driverCheckBoxes) {
 		check->setDisabled(checked);
+	}
+}
+
+void TrackingWidget::editPort()
+{
+	auto port = QSettings().value(PORT).toInt();
+	bool ok = false;
+	port = QInputDialog::getInt(ui->btnEditPort, "Port", "Enter a port number", port, 1, 999999, 1, &ok);
+	if(ok) {
+		QSettings().setValue(PORT, port);
+		updateNetworkData();
+	}
+}
+
+void TrackingWidget::editServer()
+{
+	auto server = QSettings().value(SERVER).toString();
+	bool ok = false;
+	server = QInputDialog::getText(ui->btnEditServer, "Listened IP address",
+								   "Enter an IP address to listen\n(Leave empty to listen to any IP address)",
+								   QLineEdit::Normal, server, &ok);
+	if(ok) {
+		QSettings().setValue(SERVER, server);
+		updateNetworkData();
 	}
 }
 

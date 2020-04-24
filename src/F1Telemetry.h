@@ -37,6 +37,7 @@ class F1Telemetry : public QMainWindow
 
 	void loadSettings();
 	void saveSetings();
+	void initDefaultSettings();
 
 	void initMenu();
 

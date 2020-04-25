@@ -80,7 +80,7 @@ void F1Telemetry::initDefaultSettings()
 {
 	QSettings settings;
 	if(!settings.contains(PORT))
-		settings.setValue(PORT, 22777);
+		settings.setValue(PORT, 20777);
 	if(!settings.contains(SERVER))
 		settings.setValue(SERVER, "");
 }

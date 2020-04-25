@@ -67,8 +67,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	const auto &driverData = data.m_carTelemetryData[_driverIndex];
 	const auto &motionData = _currentMotionData.m_carMotionData[_driverIndex];
 
-	if(driverData.m_gear < 0)
+	if(driverData.m_gear < 0) {
 		_isLapRecorded = false; // Rear gear
+		Logger::instance()->log("Lap canceled (rear gear engaged)");
+	}
 
 	TyresData<float> tyreTemp;
 	tyreTemp.setArray(driverData.m_tyresSurfaceTemperature);
@@ -234,7 +236,6 @@ void DriverTracker::saveCurrentStint()
 		auto fileName = "Stint" + QString::number(_currentStintNum) + '_' + QString::number(_currentStint->nbLaps()) +
 						"Laps_" + tyre + ".f1stint";
 		auto filePath = driverDataDirectory.absoluteFilePath(fileName);
-		qDebug() << "SAVE STINT" << _currentStint->driver.m_name;
 		_currentStint->save(filePath);
 		++_currentStintNum;
 		Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
@@ -346,7 +347,7 @@ void DriverTracker::startLap(const LapData &lapData)
 {
 	makeDriverDir();
 
-	qDebug() << "LAP Started : " << driverDataDirectory.dirName();
+	Logger::instance()->log(QString("Lap started: ").append(driverDataDirectory.dirName()));
 
 	// A new lap started
 	_currentLap->resetData();

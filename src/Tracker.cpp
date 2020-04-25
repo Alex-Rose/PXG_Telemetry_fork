@@ -44,8 +44,10 @@ void Tracker::updateAutoTrackedDrivers()
 	}
 
 	if(_addAllCarsTrackingOnStart) {
-		for(int i = 0; i < _participants.m_numActiveCars; ++i) {
-			_autoTrackedIndexes.insert(i);
+		for(int i = 0; i < 20; ++i) {
+			if(!_participants.m_participants[i].m_name.isEmpty()) {
+				_autoTrackedIndexes.insert(i);
+			}
 		}
 	}
 

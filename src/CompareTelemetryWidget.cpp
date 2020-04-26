@@ -621,7 +621,8 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget *tree, const Lap *
 	new QTreeWidgetItem(
 	tyreWearItem,
 	{"Rear Right", QString("%1% (%2% -> %3%)").arg(rearRightWear).arg(lap->startTyreWear.rearRight).arg(lap->endTyreWear.rearRight)});
-	new QTreeWidgetItem(tyreWearItem, {"Calculated", QString("%1").arg(lap->calculatedTyreDegradation)});
+	new QTreeWidgetItem(tyreWearItem, {"Calculated tyre wear", QString("%1").arg(lap->calculatedTyreDegradation)});
+	new QTreeWidgetItem(tyreWearItem, {"Calculated lost traction", QString("%1").arg(lap->calculatedTotalLostTraction)});
 	return tyreWearItem;
 }
 

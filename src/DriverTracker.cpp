@@ -37,6 +37,7 @@ const QVector<TelemetryInfo> TELEMETRY_STINT_INFO = {
 TelemetryInfo{"Lap Times", "", "s"},
 TelemetryInfo{"Tyres Life", "Average remaing life of the tyres", "%"},
 TelemetryInfo{"Calculated Tyres Degradation", "Cumulated estimated tyre degradation over each lap", ""},
+TelemetryInfo{"Calculated Total Lost Traction", "Cumulated estimated total traction lost over each lap", ""},
 TelemetryInfo{"Fuel", "Remaining fuel in the car", "kg"},
 TelemetryInfo{"Stored Enegery", "Energy remaining in the battery", "kJ"},
 TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
@@ -71,6 +72,9 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		_isLapRecorded = false; // Rear gear
 		Logger::instance()->log("Lap canceled (rear gear engaged)");
 	}
+
+	auto telemetry_distance = abs(_previousTelemetryDistance - _previousLapData.m_lapDistance);
+
 
 	TyresData<float> tyreTemp;
 	tyreTemp.setArray(driverData.m_tyresSurfaceTemperature);
@@ -125,13 +129,14 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 
 		auto meanDegradation = tyreDegradationLat.mean() + tyreDegradationLon.mean();
 		values << meanDegradation;
-		_currentLap->calculatedTyreDegradation += meanDegradation / 100.0;
+		_currentLap->calculatedTyreDegradation += meanDegradation / 100.0 * telemetry_distance;
 
 		// Traction
 		auto tractionRight = 100.0f - abs(slip.rearRight) * 100.0f;
 		auto tractionLeft = 100.0f - abs(slip.rearLeft) * 100.0f;
 		auto traction = driverData.m_throttle > 0.0f ? std::min(tractionRight, tractionLeft) : 100.0f;
 		values << traction;
+		_currentLap->calculatedTotalLostTraction += (100.0f - traction) * telemetry_distance;
 
 		// Suspension
 		TyresData<float> suspension;
@@ -157,6 +162,8 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		_currentLap->maxSpeedErsMode = _currentStatusData.m_ersDeployMode;
 		_currentLap->maxSpeedFuelMix = _currentStatusData.m_fuelMix;
 	}
+
+	_previousTelemetryDistance = _previousLapData.m_lapDistance;
 }
 
 void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &data)
@@ -307,6 +314,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 	auto values = {lap->lapTime,
 				   float(lap->averageEndTyreWear - _currentStint->averageStartTyreWear),
 				   float(lap->calculatedTyreDegradation),
+				   float(lap->calculatedTotalLostTraction),
 				   float(lap->fuelOnEnd),
 				   float(lap->energy / 1000.0),
 				   float(lap->innerTemperatures.frontLeft.mean),
@@ -325,6 +333,8 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->meanBalance = addMean(_currentStint->meanBalance, lap->meanBalance, _currentStint->nbLaps());
 	_currentStint->calculatedTyreDegradation =
 	addMean(_currentStint->calculatedTyreDegradation, lap->calculatedTyreDegradation, _currentStint->nbLaps());
+	_currentStint->calculatedTotalLostTraction =
+	addMean(_currentStint->calculatedTotalLostTraction, lap->calculatedTotalLostTraction, _currentStint->nbLaps());
 	_currentStint->lapTimes.append(lap->lapTime);
 	if(lap->isOutLap)
 		_currentStint->isOutLap = true;

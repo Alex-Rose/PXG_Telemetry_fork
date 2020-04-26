@@ -48,6 +48,7 @@ class DriverTracker : public F1PacketInterface
 	int _currentStintNum = 1;
 	double _startErsBalance = 0;
 	double _timeDiff = 0;
+	double _previousTelemetryDistance = 0;
 
 	TyresData<DegradationData> degradations;
 

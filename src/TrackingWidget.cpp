@@ -10,6 +10,7 @@
 
 const auto MAX_LOG_LINES = 100;
 
+
 TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TrackingWidget)
 {
 	ui->setupUi(this);
@@ -94,14 +95,22 @@ void TrackingWidget::showQuickInstructions()
 {
 	auto instructionText = "The PC or Console where F1 2019 is running and the PC where this application is running "
 						   "must be connected to the same local network.\n\n"
-						   "In F1 2019, open Game Options > Settings > Telemetry Settings\n"
-						   "   1. set UDP Telemetry to On\n"
-						   "   2. set UDP Broadcast Mode to Off\n"
-						   "   3. set UDP IP Address to the local IP address of the PC where this application is "
+						   "Method 1: Broadcast mode OFF\n"
+						   "   In F1 2019, open Game Options > Settings > Telemetry Settings\n"
+						   "      1. set UDP Telemetry to On\n"
+						   "      2. set UDP Broadcast Mode to Off\n"
+						   "      3. set UDP IP Address to the local IP address of the PC where this application is "
 						   "running (or \"127.0.0.1\" if the game and the telemetry application run on the same PC)\n"
-						   "   4. set Port to 20777 (default value)\n"
-						   "   5. set UDP Send Rate to 20Hz (default value)\n"
-						   "   6. set UDP Format to 2019 (default value)\n\n"
+						   "      4. set Port to 20777 (default value)\n"
+						   "      5. set UDP Send Rate to 20Hz (default value)\n"
+						   "      6. set UDP Format to 2019 (default value)\n\n"
+						   "Method 2: Broadcast mode ON (if you want to connect multiple telemetry devices)\n"
+						   "   In F1 2019, open Game Options > Settings > Telemetry Settings\n"
+						   "      1. set UDP Telemetry to On\n"
+						   "      2. set UDP Broadcast Mode to On\n"
+						   "      3. set Port to 20777 (default value)\n"
+						   "      4. set UDP Send Rate to 20Hz (default value)\n"
+						   "      5. set UDP Format to 2019 (default value)\n\n"
 						   "Launch a session in F1 2019, when the name of the session appear, select the drivers you "
 						   "want to track and click \"Start\".";
 
@@ -176,7 +185,8 @@ void TrackingWidget::editPort()
 {
 	auto port = QSettings().value(PORT).toInt();
 	bool ok = false;
-	port = QInputDialog::getInt(ui->btnEditPort, "Port", "Enter a port number", port, 1, 999999, 1, &ok);
+	port = QInputDialog::getInt(ui->btnEditPort, "Listened port",
+								"Enter the port number configured in the game telemetry settings", port, 1, 999999, 1, &ok);
 	if(ok) {
 		QSettings().setValue(PORT, port);
 		updateNetworkData();
@@ -188,10 +198,14 @@ void TrackingWidget::editServer()
 {
 	auto server = QSettings().value(SERVER).toString();
 	bool ok = false;
-	server = QInputDialog::getText(ui->btnEditServer, "Listened IP address",
-								   "Enter an IP address to listen\n(Leave empty to listen to any IP address)",
+	server = QInputDialog::getText(ui->btnEditServer, "Listened IP address", "Enter the IP address of the computer where F1 2019 is running.\n(Leave empty to listen to any IP address)",
 								   QLineEdit::Normal, server, &ok);
 	if(ok) {
+		if(!server.isEmpty() && QHostAddress(server).isNull()) {
+			QMessageBox::critical(this, "Invalid IP address", QString("\"%1\" is not a valid IP address!").arg(server));
+			editServer();
+			return;
+		}
 		QSettings().setValue(SERVER, server);
 		updateNetworkData();
 		emit networkInfoChanged();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>603</height>
+    <width>655</width>
+    <height>606</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,6 +70,9 @@
        </property>
        <item row="2" column="1">
         <widget class="QLabel" name="lblIP">
+         <property name="toolTip">
+          <string>The IP address of this computer</string>
+         </property>
          <property name="text">
           <string>IP Address</string>
          </property>
@@ -77,6 +80,9 @@
        </item>
        <item row="1" column="1">
         <widget class="QLabel" name="lblPort">
+         <property name="toolTip">
+          <string>The port to listen to retrieve the data</string>
+         </property>
          <property name="text">
           <string>Port</string>
          </property>
@@ -85,7 +91,7 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Port:</string>
+          <string>Listened port:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -111,7 +117,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Listened IP address:</string>
+          <string>Listened IP:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -137,7 +143,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Local IP address:</string>
+          <string>Local IP:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -146,6 +152,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QLabel" name="lblServer">
+         <property name="toolTip">
+          <string>The IP address where the game is running</string>
+         </property>
          <property name="text">
           <string>IP Address</string>
          </property>

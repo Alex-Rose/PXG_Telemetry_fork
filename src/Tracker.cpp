@@ -4,7 +4,7 @@
 
 #include <QDateTime>
 
-Tracker::Tracker()
+Tracker::Tracker(QObject *parent) : QObject(parent)
 {
 	_dataDirectory = QDir();
 	_sessionDirectory = _dataDirectory;

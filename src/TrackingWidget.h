@@ -19,6 +19,7 @@ class TrackingWidget : public QWidget, public LogInterface
   signals:
 	void startTracking(bool me, bool teammate, bool all, const QVector<int> &driverId);
 	void stopStracking();
+	void networkInfoChanged();
 
   public:
 	explicit TrackingWidget(QWidget *parent = nullptr);
@@ -33,6 +34,7 @@ class TrackingWidget : public QWidget, public LogInterface
 	void setSession(const QString &sessionName);
 	void setDrivers(const QStringList &drivers);
 	void setStatus(const QString &status, bool trackingInProgress);
+	void setConnectionStatus(bool connected);
 	virtual void log(const QString &text) override;
 
 	void showQuickInstructions();

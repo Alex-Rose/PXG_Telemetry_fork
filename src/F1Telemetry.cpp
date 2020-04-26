@@ -20,19 +20,18 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
 	setWindowTitle(qApp->applicationName() + " " + qApp->applicationVersion());
 
-	_tracker = new Tracker();
+	_tracker = new Tracker(this);
 
 	initDefaultSettings();
-	auto address = QSettings().value(SERVER).toString();
-	auto port = QSettings().value(PORT).toInt();
 
-	_listener = new F1Listener(_tracker, address, port, this);
+	buildListener();
 
 	connect(_tracker, &Tracker::sessionChanged, ui->trackingWidget, &TrackingWidget::setSession);
 	connect(_tracker, &Tracker::driverChanged, ui->trackingWidget, &TrackingWidget::setDrivers);
 	connect(_tracker, &Tracker::statusChanged, ui->trackingWidget, &TrackingWidget::setStatus);
 	connect(ui->trackingWidget, &TrackingWidget::startTracking, this, &F1Telemetry::startTracking);
 	connect(ui->trackingWidget, &TrackingWidget::stopStracking, _tracker, &Tracker::stop);
+	connect(ui->trackingWidget, &TrackingWidget::networkInfoChanged, this, &F1Telemetry::buildListener);
 
 	changelogAutoDisplay();
 
@@ -51,6 +50,15 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 }
 
 F1Telemetry::~F1Telemetry() { delete ui; }
+
+void F1Telemetry::buildListener()
+{
+	delete _listener;
+	auto address = QSettings().value(SERVER).toString();
+	auto port = QSettings().value(PORT).toInt();
+	_listener = new F1Listener(_tracker, address, port, this);
+	ui->trackingWidget->setConnectionStatus(_listener->isConnected());
+}
 
 void F1Telemetry::loadSettings()
 {

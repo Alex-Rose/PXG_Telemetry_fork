@@ -30,6 +30,8 @@ class F1Listener : public QObject
   public:
 	explicit F1Listener(F1PacketInterface *interface, const QString &address, int port, QObject *parent = nullptr);
 
+	bool isConnected() const;
+
   private:
 	QUdpSocket *_listener = nullptr;
 	QByteArray _buffer;

@@ -25,7 +25,9 @@ TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Tr
 	connect(ui->allcars, &QCheckBox::toggled, this, &TrackingWidget::allCarsChecked);
 	connect(ui->btnEditPort, &QToolButton::clicked, this, &TrackingWidget::editPort);
 	connect(ui->btnEditServer, &QToolButton::clicked, this, &TrackingWidget::editServer);
+	connect(ui->btnRetry, &QPushButton::clicked, this, &TrackingWidget::networkInfoChanged);
 	setStatus("", false);
+	setConnectionStatus(false);
 	setDrivers({});
 	setSession("");
 
@@ -72,6 +74,8 @@ void TrackingWidget::setStatus(const QString &status, bool trackingInProgress)
 	ui->driverWidget->setEnabled(!trackingInProgress);
 	ui->btnBrowse->setEnabled(!trackingInProgress);
 }
+
+void TrackingWidget::setConnectionStatus(bool connected) { ui->btnRetry->setVisible(!connected); }
 
 void TrackingWidget::log(const QString &text)
 {
@@ -176,6 +180,7 @@ void TrackingWidget::editPort()
 	if(ok) {
 		QSettings().setValue(PORT, port);
 		updateNetworkData();
+		emit networkInfoChanged();
 	}
 }
 
@@ -189,6 +194,7 @@ void TrackingWidget::editServer()
 	if(ok) {
 		QSettings().setValue(SERVER, server);
 		updateNetworkData();
+		emit networkInfoChanged();
 	}
 }
 

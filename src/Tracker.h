@@ -18,7 +18,7 @@ class Tracker : public QObject, public F1PacketInterface
 	void statusChanged(const QString &status, bool isTracking);
 
   public:
-	Tracker();
+	Tracker(QObject *parent);
 	virtual ~Tracker() override {}
 
 	void setDataDirectory(const QString &dirPath);

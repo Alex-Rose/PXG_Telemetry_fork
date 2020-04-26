@@ -347,7 +347,7 @@ void DriverTracker::startLap(const LapData &lapData)
 {
 	makeDriverDir();
 
-	Logger::instance()->log(QString("Lap started: ").append(driverDataDirectory.dirName()));
+	qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 	// A new lap started
 	_currentLap->resetData();
@@ -481,7 +481,7 @@ bool DriverTracker::finishLineCrossed(const LapData &data) const
 	_previousLapData.isValid() &&
 	(_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
 	((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
-	 ((data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12));
+	 ((data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12 && !_isPlayer));
 
 	//	qInfo() << "CR" << _previousLapData.m_lapDistance << data.m_lapDistance << _currentSessionData.m_trackLength
 	//			<< data.m_pitStatus << data.m_driverStatus << _isLapRecorded << cross;

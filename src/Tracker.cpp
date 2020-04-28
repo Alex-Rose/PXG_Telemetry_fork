@@ -127,6 +127,8 @@ void Tracker::clearTrackedDrivers()
 	_trackedDrivers.clear();
 	_trackedIndexes.clear();
 	_addPlayerTrackingOnStart = false;
+	_addTeammateTrackingOnStart = false;
+	_addAllCarsTrackingOnStart = false;
 }
 
 QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const

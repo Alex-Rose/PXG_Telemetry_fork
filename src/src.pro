@@ -29,6 +29,7 @@ SOURCES += \
     FileDownloader.cpp \
     TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
+    TelemetryDefinitions.cpp \
         main.cpp \
         F1Telemetry.cpp \
     F1Listener.cpp \
@@ -56,6 +57,7 @@ HEADERS += \
     SettingsKeys.h \
     TTGhostsTracker.h \
     TelemetryChartView.h \
+    TelemetryDefinitions.h \
     UdpSpecification.h \
     Tracker.h \
     DriverTracker.h \

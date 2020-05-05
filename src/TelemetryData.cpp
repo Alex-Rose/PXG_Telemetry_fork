@@ -45,6 +45,24 @@ QVector<float> TelemetryData::data(int index) const
 
 void TelemetryData::setTelemetryInfo(const QVector<TelemetryInfo> &dataNames) { _telemetryInfo = dataNames; }
 
+double TelemetryData::integrateTelemetry(int index, const std::function<float(float)> &preprocess) const
+{
+	auto sum = 0.0;
+	auto prevx = 0.0f;
+	auto xit = _xValues.constBegin();
+	for(const auto &alldata : _data) {
+		auto value = preprocess(alldata.value(index));
+		auto x = *xit;
+
+		sum += double(value) * double(x - prevx);
+
+		prevx = x;
+		++xit;
+	}
+
+	return sum;
+}
+
 void TelemetryData::save(QDataStream &out) const { out << _telemetryInfo << _xValues << _data; }
 
 void TelemetryData::load(QDataStream &in) { in >> _telemetryInfo >> _xValues >> _data; }

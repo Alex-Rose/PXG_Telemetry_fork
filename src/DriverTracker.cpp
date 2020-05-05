@@ -36,9 +36,6 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		Logger::instance()->log("Lap canceled (rear gear engaged)");
 	}
 
-	auto telemetry_distance = abs(_previousTelemetryDistance - _previousLapData.m_lapDistance);
-
-
 	TyresData<float> tyreTemp;
 	tyreTemp.setArray(driverData.m_tyresSurfaceTemperature);
 	const auto &tyreTempValues = tyreTemp.asList();
@@ -92,14 +89,12 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 
 		auto meanDegradation = tyreDegradationLat.mean() + tyreDegradationLon.mean();
 		values << meanDegradation;
-		_currentLap->calculatedTyreDegradation += meanDegradation / 100.0 * telemetry_distance;
 
 		// Traction
 		auto tractionRight = 100.0f - abs(slip.rearRight) * 100.0f;
 		auto tractionLeft = 100.0f - abs(slip.rearLeft) * 100.0f;
 		auto traction = driverData.m_throttle > 0.0f ? std::min(tractionRight, tractionLeft) : 100.0f;
 		values << traction;
-		_currentLap->calculatedTotalLostTraction += (100.0f - traction) * telemetry_distance;
 
 		// Suspension
 		TyresData<float> suspension;
@@ -125,8 +120,6 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		_currentLap->maxSpeedErsMode = _currentStatusData.m_ersDeployMode;
 		_currentLap->maxSpeedFuelMix = _currentStatusData.m_fuelMix;
 	}
-
-	_previousTelemetryDistance = _previousLapData.m_lapDistance;
 }
 
 void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &data)
@@ -228,6 +221,13 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
 	_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 	_currentLap->energyBalance = _currentStatusData.m_ersStoreEnergy - _currentLap->energyBalance;
+
+	_currentLap->calculatedTyreDegradation =
+	_currentLap->integrateTelemetry(TelemetryDefinitions::indexOfLapTelemetry(TelemetryDefinitions::TYRE_DEG_INFO_NAME));
+
+	_currentLap->calculatedTotalLostTraction =
+	_currentLap->integrateTelemetry(TelemetryDefinitions::indexOfLapTelemetry(TelemetryDefinitions::TRACTION_INFO_NAME),
+									[](auto value) { return 100.0f - value; });
 
 	QString lapType;
 	if(_currentLap->isInLap) {

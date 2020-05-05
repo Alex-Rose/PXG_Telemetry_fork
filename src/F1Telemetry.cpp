@@ -193,8 +193,18 @@ void F1Telemetry::showChangeLog()
 
 	QFile changes(":/changelog");
 	if(changes.open(QIODevice::ReadOnly)) {
-		edit->setStyleSheet("h1 {margin-top: 10px;}");
-		edit->setMarkdown(changes.readAll());
+		auto css = "h2 {text-align: center;}"
+				   "h3 {margin-top: 30px;}";
+		edit->document()->setDefaultStyleSheet(css); // Not working
+		edit->document()->setMarkdown(changes.readAll());
+
+		// Trick to make the css work with markdown
+		auto html = edit->document()->toHtml();
+		auto simplifyRegexp = QRegExp("style=\".*\"");
+		simplifyRegexp.setMinimal(true);
+		html.remove(simplifyRegexp);
+		edit->document()->setHtml(html);
+
 		dialog.resize(700, 700);
 		dialog.exec();
 	}

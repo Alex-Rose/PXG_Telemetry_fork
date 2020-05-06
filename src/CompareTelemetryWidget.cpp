@@ -23,8 +23,6 @@ const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
 const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
-const QString TURN_NAMES = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
-
 enum class ChartConfigurationWidgetType { Diff = 0, Stats = 1 };
 
 CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) : QWidget(parent), ui(new Ui::CompareTelemetryWidget)
@@ -258,12 +256,12 @@ void CompareTelemetryWidget::createAxis(QChart *chart, bool stats)
 			categoryAxis->setMin(0);
 			categoryAxis->setMax(xAxis->max());
 			for(const auto &t : qAsConst(trackTurns)) {
-				categoryAxis->append(TURN_NAMES[t.first - 1], t.second);
+				categoryAxis->append(QString::number(t.first), t.second);
 			}
 			categoryAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
 			auto f = categoryAxis->labelsFont();
 			f.setBold(true);
-			f.setFamily("courrier");
+			f.setPointSize(12);
 			categoryAxis->setLabelsFont(f);
 			chart->addAxis(categoryAxis, Qt::AlignTop);
 			chart->series()[0]->attachAxis(categoryAxis);

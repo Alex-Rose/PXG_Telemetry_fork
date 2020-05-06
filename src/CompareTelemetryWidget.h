@@ -27,7 +27,7 @@ class CompareTelemetryWidget : public QWidget
 	Q_OBJECT
 
   public:
-	explicit CompareTelemetryWidget(QWidget *parent = nullptr);
+	explicit CompareTelemetryWidget(const QString &unitX, QWidget *parent = nullptr);
 	virtual ~CompareTelemetryWidget();
 
 	void addTelemetryData(const QVector<TelemetryData *> &telemetry);
@@ -41,6 +41,7 @@ class CompareTelemetryWidget : public QWidget
 
   private:
 	Ui::CompareTelemetryWidget *ui;
+	QString _unitX;
 	TelemetryDataTableModel *_telemetryDataModel;
 	QList<QCheckBox *> _variableCheckboxes;
 	QList<QCheckBox *> _diffCheckboxes;
@@ -91,6 +92,8 @@ class CompareTelemetryWidget : public QWidget
 	QTreeWidgetItem *setupItem(QTreeWidget *tree, const Lap *lap) const;
 	QTreeWidgetItem *tyreTempItem(QTreeWidget *tree, const Lap *lap) const;
 	QTreeWidgetItem *tyreItem(QTreeWidget *tree, const Lap *lap, double divisor = 1.0) const;
+
+	bool eventFilter(QObject *obj, QEvent *event);
 
   private slots:
 	void clearData();

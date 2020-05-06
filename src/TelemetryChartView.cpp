@@ -12,6 +12,7 @@ TelemetryChartView::TelemetryChartView(QChart *chart, QWidget *parent) : QChartV
 	setRubberBand(QChartView::RectangleRubberBand);
 	_posLabel = new QLabel(this);
 	_posLabel->setStyleSheet("color: black");
+	_posLabel->hide();
 	updateLabelsPosition();
 }
 
@@ -58,12 +59,13 @@ void TelemetryChartView::wheelEvent(QWheelEvent *event)
 
 void TelemetryChartView::mouseMoveEvent(QMouseEvent *event)
 {
-	auto chartValue = chart()->mapToValue(event->localPos());
-	//	qInfo() << chartValue;
-	_posLabel->setText(QString::number(chartValue.x()) + "/" + QString::number(chartValue.y()));
-	_posLabel->resize(_posLabel->sizeHint());
-	updateLabelsPosition();
-	QChartView::mouseMoveEvent(event);
+	if(_posLabel->isVisible()) {
+		auto chartValue = chart()->mapToValue(event->localPos());
+		_posLabel->setText(QString::number(chartValue.x()) + _unitX + " / " + QString::number(chartValue.y()) + _unitY);
+		_posLabel->resize(_posLabel->sizeHint());
+		updateLabelsPosition();
+		QChartView::mouseMoveEvent(event);
+	}
 }
 
 void TelemetryChartView::resizeEvent(QResizeEvent *event)
@@ -72,7 +74,12 @@ void TelemetryChartView::resizeEvent(QResizeEvent *event)
 	QChartView::resizeEvent(event);
 }
 
-void TelemetryChartView::updateLabelsPosition() { _posLabel->move(width() - _posLabel->sizeHint().width() - 10, 10); }
+void TelemetryChartView::updateLabelsPosition()
+{
+	if(_posLabel->isVisible()) {
+		_posLabel->move(width() - _posLabel->sizeHint().width() - 50, 12);
+	}
+}
 
 bool TelemetryChartView::zoomEnabled() const { return _zoomEnabled; }
 
@@ -93,3 +100,11 @@ void TelemetryChartView::addConfigurationWidget(QWidget *widget)
 }
 
 const QList<QWidget *> &TelemetryChartView::configurationWidgets() const { return _configWidgets; }
+
+void TelemetryChartView::setUnits(const QString &unitX, const QString &unitY)
+{
+	_unitX = unitX;
+	_unitY = unitY;
+}
+
+void TelemetryChartView::setPosLabelVisible(bool value) { _posLabel->setVisible(value); }

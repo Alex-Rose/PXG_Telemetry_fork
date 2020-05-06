@@ -19,6 +19,10 @@ class TelemetryChartView : public QtCharts::QChartView
 	void addConfigurationWidget(QWidget *widget);
 	const QList<QWidget *> &configurationWidgets() const;
 
+	void setUnits(const QString &unitX, const QString &unitY);
+
+	void setPosLabelVisible(bool value);
+
   protected:
 	void wheelEvent(QWheelEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
@@ -31,6 +35,7 @@ class TelemetryChartView : public QtCharts::QChartView
 
 	QList<QWidget *> _configWidgets;
 	QLabel *_posLabel;
+	QString _unitX, _unitY;
 
 	void updateLabelsPosition();
 };

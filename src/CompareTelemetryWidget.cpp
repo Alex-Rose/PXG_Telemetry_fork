@@ -25,7 +25,8 @@ const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
 enum class ChartConfigurationWidgetType { Diff = 0, Stats = 1 };
 
-CompareTelemetryWidget::CompareTelemetryWidget(QWidget *parent) : QWidget(parent), ui(new Ui::CompareTelemetryWidget)
+CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *parent)
+: QWidget(parent), ui(new Ui::CompareTelemetryWidget), _unitX(unitX)
 {
 	ui->setupUi(this);
 
@@ -345,6 +346,8 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 			pol.setVerticalStretch(1);
 
 			auto view = new TelemetryChartView(chart, this);
+			view->viewport()->installEventFilter(this);
+			view->setUnits(_unitX, var.unit);
 			chart->setMargins(QMargins());
 			view->setSizePolicy(pol);
 			_variablesCharts << view;
@@ -653,4 +656,17 @@ int CompareTelemetryWidget::floorToDigit(int num, int roundFactor) const
 	auto doubleNum = num * roundFactor;
 	auto q = pow(10, nbDigit(num) - 1);
 	return int(floor(doubleNum / q) * q) / roundFactor;
+}
+
+bool CompareTelemetryWidget::eventFilter(QObject *obj, QEvent *event)
+{
+	if(event->type() == QEvent::MouseMove) {
+		auto mouseEvent = static_cast<QMouseEvent *>(event);
+		auto pos = mouseEvent->pos();
+		for(const auto &chart : qAsConst(_variablesCharts)) {
+			chart->setPosLabelVisible(chart->viewport() == obj);
+		}
+	}
+
+	return QWidget::eventFilter(obj, event);
 }

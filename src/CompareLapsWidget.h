@@ -11,7 +11,7 @@ class CompareLapsWidget : public CompareTelemetryWidget
 	Q_OBJECT
 
   public:
-	CompareLapsWidget();
+	CompareLapsWidget(QWidget *parent = nullptr);
 	virtual ~CompareLapsWidget() {}
 
   protected slots:

@@ -8,7 +8,10 @@
 
 #include <QtDebug>
 
-CompareStintsWidget::CompareStintsWidget() { setDataName("Stint"); }
+CompareStintsWidget::CompareStintsWidget(QWidget *parent) : CompareTelemetryWidget(" lap", parent)
+{
+	setDataName("Stint");
+}
 
 void CompareStintsWidget::browseData()
 {

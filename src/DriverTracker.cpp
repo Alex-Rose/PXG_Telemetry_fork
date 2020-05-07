@@ -46,10 +46,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 					  _currentStatusData.m_ersDeployedThisLap;
 	ersBalance = round(ersBalance / 1000.0);
 
-	auto values =
-	QVector<float>({float(driverData.m_speed), float(driverData.m_throttle * 100.0), float(driverData.m_brake * 100.0),
-					float(driverData.m_steer * 100.0), float(driverData.m_gear), _previousLapData.m_currentLapTime,
-					maxTyreTemp, ersBalance, motionData.m_gForceLateral, motionData.m_gForceLongitudinal});
+	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle * 100.0),
+								  float(driverData.m_brake * 100.0), float(driverData.m_steer * 100.0),
+								  float(driverData.m_gear), _previousLapData.m_currentLapTime, maxTyreTemp, ersBalance,
+								  motionData.m_gForceLateral, motionData.m_gForceLongitudinal});
 
 	if(_extendedPlayerTelemetry) {
 		TyresData<float> slip;
@@ -81,7 +81,8 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		auto velocity = sqrt(motionData.m_worldVelocityX * motionData.m_worldVelocityX +
 							 motionData.m_worldVelocityY * motionData.m_worldVelocityY);
 
-		TyresData<float> tyreDegradationLat = (slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(motionData.m_gForceLateral);
+		TyresData<float> tyreDegradationLat =
+			(slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(motionData.m_gForceLateral);
 		tyreDegradationLat.abs();
 
 		TyresData<float> tyreDegradationLon = slip * 10.0 * driverData.m_speed * qAbs(motionData.m_gForceLongitudinal);
@@ -100,10 +101,10 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		TyresData<float> suspension;
 		suspension.setArray(_currentMotionData.m_suspensionPosition);
 
-		auto suspFR =
-		((suspension.frontRight + suspension.frontLeft) / 2.0) - ((suspension.rearRight + suspension.rearLeft) / 2.0);
-		auto suspRL =
-		((suspension.frontRight + suspension.rearRight) / 2.0) - ((suspension.frontLeft + suspension.rearLeft) / 2.0);
+		auto suspFR = ((suspension.frontRight + suspension.frontLeft) / 2.0) -
+					  ((suspension.rearRight + suspension.rearLeft) / 2.0);
+		auto suspRL = ((suspension.frontRight + suspension.rearRight) / 2.0) -
+					  ((suspension.frontLeft + suspension.rearLeft) / 2.0);
 
 		values << suspFR << suspRL;
 	}
@@ -111,9 +112,9 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	_currentLap->addData(_previousLapData.m_lapDistance, values);
 
 	_currentLap->innerTemperatures.apply(
-	[driverData](auto index, auto &temp) { temp.addValue(driverData.m_tyresInnerTemperature[index]); });
+		[driverData](auto index, auto &temp) { temp.addValue(driverData.m_tyresInnerTemperature[index]); });
 	_currentStint->innerTemperatures.apply(
-	[driverData](auto index, auto &temp) { temp.addValue(driverData.m_tyresInnerTemperature[index]); });
+		[driverData](auto index, auto &temp) { temp.addValue(driverData.m_tyresInnerTemperature[index]); });
 
 	if(_currentLap->maxSpeed < int(driverData.m_speed)) {
 		_currentLap->maxSpeed = int(driverData.m_speed);
@@ -132,7 +133,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	// Out lap recording - désactivated because telemetry during this lap is not working properly
 	//	if(!_isLapRecorded && lapData.m_driverStatus == 3 && lapData.m_pitStatus == 0 &&
 	//	   ((lapData.m_lapDistance > 0 && lapData.m_lapDistance < _currentSessionData.m_trackLength / 4.0) ||
-	//		(lapData.m_lapDistance < 0 && lapData.m_lapDistance < -3.0 * _currentSessionData.m_trackLength / 4.0))) // out lap
+	//		(lapData.m_lapDistance < 0 && lapData.m_lapDistance < -3.0 * _currentSessionData.m_trackLength / 4.0)))
 	//	{
 	//		qInfo() << "In Lap Started, TimeDif = " << lapData.m_currentLapTime;
 	//		startLap(lapData);
@@ -222,12 +223,12 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
 	_currentLap->energyBalance = _currentStatusData.m_ersStoreEnergy - _currentLap->energyBalance;
 
-	_currentLap->calculatedTyreDegradation =
-	_currentLap->integrateTelemetry(TelemetryDefinitions::indexOfLapTelemetry(TelemetryDefinitions::TYRE_DEG_INFO_NAME));
+	auto degradationIndex = TelemetryDefinitions::indexOfLapTelemetry(TelemetryDefinitions::TYRE_DEG_INFO_NAME);
+	_currentLap->calculatedTyreDegradation = _currentLap->integrateTelemetry(degradationIndex);
 
+	auto tractionIndex = TelemetryDefinitions::indexOfLapTelemetry(TelemetryDefinitions::TRACTION_INFO_NAME);
 	_currentLap->calculatedTotalLostTraction =
-	_currentLap->integrateTelemetry(TelemetryDefinitions::indexOfLapTelemetry(TelemetryDefinitions::TRACTION_INFO_NAME),
-									[](auto value) { return 100.0f - value; });
+		_currentLap->integrateTelemetry(tractionIndex, [](auto value) { return 100.0f - value; });
 
 	QString lapType;
 	if(_currentLap->isInLap) {
@@ -240,18 +241,19 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 		_currentLap->lapTime = _previousLapData.m_currentLapTime - _timeDiff;
 		_currentLap->sector1Time = _previousLapData.m_sector1Time;
 		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time =
-		_previousLapData.m_currentLapTime - _timeDiff - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+		_currentLap->sector3Time = _previousLapData.m_currentLapTime - _timeDiff - _previousLapData.m_sector2Time -
+								   _previousLapData.m_sector1Time;
 		lapType = "_(Out)";
 	} else {
 		_currentLap->lapTime = lapData.m_lastLapTime;
 		_currentLap->sector1Time = _previousLapData.m_sector1Time;
 		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time = lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+		_currentLap->sector3Time =
+			lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
 	}
 	_currentLap->energy = double(_currentStatusData.m_ersStoreEnergy);
 	_currentLap->harvestedEnergy =
-	double(_currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK);
+		double(_currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK);
 	_currentLap->deployedEnergy = double(_currentStatusData.m_ersDeployedThisLap);
 	_currentLap->trackDistance = _currentSessionData.m_trackLength;
 
@@ -295,9 +297,9 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->sector3Time = addMean(_currentStint->sector3Time, lap->sector3Time, _currentStint->nbLaps());
 	_currentStint->meanBalance = addMean(_currentStint->meanBalance, lap->meanBalance, _currentStint->nbLaps());
 	_currentStint->calculatedTyreDegradation =
-	addMean(_currentStint->calculatedTyreDegradation, lap->calculatedTyreDegradation, _currentStint->nbLaps());
+		addMean(_currentStint->calculatedTyreDegradation, lap->calculatedTyreDegradation, _currentStint->nbLaps());
 	_currentStint->calculatedTotalLostTraction =
-	addMean(_currentStint->calculatedTotalLostTraction, lap->calculatedTotalLostTraction, _currentStint->nbLaps());
+		addMean(_currentStint->calculatedTotalLostTraction, lap->calculatedTotalLostTraction, _currentStint->nbLaps());
 	_currentStint->lapTimes.append(lap->lapTime);
 	if(lap->isOutLap)
 		_currentStint->isOutLap = true;
@@ -310,7 +312,8 @@ void DriverTracker::addLapToStint(Lap *lap)
 	}
 
 	for(int i = 0; i < 4; ++i) {
-		_currentStint->calculatedTyreWear[i] = (double(_currentSessionData.m_trackLength) / degradations[i].mean) / DEGRADATION_STEP;
+		_currentStint->calculatedTyreWear[i] =
+			(double(_currentSessionData.m_trackLength) / degradations[i].mean) / DEGRADATION_STEP;
 	}
 
 	_currentStint->nbFlashback += lap->nbFlashback;
@@ -416,7 +419,8 @@ void DriverTracker::makeDriverDir()
 
 		if(_isPlayer) {
 			_extendedPlayerTelemetry = true;
-			_currentLap->setTelemetryInfo(TelemetryDefinitions::TELEMETRY_INFO + TelemetryDefinitions::EXTENDED_TELEMETRY_INFO);
+			_currentLap->setTelemetryInfo(TelemetryDefinitions::TELEMETRY_INFO +
+										  TelemetryDefinitions::EXTENDED_TELEMETRY_INFO);
 		}
 	}
 }
@@ -436,7 +440,8 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 		case Event::ChequeredFlag:
 			//			qInfo() << "E" << _previousLapData.m_lapDistance << _currentSessionData.m_trackLength
 			//					<< _previousLapData.m_pitStatus << _previousLapData.m_driverStatus;
-			if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {
+			if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 &&
+			   _previousLapData.m_pitStatus == 0) {
 				saveCurrentLap(_previousLapData);
 			}
 			saveCurrentStint();
@@ -450,16 +455,18 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const
 {
-	auto cross =
-	_previousLapData.isValid() &&
-	(_previousLapData.m_lapDistance < 0 || _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
-	((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
-	 ((data.m_lapDistance > _currentSessionData.m_trackLength - 5) && _currentSessionData.m_sessionType == 12 && !_isPlayer));
+	auto cross = _previousLapData.isValid() &&
+				 (_previousLapData.m_lapDistance < 0 ||
+				  _previousLapData.m_lapDistance > (_currentSessionData.m_trackLength - 200)) &&
+				 ((data.m_lapDistance < 200 && data.m_lapDistance > 0) ||
+				  ((data.m_lapDistance > _currentSessionData.m_trackLength - 5) &&
+				   _currentSessionData.m_sessionType == 12 && !_isPlayer));
 
 	//	qInfo() << "CR" << _previousLapData.m_lapDistance << data.m_lapDistance << _currentSessionData.m_trackLength
 	//			<< data.m_pitStatus << data.m_driverStatus << _isLapRecorded << cross;
 
-	return cross && data.m_pitStatus == 0 && (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
+	return cross && data.m_pitStatus == 0 &&
+		   (data.m_driverStatus == 1 || data.m_driverStatus == 4 || data.m_driverStatus == 3);
 }
 
 
@@ -470,7 +477,8 @@ bool DriverTracker::flashbackDetected(const LapData &data) const
 
 double DriverTracker::averageTyreWear(const CarStatusData &carStatus) const
 {
-	return (carStatus.m_tyresWear[0] + carStatus.m_tyresWear[1] + carStatus.m_tyresWear[2] + carStatus.m_tyresWear[3]) / 4.0;
+	return (carStatus.m_tyresWear[0] + carStatus.m_tyresWear[1] + carStatus.m_tyresWear[2] + carStatus.m_tyresWear[3]) /
+		   4.0;
 }
 
 bool DriverTracker::isLastRaceLap(const LapData &data) const

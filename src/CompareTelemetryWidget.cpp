@@ -42,7 +42,8 @@ CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *pa
 	connect(ui->btnAddLaps, &QPushButton::clicked, this, &CompareTelemetryWidget::browseData);
 	connect(ui->btnClear, &QPushButton::clicked, this, &CompareTelemetryWidget::clearData);
 	connect(_telemetryDataModel, &TelemetryDataTableModel::lapsChanged, this, &CompareTelemetryWidget::updateData);
-	connect(_telemetryDataModel, &TelemetryDataTableModel::visibilityChanged, this, &CompareTelemetryWidget::updateDataVisibilities);
+	connect(_telemetryDataModel, &TelemetryDataTableModel::visibilityChanged, this,
+			&CompareTelemetryWidget::updateDataVisibilities);
 	connect(ui->lapsTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
 			&CompareTelemetryWidget::telemetryDataSelected);
 	connect(ui->checkTrackLayout, &QCheckBox::toggled, this, &CompareTelemetryWidget::showTrackLayout);
@@ -50,7 +51,8 @@ CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *pa
 	ui->splitter->setSizes({size().width() - LEFT_PANEL_DEFAULT_WIDTH, LEFT_PANEL_DEFAULT_WIDTH});
 
 	_diffCheckMapper = new QSignalMapper(this);
-	connect(_diffCheckMapper, qOverload<int>(&QSignalMapper::mapped), this, &CompareTelemetryWidget::changeVariableDiff);
+	connect(_diffCheckMapper, qOverload<int>(&QSignalMapper::mapped), this,
+			&CompareTelemetryWidget::changeVariableDiff);
 
 	_statsCheckMapper = new QSignalMapper(this);
 	connect(_statsCheckMapper, qOverload<int>(&QSignalMapper::mapped), this, &CompareTelemetryWidget::changeStats);
@@ -64,7 +66,8 @@ void CompareTelemetryWidget::initActions()
 	homeAction->setShortcut(Qt::Key_Escape);
 
 	ui->lapsTableView->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(ui->lapsTableView, &QTableView::customContextMenuRequested, this, &CompareTelemetryWidget::telemetryTableContextMenu);
+	connect(ui->lapsTableView, &QTableView::customContextMenuRequested, this,
+			&CompareTelemetryWidget::telemetryTableContextMenu);
 
 	_telemetryContextMenu = new QMenu(this);
 	auto setRefAction = _telemetryContextMenu->addAction("Define as reference lap (R)");
@@ -84,7 +87,8 @@ CompareTelemetryWidget::~CompareTelemetryWidget() { delete ui; }
 void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &telemetry)
 {
 	_telemetryDataModel->addTelemetryData(telemetry);
-	ui->lapsTableView->setCurrentIndex(_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));
+	ui->lapsTableView->setCurrentIndex(
+		_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));
 }
 
 void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
@@ -139,7 +143,8 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 
 	createAxis(chart, stats);
 	if(!stats) {
-		connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this, SLOT(distanceZoomChanged(qreal, qreal)));
+		connect(chart->axes(Qt::Horizontal)[0], SIGNAL(rangeChanged(qreal, qreal)), this,
+				SLOT(distanceZoomChanged(qreal, qreal)));
 	}
 
 	auto view = _variablesCharts.value(varIndex);
@@ -148,8 +153,11 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 	qApp->restoreOverrideCursor();
 }
 
-QAbstractSeries *
-CompareTelemetryWidget::createTelemetryLine(TelemetryData *data, int varIndex, const TelemetryData *refData, bool diff, const QColor &color)
+QAbstractSeries *CompareTelemetryWidget::createTelemetryLine(TelemetryData *data,
+															 int varIndex,
+															 const TelemetryData *refData,
+															 bool diff,
+															 const QColor &color)
 {
 	const auto &values = data->data(varIndex);
 	if(values.isEmpty())
@@ -188,7 +196,8 @@ CompareTelemetryWidget::createTelemetryLine(TelemetryData *data, int varIndex, c
 						// Linear interpolation
 						auto prevRefValue = double(*(itRef - 1));
 						auto prevDistance = double(*(itRefDist - 1));
-						refValue = prevRefValue + (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
+						refValue = prevRefValue +
+								   (distance - prevDistance) * (refValue - prevRefValue) / (refDist - prevDistance);
 					} else if(itRef == ref.constBegin()) {
 						++itValues;
 						++itDistance;
@@ -225,9 +234,9 @@ QAbstractSeries *CompareTelemetryWidget::createTelemetryStat(TelemetryData *data
 	std::sort(sortedValues.begin(), sortedValues.end());
 	int nbValues = sortedValues.count();
 
-	auto box =
-	new QBoxSet(sortedValues.first(), findMedian(0, nbValues / 2, sortedValues), findMedian(0, nbValues, sortedValues),
-				findMedian(nbValues / 2 + (nbValues % 2), nbValues, sortedValues), sortedValues.last(), QString());
+	auto box = new QBoxSet(
+		sortedValues.first(), findMedian(0, nbValues / 2, sortedValues), findMedian(0, nbValues, sortedValues),
+		findMedian(nbValues / 2 + (nbValues % 2), nbValues, sortedValues), sortedValues.last(), QString());
 
 	series->append(box);
 
@@ -282,10 +291,10 @@ void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &teleme
 		QList<QColor> colors = _telemetryDataModel->colors();
 		int varIndex = 0;
 		for(auto chartView : _variablesCharts) {
-			auto isDiff =
-			qobject_cast<QCheckBox *>(_variablesCharts.value(varIndex)->configurationWidgets().value(0))->isChecked();
-			auto isStat =
-			qobject_cast<QCheckBox *>(_variablesCharts.value(varIndex)->configurationWidgets().value(1))->isChecked();
+			auto isDiff = qobject_cast<QCheckBox *>(_variablesCharts.value(varIndex)->configurationWidgets().value(0))
+							  ->isChecked();
+			auto isStat = qobject_cast<QCheckBox *>(_variablesCharts.value(varIndex)->configurationWidgets().value(1))
+							  ->isChecked();
 			reloadVariableSeries(chartView->chart(), telemetry, varIndex, isDiff, isStat, colors);
 			chartView->setHomeZoom();
 
@@ -408,8 +417,9 @@ void CompareTelemetryWidget::setTrackIndex(int trackIndex)
 	auto trackImage = UdpSpecification::instance()->trackImageMap(trackIndex);
 	ui->trackWidget->setVisible(!trackImage.isEmpty());
 	if(!trackImage.isEmpty()) {
-		ui->lblTrackMap->setPixmap(
-		QPixmap(trackImage).scaled(QSize(ui->lblTrackMap->width(), ui->lblTrackMap->height()), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+		ui->lblTrackMap->setPixmap(QPixmap(trackImage)
+									   .scaled(QSize(ui->lblTrackMap->width(), ui->lblTrackMap->height()),
+											   Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	}
 }
 
@@ -587,43 +597,51 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreTempItem(QTreeWidget *tree, const L
 					   lap->innerTemperatures.rearLeft.deviation + lap->innerTemperatures.rearRight.deviation) /
 					  4.0;
 	auto tempItem = new QTreeWidgetItem(tree, {"Tyre Temperature", QString::number(int(averageTemp)) + "°C (+/- " +
-																   QString::number(int(averageDev)) + "°C)"});
-	new QTreeWidgetItem(tempItem, {"Front Left", QString::number(int(lap->innerTemperatures.frontLeft.mean)) + "°C (+/- " +
-												 QString::number(int(lap->innerTemperatures.frontLeft.deviation)) + "°C)"});
-	new QTreeWidgetItem(tempItem, {"Front Right", QString::number(int(lap->innerTemperatures.frontRight.mean)) + "°C (+/- " +
-												  QString::number(int(lap->innerTemperatures.frontRight.deviation)) + "°C)"});
-	new QTreeWidgetItem(tempItem, {"Rear Left", QString::number(int(lap->innerTemperatures.rearLeft.mean)) + "°C (+/- " +
-												QString::number(int(lap->innerTemperatures.rearLeft.deviation)) + "°C)"});
-	new QTreeWidgetItem(tempItem, {"Rear Right", QString::number(int(lap->innerTemperatures.rearRight.mean)) + "°C (+/- " +
-												 QString::number(int(lap->innerTemperatures.rearRight.deviation)) + "°C)"});
+																	   QString::number(int(averageDev)) + "°C)"});
+	new QTreeWidgetItem(tempItem,
+						{"Front Left", QString::number(int(lap->innerTemperatures.frontLeft.mean)) + "°C (+/- " +
+										   QString::number(int(lap->innerTemperatures.frontLeft.deviation)) + "°C)"});
+	new QTreeWidgetItem(tempItem,
+						{"Front Right", QString::number(int(lap->innerTemperatures.frontRight.mean)) + "°C (+/- " +
+											QString::number(int(lap->innerTemperatures.frontRight.deviation)) + "°C)"});
+	new QTreeWidgetItem(tempItem,
+						{"Rear Left", QString::number(int(lap->innerTemperatures.rearLeft.mean)) + "°C (+/- " +
+										  QString::number(int(lap->innerTemperatures.rearLeft.deviation)) + "°C)"});
+	new QTreeWidgetItem(tempItem,
+						{"Rear Right", QString::number(int(lap->innerTemperatures.rearRight.mean)) + "°C (+/- " +
+										   QString::number(int(lap->innerTemperatures.rearRight.deviation)) + "°C)"});
 	return tempItem;
 }
 
 QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget *tree, const Lap *lap, double divisor) const
 {
 	auto lapWear = (lap->averageEndTyreWear - lap->averageStartTyreWear) / divisor;
-	auto tyreWearItem =
-	new QTreeWidgetItem(tree, {"Tyre wear",
-							   QString("%1% (%2% -> %3%)").arg(lapWear).arg(lap->averageStartTyreWear).arg(lap->averageEndTyreWear)});
+	auto tyreWearItem = new QTreeWidgetItem(
+		tree, {"Tyre wear",
+			   QString("%1% (%2% -> %3%)").arg(lapWear).arg(lap->averageStartTyreWear).arg(lap->averageEndTyreWear)});
 	auto frontLeftWear = (lap->endTyreWear.frontLeft - lap->startTyreWear.frontLeft) / divisor;
-	new QTreeWidgetItem(
-	tyreWearItem,
-	{"Front Left", QString("%1% (%2% -> %3%)").arg(frontLeftWear).arg(lap->startTyreWear.frontLeft).arg(lap->endTyreWear.frontLeft)});
+	new QTreeWidgetItem(tyreWearItem, {"Front Left", QString("%1% (%2% -> %3%)")
+														 .arg(frontLeftWear)
+														 .arg(lap->startTyreWear.frontLeft)
+														 .arg(lap->endTyreWear.frontLeft)});
 	auto frontRightWear = (lap->endTyreWear.frontRight - lap->startTyreWear.frontRight) / divisor;
-	new QTreeWidgetItem(
-	tyreWearItem,
-	{"Front Right",
-	 QString("%1% (%2% -> %3%)").arg(frontRightWear).arg(lap->startTyreWear.frontRight).arg(lap->endTyreWear.frontRight)});
+	new QTreeWidgetItem(tyreWearItem, {"Front Right", QString("%1% (%2% -> %3%)")
+														  .arg(frontRightWear)
+														  .arg(lap->startTyreWear.frontRight)
+														  .arg(lap->endTyreWear.frontRight)});
 	auto rearLeftWear = (lap->endTyreWear.rearLeft - lap->startTyreWear.rearLeft) / divisor;
-	new QTreeWidgetItem(
-	tyreWearItem,
-	{"Rear Left", QString("%1% (%2% -> %3%)").arg(rearLeftWear).arg(lap->startTyreWear.rearLeft).arg(lap->endTyreWear.rearLeft)});
+	new QTreeWidgetItem(tyreWearItem, {"Rear Left", QString("%1% (%2% -> %3%)")
+														.arg(rearLeftWear)
+														.arg(lap->startTyreWear.rearLeft)
+														.arg(lap->endTyreWear.rearLeft)});
 	auto rearRightWear = (lap->endTyreWear.rearRight - lap->startTyreWear.rearRight) / divisor;
-	new QTreeWidgetItem(
-	tyreWearItem,
-	{"Rear Right", QString("%1% (%2% -> %3%)").arg(rearRightWear).arg(lap->startTyreWear.rearRight).arg(lap->endTyreWear.rearRight)});
-	new QTreeWidgetItem(tyreWearItem, {"Calculated tyre wear", QString("%1").arg(lap->calculatedTyreDegradation)});
-	new QTreeWidgetItem(tyreWearItem, {"Calculated lost traction", QString("%1").arg(lap->calculatedTotalLostTraction)});
+	new QTreeWidgetItem(tyreWearItem, {"Rear Right", QString("%1% (%2% -> %3%)")
+														 .arg(rearRightWear)
+														 .arg(lap->startTyreWear.rearRight)
+														 .arg(lap->endTyreWear.rearRight)});
+	//	new QTreeWidgetItem(tyreWearItem, {"Calculated tyre wear", QString("%1").arg(lap->calculatedTyreDegradation)});
+	new QTreeWidgetItem(tyreWearItem,
+						{"Calculated lost traction", QString("%1%").arg(lap->calculatedTotalLostTraction)});
 	return tyreWearItem;
 }
 

@@ -54,6 +54,7 @@ class F1Telemetry : public QMainWindow
 	void fileDownloaded(int type, const QByteArray &data);
 	void showChangeLog();
 	void changelogAutoDisplay();
+	void contact();
 };
 
 #endif // F1TELEMETRY_H

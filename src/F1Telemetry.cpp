@@ -107,6 +107,8 @@ void F1Telemetry::initMenu()
 	helpMenu->addSeparator();
 	helpMenu->addAction("Check for updates", this, &F1Telemetry::checkUpdates);
 	helpMenu->addAction("Changelog...", this, &F1Telemetry::showChangeLog);
+	helpMenu->addSeparator();
+	helpMenu->addAction("Feedback...", this, &F1Telemetry::contact);
 }
 
 bool F1Telemetry::isGreaterVersion(const QString &version)
@@ -130,7 +132,10 @@ void F1Telemetry::closeEvent(QCloseEvent *event)
 	QMainWindow::closeEvent(event);
 }
 
-void F1Telemetry::startTracking(bool trackPlayer, bool trackTeammate, bool trackAllCars, const QVector<int> &trackedDriverIds)
+void F1Telemetry::startTracking(bool trackPlayer,
+								bool trackTeammate,
+								bool trackAllCars,
+								const QVector<int> &trackedDriverIds)
 {
 	_tracker->clearTrackedDrivers();
 	if(trackPlayer)
@@ -160,7 +165,8 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 			qInfo() << "A newer version is available";
 			QSettings settings;
 			if(!_isAutoCheckUpdates || settings.value("skipedVersion") != data) {
-				_downloader->downloadFile(QUrl("http://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/Changelog.md"), ChangelogFile);
+				_downloader->downloadFile(QUrl("http://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/Changelog.md"),
+										  ChangelogFile);
 				_updateDialog->setAvailableVersion(data);
 				if(_updateDialog->exec() == QDialog::Rejected) {
 					settings.setValue("skipedVersion", QString(data));
@@ -172,7 +178,8 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 			}
 		} else if(!_isAutoCheckUpdates) {
 			qInfo() << "Up to date !";
-			QMessageBox::information(this, "Software update", "You're up to date!\nThere is no newer version available.");
+			QMessageBox::information(this, "Software update",
+									 "You're up to date!\nThere is no newer version available.");
 		}
 
 		_isAutoCheckUpdates = false;
@@ -213,8 +220,27 @@ void F1Telemetry::showChangeLog()
 void F1Telemetry::changelogAutoDisplay()
 {
 	QSettings settings;
-	if(!settings.allKeys().isEmpty() && settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
+	if(!settings.allKeys().isEmpty() &&
+	   settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
 		QTimer::singleShot(0, this, &F1Telemetry::showChangeLog);
 		settings.setValue("lastChangelogAutoDisplay", qApp->applicationVersion());
 	}
+}
+
+void F1Telemetry::contact()
+{
+	QMessageBox msg(this);
+	msg.setIcon(QMessageBox::Information);
+	msg.setWindowTitle("Contact");
+	msg.setText("Feedback, bug report, feature request :");
+	auto mail = "pxgf1telemetry@laposte.net";
+	auto issuesUrl = "https://bitbucket.org/Fiingon/pxg-f1-telemetry/issues?status=new&status=open";
+	msg.setInformativeText(QString("<a href=\"mailto:%1\">%1</a><br><br><a href=\"%2\">%2</a>").arg(mail, issuesUrl));
+	msg.setStandardButtons(QMessageBox::Ok);
+
+	QSpacerItem *horizontalSpacer = new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+	QGridLayout *layout = (QGridLayout *)msg.layout();
+	layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
+
+	msg.exec();
 }

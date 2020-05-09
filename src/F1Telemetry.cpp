@@ -152,7 +152,7 @@ void F1Telemetry::startTracking(bool trackPlayer,
 
 void F1Telemetry::checkUpdates()
 {
-	auto url = QUrl("http://bitbucket.org/Fiingon/pxg-f1-telemetry.git/raw/master/VERSION");
+	auto url = QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry.git/raw/master/VERSION");
 	_downloader->downloadFile(url, VersionFile);
 }
 
@@ -165,8 +165,8 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 			qInfo() << "A newer version is available";
 			QSettings settings;
 			if(!_isAutoCheckUpdates || settings.value("skipedVersion") != data) {
-				_downloader->downloadFile(QUrl("http://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/Changelog.md"),
-										  ChangelogFile);
+				_downloader->downloadFile(
+					QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/Changelog.md"), ChangelogFile);
 				_updateDialog->setAvailableVersion(data);
 				if(_updateDialog->exec() == QDialog::Rejected) {
 					settings.setValue("skipedVersion", QString(data));

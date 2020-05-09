@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>655</width>
-    <height>606</height>
+    <height>609</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -455,7 +455,7 @@
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="allcars">
         <property name="text">
-         <string>All cars (recommended for Time Trial)</string>
+         <string>All drivers (recommended for Time Trial)</string>
         </property>
        </widget>
       </item>

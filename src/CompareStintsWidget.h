@@ -11,7 +11,7 @@ class CompareStintsWidget : public CompareTelemetryWidget
 	Q_OBJECT
 
   public:
-	CompareStintsWidget();
+	CompareStintsWidget(QWidget *parent = nullptr);
 	virtual ~CompareStintsWidget() {}
 
   protected slots:

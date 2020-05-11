@@ -1,15 +1,31 @@
 #include "F1Listener.h"
+#include "Logger.h"
 #include <QDataStream>
 #include <QNetworkDatagram>
 
 
-F1Listener::F1Listener(F1PacketInterface *interface, QObject *parent)
+F1Listener::F1Listener(F1PacketInterface *interface, const QString &address, int port, QObject *parent)
 : QObject(parent), _listener(new QUdpSocket(this)), _interface(interface)
 {
 	// bind to listening port
-	_listener->bind(QHostAddress::Any, 20777);
-
+	auto host = address.isEmpty() ? QHostAddress(QHostAddress::Any) : QHostAddress(address);
+	if(host.isNull()) {
+		Logger::instance()->log(QString("Error: The listened address %1 is invalid!").arg(host.toString()));
+	} else if(!_listener->bind(host, port)) {
+		Logger::instance()->log(QString("Error: The connection to %1 (port %2) failed!").arg(host.toString()).arg(port));
+	} else if(!address.isEmpty()) {
+		Logger::instance()->log(QString("Listening to %1 ... (port %2)").arg(host.toString()).arg(port));
+	} else {
+		Logger::instance()->log(QString("Listening ... (port %1)").arg(port));
+	}
 	connect(_listener, &QUdpSocket::readyRead, this, &F1Listener::readData);
+}
+
+bool F1Listener::isConnected() const
+{
+	qDebug() << _listener->state();
+	return _listener->isValid() &&
+		   (_listener->state() == QAbstractSocket::ConnectedState || _listener->state() == QAbstractSocket::BoundState);
 }
 
 bool F1Listener::tryRead()

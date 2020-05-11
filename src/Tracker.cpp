@@ -4,7 +4,7 @@
 
 #include <QDateTime>
 
-Tracker::Tracker()
+Tracker::Tracker(QObject *parent) : QObject(parent)
 {
 	_dataDirectory = QDir();
 	_sessionDirectory = _dataDirectory;
@@ -43,9 +43,12 @@ void Tracker::updateAutoTrackedDrivers()
 		}
 	}
 
-	if(_addTTGhostsTrackingOnStart) {
-		auto tracker = std::make_shared<TTGhostsTracker>();
-		_trackedDrivers.append(tracker);
+	if(_addAllCarsTrackingOnStart) {
+		for(int i = 0; i < 20; ++i) {
+			if(!_participants.m_participants[i].m_name.isEmpty()) {
+				_autoTrackedIndexes.insert(i);
+			}
+		}
 	}
 
 	for(auto carIndex : _autoTrackedIndexes) {
@@ -105,7 +108,7 @@ void Tracker::trackPlayer() { _addPlayerTrackingOnStart = true; }
 
 void Tracker::trackTeammate() { _addTeammateTrackingOnStart = true; }
 
-void Tracker::trackTTGhosts() { _addTTGhostsTrackingOnStart = true; }
+void Tracker::trackAllCars() { _addAllCarsTrackingOnStart = true; }
 
 void Tracker::untrackDriver(int index)
 {
@@ -124,6 +127,8 @@ void Tracker::clearTrackedDrivers()
 	_trackedDrivers.clear();
 	_trackedIndexes.clear();
 	_addPlayerTrackingOnStart = false;
+	_addTeammateTrackingOnStart = false;
+	_addAllCarsTrackingOnStart = false;
 }
 
 QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const

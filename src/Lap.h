@@ -61,6 +61,7 @@ class Lap : public TelemetryData
 
 	double meanBalance = 0.0;
 	double calculatedTyreDegradation = 0.0;
+	double calculatedTotalLostTraction = 0.0;
 
 	// Saving - Loading
 	void save(const QString &filename) const;

@@ -35,6 +35,10 @@ class TelemetryData
 	void setTelemetryInfo(const QVector<TelemetryInfo> &dataNames);
 	virtual QVector<TelemetryInfo> availableData() const { return _telemetryInfo; }
 
+	double integrateTelemetry(
+	int index,
+	const std::function<float(float)> &preprocess = [](auto value) { return value; }) const;
+
   protected:
 	QVector<float> _xValues;
 	QVector<QVector<float>> _data;

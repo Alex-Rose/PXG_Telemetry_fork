@@ -28,7 +28,9 @@ class F1Listener : public QObject
 	void dataReceived(QString &);
 
   public:
-	explicit F1Listener(F1PacketInterface *interface = nullptr, QObject *parent = nullptr);
+	explicit F1Listener(F1PacketInterface *interface, const QString &address, int port, QObject *parent = nullptr);
+
+	bool isConnected() const;
 
   private:
 	QUdpSocket *_listener = nullptr;

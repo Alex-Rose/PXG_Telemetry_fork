@@ -33,6 +33,7 @@ class DriverTracker : public F1PacketInterface
   protected:
 	bool _extendedPlayerTelemetry = false;
 	int _driverIndex;
+	bool _isPlayer = false;
 	QDir dataDirectory;
 	bool driverDirDefined = false;
 	QDir driverDataDirectory;
@@ -47,6 +48,7 @@ class DriverTracker : public F1PacketInterface
 	int _currentStintNum = 1;
 	double _startErsBalance = 0;
 	double _timeDiff = 0;
+	double _previousTelemetryDistance = 0;
 
 	TyresData<DegradationData> degradations;
 
@@ -61,6 +63,8 @@ class DriverTracker : public F1PacketInterface
 
 	void saveCurrentLap(const LapData &lapData);
 	void startLap(const LapData &lapData);
+
+	void makeDriverDir();
 };
 
 #endif // DRIVERTRACKER_H

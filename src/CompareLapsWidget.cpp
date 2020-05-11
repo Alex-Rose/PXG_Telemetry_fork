@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 
-CompareLapsWidget::CompareLapsWidget() { setDataName("Lap"); }
+CompareLapsWidget::CompareLapsWidget(QWidget *parent) : CompareTelemetryWidget("m", parent) { setDataName("Lap"); }
 
 void CompareLapsWidget::browseData()
 {

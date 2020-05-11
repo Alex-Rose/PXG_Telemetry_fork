@@ -28,12 +28,18 @@ Stint *Stint::fromFile(const QString &filename)
 
 void Stint::saveData(QDataStream &out) const
 {
-	Lap::saveData(out);
-	out << lapTimes << calculatedTyreWear;
+	QByteArray lapData;
+	QDataStream outLap(&lapData, QIODevice::WriteOnly);
+	Lap::saveData(outLap);
+	out << lapData << lapTimes << calculatedTyreWear;
 }
 
 void Stint::loadData(QDataStream &in)
 {
-	Lap::loadData(in);
+	QByteArray lapData;
+	in >> lapData;
+	QDataStream inLap(&lapData, QIODevice::ReadOnly);
+	Lap::loadData(inLap);
+
 	in >> lapTimes >> calculatedTyreWear;
 }

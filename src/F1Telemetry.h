@@ -27,7 +27,7 @@ class F1Telemetry : public QMainWindow
 
   private:
 	Ui::F1Telemetry *ui;
-	F1Listener *_listener;
+	F1Listener *_listener = nullptr;
 	Tracker *_tracker;
 	FileDownloader *_downloader;
 	CheckUpdatesDialog *_updateDialog;
@@ -37,6 +37,7 @@ class F1Telemetry : public QMainWindow
 
 	void loadSettings();
 	void saveSetings();
+	void initDefaultSettings();
 
 	void initMenu();
 
@@ -46,12 +47,14 @@ class F1Telemetry : public QMainWindow
 	void closeEvent(QCloseEvent *event);
 
   private slots:
-	void startTracking(bool trackPlayer, bool trackTeammate, bool trackTTGHosts, const QVector<int> &trackedDriverIds);
+	void buildListener();
+	void startTracking(bool trackPlayer, bool trackTeammate, bool trackAllCars, const QVector<int> &trackedDriverIds);
 
 	void checkUpdates();
 	void fileDownloaded(int type, const QByteArray &data);
 	void showChangeLog();
 	void changelogAutoDisplay();
+	void contact();
 };
 
 #endif // F1TELEMETRY_H

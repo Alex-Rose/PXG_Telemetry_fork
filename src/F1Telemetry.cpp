@@ -15,14 +15,14 @@
 
 F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Telemetry)
 {
+	initDefaultSettings();
+
 	ui->setupUi(this);
 
 	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
 	setWindowTitle(qApp->applicationName() + " " + qApp->applicationVersion());
 
 	_tracker = new Tracker(this);
-
-	initDefaultSettings();
 
 	buildListener();
 

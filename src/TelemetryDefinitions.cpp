@@ -58,7 +58,7 @@ const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_STINT_INFO = {
 	TelemetryInfo{"Lap Times", "", "s"},
 	TelemetryInfo{"Tyres Life", "Average remaing life of the tyres", "%"},
 	// TelemetryInfo{"Calculated Tyres Degradation", "Cumulated estimated tyre degradation over each lap", ""},
-	TelemetryInfo{"Calculated Total Lost Traction", "Cumulated estimated total traction lost over each lap", ""},
+	TelemetryInfo{"Calculated Total Lost Traction", "Cumulated estimated total traction lost over each lap", "%"},
 	TelemetryInfo{"Fuel", "Remaining fuel in the car", "kg"},
 	TelemetryInfo{"Stored Enegery", "Energy remaining in the battery", "kJ"},
 	TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},

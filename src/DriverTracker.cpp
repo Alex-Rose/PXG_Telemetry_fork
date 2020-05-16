@@ -49,6 +49,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 	auto values = QVector<float>({float(driverData.m_speed), float(driverData.m_throttle * 100.0),
 								  float(driverData.m_brake * 100.0), float(driverData.m_steer * 100.0),
 								  float(driverData.m_gear), _previousLapData.m_currentLapTime, maxTyreTemp, ersBalance,
+								  float(_currentStatusData.m_ersDeployMode), float(_currentStatusData.m_fuelMix),
 								  motionData.m_gForceLateral, motionData.m_gForceLongitudinal});
 
 	if(_extendedPlayerTelemetry) {

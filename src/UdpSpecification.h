@@ -52,12 +52,16 @@ class UdpSpecification
 			return "Unknown";
 		return ersModes.value(index);
 	}
+	QString ersModesDescription() { return description(ersModes); }
+
 	QString fuelMix(int index) const
 	{
 		if(index < 0)
 			return "Unknown";
 		return fuelMixes.value(index);
 	}
+	QString fuelMixesDescription() { return description(fuelMixes); }
+
 	int nbRaceLaps(int trackIndex) const
 	{
 		if(trackIndex < 0)
@@ -76,6 +80,8 @@ class UdpSpecification
 
   private:
 	UdpSpecification();
+
+	QString description(const QStringList &data) const;
 
 	QMap<PacketType, int> packetExpectedLengths;
 	QStringList teams;

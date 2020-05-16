@@ -1,4 +1,5 @@
 #include "TelemetryDefinitions.h"
+#include "UdpSpecification.h"
 
 int TelemetryDefinitions::indexOfLapTelemetry(const QString &name)
 {
@@ -35,6 +36,8 @@ const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_INFO = {
 	TelemetryInfo{"Time", "", "s"},
 	TelemetryInfo{"Max Tyre Surface Temp.", "Surface temperature of the hotter tyre", "°C"},
 	TelemetryInfo{"ERS Balance", "Energy harvested - energy deployed", "kJ"},
+	TelemetryInfo{"ERS Mode", UdpSpecification::instance()->ersModesDescription(), ""},
+	TelemetryInfo{"Fuel Mix", UdpSpecification::instance()->fuelMixesDescription(), ""},
 	TelemetryInfo{"Lateral G-Force", "", "g"},
 	TelemetryInfo{"Longitudinal G-Force", "", "g"},
 };

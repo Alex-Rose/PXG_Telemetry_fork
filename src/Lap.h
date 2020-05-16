@@ -47,7 +47,7 @@ class Lap : public TelemetryData
 	int visualTyreCompound = -1;
 	double fuelOnStart = 0;
 	double fuelOnEnd = 0;
-	ErsData ers;
+	ModeData ers;
 	double energy = 0;
 	double harvestedEnergy = 0;
 	double deployedEnergy = 0;

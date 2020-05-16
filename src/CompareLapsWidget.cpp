@@ -78,6 +78,11 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	auto fuelItem = new QTreeWidgetItem(tree, {"Fuel Consumption", QString::number(qAbs(lapFuel)) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"Start", QString::number(lap->fuelOnStart) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"End", QString::number(lap->fuelOnEnd) + "kg"});
+	for(auto it = lap->fuelMix.distancesPerMode.constBegin(); it != lap->fuelMix.distancesPerMode.constEnd(); ++it) {
+		auto percentage = (it.value() / lap->trackDistance) * 100.0;
+		new QTreeWidgetItem(
+			fuelItem, {UdpSpecification::instance()->fuelMix(it.key()), QString::number(percentage, 'f', 2) + "%"});
+	}
 
 	auto ersItem = new QTreeWidgetItem(tree, {"ERS Energy", QString::number(int(lap->energy / 1000.0)) + "kJ"});
 	new QTreeWidgetItem(ersItem, {"Balance", QString::number(int(lap->energyBalance / 1000.0)) + "kJ"});
@@ -85,7 +90,8 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	new QTreeWidgetItem(ersItem, {"Harvested", QString::number(int(lap->harvestedEnergy / 1000.0)) + "kJ"});
 	for(auto it = lap->ers.distancesPerMode.constBegin(); it != lap->ers.distancesPerMode.constEnd(); ++it) {
 		auto percentage = (it.value() / lap->trackDistance) * 100.0;
-		new QTreeWidgetItem(ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(percentage, 'f', 2) + "%"});
+		new QTreeWidgetItem(
+			ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(percentage, 'f', 2) + "%"});
 	}
 	ersItem->setExpanded(true);
 

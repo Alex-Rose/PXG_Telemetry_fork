@@ -25,6 +25,7 @@ void Lap::resetData()
 {
 	clearData();
 	ers.clear();
+	fuelMix.clear();
 	innerTemperatures.frontLeft.clear();
 	innerTemperatures.frontRight.clear();
 	innerTemperatures.rearLeft.clear();
@@ -87,22 +88,24 @@ Lap *Lap::fromFile(const QString &filename)
 
 void Lap::saveData(QDataStream &out) const
 {
-	out << track << session_type << trackTemp << airTemp << weather << invalid << driver << recordDate << averageStartTyreWear
-		<< averageEndTyreWear << setup << comment << lapTime << sector1Time << sector2Time << sector3Time;
+	out << track << session_type << trackTemp << airTemp << weather << invalid << driver << recordDate
+		<< averageStartTyreWear << averageEndTyreWear << setup << comment << lapTime << sector1Time << sector2Time
+		<< sector3Time;
 	TelemetryData::save(out);
 	out << tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd << ers << energy
 		<< harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance << startTyreWear
 		<< endTyreWear << isInLap << isOutLap << visualTyreCompound << meanBalance << energyBalance
-		<< calculatedTyreDegradation << calculatedTotalLostTraction;
+		<< calculatedTyreDegradation << calculatedTotalLostTraction << fuelMix;
 }
 
 void Lap::loadData(QDataStream &in)
 {
 	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver >> recordDate >>
-	averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >> sector3Time;
+		averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >>
+		sector3Time;
 	TelemetryData::load(in);
 	in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
-	harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
-	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
-	calculatedTyreDegradation >> calculatedTotalLostTraction;
+		harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
+		endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
+		calculatedTyreDegradation >> calculatedTotalLostTraction >> fuelMix;
 }

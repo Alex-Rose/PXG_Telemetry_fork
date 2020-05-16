@@ -48,6 +48,7 @@ class Lap : public TelemetryData
 	double fuelOnStart = 0;
 	double fuelOnEnd = 0;
 	ModeData ers;
+	ModeData fuelMix;
 	double energy = 0;
 	double harvestedEnergy = 0;
 	double deployedEnergy = 0;

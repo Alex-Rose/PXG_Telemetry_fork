@@ -174,6 +174,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	}
 
 	_currentLap->ers.addValue(_currentStatusData.m_ersDeployMode, double(lapData.m_lapDistance));
+	_currentLap->fuelMix.addValue(_currentStatusData.m_fuelMix, double(lapData.m_lapDistance));
 
 	if(lapData.m_driverStatus > 0) {
 		int index = 0;
@@ -258,6 +259,7 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->trackDistance = _currentSessionData.m_trackLength;
 
 	_currentLap->ers.finalize(double(_currentSessionData.m_trackLength));
+	_currentLap->fuelMix.finalize(double(_currentSessionData.m_trackLength));
 
 	auto lapTime = QTime(0, 0).addMSecs(int(_currentLap->lapTime * 1000.0)).toString("m.ss.zzz");
 

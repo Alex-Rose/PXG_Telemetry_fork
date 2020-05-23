@@ -1,4 +1,4 @@
-#-------------------------------------------------
+    #-------------------------------------------------
 #
 # Project created by QtCreator 2018-10-21T14:38:28
 #
@@ -48,6 +48,7 @@ SOURCES += \
     CompareTelemetryWidget.cpp \
     CompareLapsWidget.cpp \
     CompareStintsWidget.cpp \
+    CompareRaceWidget.cpp \
     AboutDialog.cpp
 
 HEADERS += \
@@ -74,6 +75,7 @@ HEADERS += \
     CompareTelemetryWidget.h \
     CompareLapsWidget.h \
     CompareStintsWidget.h \
+    CompareRaceWidget.h \
     AboutDialog.h
 
 FORMS += \

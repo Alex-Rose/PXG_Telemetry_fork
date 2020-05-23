@@ -63,8 +63,11 @@ class CompareTelemetryWidget : public QWidget
 							  bool diff,
 							  bool stats,
 							  QList<QColor> colors);
-	QtCharts::QAbstractSeries *
-	createTelemetryLine(TelemetryData *data, int varIndex, const TelemetryData *refData, bool diff, const QColor &color);
+	QtCharts::QAbstractSeries *createTelemetryLine(TelemetryData *data,
+												   int varIndex,
+												   const TelemetryData *refData,
+												   bool diff,
+												   const QColor &color);
 	QtCharts::QAbstractSeries *createTelemetryStat(TelemetryData *data, int varIndex, const QColor &color);
 
 	void setTelemetry(const QVector<TelemetryData *> &telemetry);
@@ -92,6 +95,11 @@ class CompareTelemetryWidget : public QWidget
 	QTreeWidgetItem *setupItem(QTreeWidget *tree, const Lap *lap) const;
 	QTreeWidgetItem *tyreTempItem(QTreeWidget *tree, const Lap *lap) const;
 	QTreeWidgetItem *tyreItem(QTreeWidget *tree, const Lap *lap, double divisor = 1.0) const;
+	QTreeWidgetItem *recordItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *driverItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *trackItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *weatherItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *tyreCompoundItem(QTreeWidget *tree, const Lap *lap) const;
 
 	bool eventFilter(QObject *obj, QEvent *event);
 

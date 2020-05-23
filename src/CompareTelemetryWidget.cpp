@@ -645,6 +645,44 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget *tree, const Lap *
 	return tyreWearItem;
 }
 
+QTreeWidgetItem *CompareTelemetryWidget::recordItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto recordItem = new QTreeWidgetItem(tree, {"Record Date", lap->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
+	return new QTreeWidgetItem(recordItem, {"Flashbacks", QString::number(lap->nbFlashback)});
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::driverItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto team = UdpSpecification::instance()->team(lap->driver.m_teamId);
+	return new QTreeWidgetItem(tree, {"Driver", lap->driver.m_name + QString(" (%1)").arg(team)});
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::trackItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto track = UdpSpecification::instance()->track(lap->track);
+	auto sessionType = UdpSpecification::instance()->session_type(lap->session_type);
+	return new QTreeWidgetItem(tree, {"Track", track + QString(" (%1)").arg(sessionType)});
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::weatherItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto weather = UdpSpecification::instance()->weather(lap->weather);
+	auto weatherItem = new QTreeWidgetItem(tree, {"Weather", weather});
+	new QTreeWidgetItem(weatherItem, {"Air Temp.", QString::number(lap->airTemp) + "°C"});
+	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(lap->trackTemp) + "°C"});
+	return weatherItem;
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::tyreCompoundItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto compound = UdpSpecification::instance()->tyre(lap->tyreCompound);
+	auto visualCompound = UdpSpecification::instance()->visualTyre(lap->visualTyreCompound);
+	if(compound != visualCompound && !visualCompound.isEmpty()) {
+		compound += " - " + visualCompound;
+	}
+	return new QTreeWidgetItem(tree, {"Tyre Compound", compound});
+}
+
 float CompareTelemetryWidget::findMedian(int begin, int end, const QVector<float> &data)
 {
 	int count = end - begin;

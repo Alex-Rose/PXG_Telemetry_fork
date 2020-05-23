@@ -34,24 +34,10 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 
 	tree->clear();
 
-	auto team = UdpSpecification::instance()->team(stint->driver.m_teamId);
-	new QTreeWidgetItem(tree, {"Driver", stint->driver.m_name + QString(" (%1)").arg(team)});
-
-	auto track = UdpSpecification::instance()->track(stint->track);
-	auto sessionType = UdpSpecification::instance()->session_type(stint->session_type);
-	new QTreeWidgetItem(tree, {"Track", track + QString(" (%1)").arg(sessionType)});
-
-	auto weather = UdpSpecification::instance()->weather(stint->weather);
-	auto weatherItem = new QTreeWidgetItem(tree, {"Weather", weather});
-	new QTreeWidgetItem(weatherItem, {"Air Temp.", QString::number(stint->airTemp) + "°C"});
-	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(stint->trackTemp) + "°C"});
-
-	auto compound = UdpSpecification::instance()->tyre(stint->tyreCompound);
-	auto visualCompound = UdpSpecification::instance()->visualTyre(stint->visualTyreCompound);
-	if(compound != visualCompound && !visualCompound.isEmpty()) {
-		compound += " - " + visualCompound;
-	}
-	new QTreeWidgetItem(tree, {"Tyre Compound", compound});
+	driverItem(tree, stint);
+	trackItem(tree, stint);
+	weatherItem(tree, stint);
+	tyreCompoundItem(tree, stint);
 
 	auto stintItem = new QTreeWidgetItem(tree, {"Stint", QString::number(stint->nbLaps()) + " Laps"});
 	auto time = QTime(0, 0).addMSecs(int(double(stint->lapTime) * 1000.0)).toString("m:ss.zzz");
@@ -74,7 +60,7 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 	auto avgLapWear = (stint->calculatedTyreWear.frontLeft + stint->calculatedTyreWear.frontRight +
 					   stint->calculatedTyreWear.rearLeft + stint->calculatedTyreWear.rearRight) /
 					  4.0;
-	auto calcTyreWearItem = new QTreeWidgetItem(tree, {"Tyre wear (per lap)", QString("%1%").arg(avgLapWear)});
+	auto calcTyreWearItem = new QTreeWidgetItem(tree, {"Tyre Wear (per lap)", QString("%1%").arg(avgLapWear)});
 	new QTreeWidgetItem(calcTyreWearItem, {"Front Left", QString("%1%").arg(stint->calculatedTyreWear.frontLeft)});
 	new QTreeWidgetItem(calcTyreWearItem, {"Front Right", QString("%1%").arg(stint->calculatedTyreWear.frontRight)});
 	new QTreeWidgetItem(calcTyreWearItem, {"Rear Left", QString("%1%").arg(stint->calculatedTyreWear.rearLeft)});
@@ -93,13 +79,13 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 
 	auto fuel = stint->fuelOnStart - stint->fuelOnEnd;
 	auto fuelItem =
-	new QTreeWidgetItem(tree, {"Average Fuel Consumption", QString::number(fuel / stint->nbLaps()) + "kg"});
+		new QTreeWidgetItem(tree, {"Average Fuel Consumption", QString::number(fuel / stint->nbLaps()) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"Start", QString::number(stint->fuelOnStart) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"End", QString::number(stint->fuelOnEnd) + "kg"});
 	auto nbRaceLap = UdpSpecification::instance()->nbRaceLaps(stint->track);
 	if(nbRaceLap > 0) {
 		new QTreeWidgetItem(fuelItem, {"Estimated Race Load", QString::number((fuel * nbRaceLap) / stint->nbLaps()) +
-															  "kg (" + QString::number(nbRaceLap) + " Laps)"});
+																  "kg (" + QString::number(nbRaceLap) + " Laps)"});
 	}
 	fuelItem->setExpanded(true);
 
@@ -107,7 +93,7 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 
 	new QTreeWidgetItem(tree, {"Balance", QString::number(stint->meanBalance)});
 
-	new QTreeWidgetItem(tree, {"Record Date", stint->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
+	recordItem(tree, stint);
 
 	tree->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }

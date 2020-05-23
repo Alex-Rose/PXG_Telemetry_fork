@@ -27,6 +27,7 @@ CONFIG += c++14
 SOURCES += \
     CheckUpdatesDialog.cpp \
     FileDownloader.cpp \
+    Race.cpp \
     TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
     TelemetryDefinitions.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
         F1Telemetry.h \
     F1Listener.h \
     FileDownloader.h \
+    Race.h \
     SettingsKeys.h \
     TTGhostsTracker.h \
     TelemetryChartView.h \

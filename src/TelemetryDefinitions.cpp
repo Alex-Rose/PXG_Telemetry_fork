@@ -81,4 +81,5 @@ const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_RACE_INFO = {
 				  "Weather - 0 = clear, 1 = light cloud, 2 = overcast, 3 = light rain, 4 = heavy rain, 5 = storm", ""},
 	TelemetryInfo{"Track Temperature", "", "°C"},
 	TelemetryInfo{"Air Temperature", "", "°C"},
+	TelemetryInfo{"Front Wing Damage", "", "%"},
 };

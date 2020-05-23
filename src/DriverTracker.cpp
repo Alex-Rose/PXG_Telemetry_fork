@@ -378,7 +378,8 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 				   float(lap->energy / 1000.0),
 				   float(_currentSessionData.m_weather),
 				   float(_currentSessionData.m_trackTemperature),
-				   float(_currentSessionData.m_airTemperature)};
+				   float(_currentSessionData.m_airTemperature),
+				   float(_currentStatusData.m_frontLeftWingDamage + _currentStatusData.m_frontRightWingDamage) / 2.0f};
 	lastRaceSessionPassedTime = sessionTimePassed();
 
 	_currentRace->addData(_currentRace->countData() + 1, values);

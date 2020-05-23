@@ -38,6 +38,7 @@ void Lap::resetData()
 	calculatedTotalLostTraction = 0.0;
 }
 
+QVariant Lap::autoSortData() const { return recordDate; }
 
 void Lap::removeTelemetryFrom(float distance)
 {

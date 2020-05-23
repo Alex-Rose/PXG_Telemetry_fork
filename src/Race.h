@@ -11,8 +11,10 @@ class Race : public Lap
 
 	QString description() const;
 	void resetData();
+	QVariant autoSortData() const;
 
 	int nbLaps() const;
+
 
 	// Saving - Loading
 	static Race *fromFile(const QString &filename);

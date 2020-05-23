@@ -22,6 +22,8 @@ class TelemetryData
 
 	virtual QString description() const = 0;
 
+	virtual QVariant autoSortData() const;
+
 	void addData(float x, const QVector<float> &dataValues);
 	void clearData();
 	void removeLastData();
@@ -36,8 +38,8 @@ class TelemetryData
 	virtual QVector<TelemetryInfo> availableData() const { return _telemetryInfo; }
 
 	double integrateTelemetry(
-	int index,
-	const std::function<float(float)> &preprocess = [](auto value) { return value; }) const;
+		int index,
+		const std::function<float(float)> &preprocess = [](auto value) { return value; }) const;
 
   protected:
 	QVector<float> _xValues;

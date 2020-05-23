@@ -17,8 +17,9 @@ class Lap : public TelemetryData
 	Lap(const QVector<TelemetryInfo> &dataInfo = {});
 
 	virtual QString description() const;
-
 	virtual void resetData();
+	QVariant autoSortData() const;
+
 	void removeTelemetryFrom(float distance);
 
 	// Metadata

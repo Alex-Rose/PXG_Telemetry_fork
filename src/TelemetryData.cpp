@@ -7,6 +7,8 @@
 
 TelemetryData::TelemetryData(const QVector<TelemetryInfo> &dataInfo) : _telemetryInfo(dataInfo) {}
 
+QVariant TelemetryData::autoSortData() const { return description(); }
+
 void TelemetryData::addData(float x, const QVector<float> &dataValues)
 {
 	_xValues.append(x);

@@ -92,8 +92,10 @@ void CompareTelemetryWidget::initActions()
 
 CompareTelemetryWidget::~CompareTelemetryWidget() { delete ui; }
 
-void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &telemetry)
+void CompareTelemetryWidget::addTelemetryData(QVector<TelemetryData *> telemetry)
 {
+	std::sort(telemetry.begin(), telemetry.end(),
+			  [](auto t1, auto t2) { return t1->autoSortData() < t2->autoSortData(); });
 	_telemetryDataModel->addTelemetryData(telemetry);
 	ui->lapsTableView->setCurrentIndex(
 		_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));

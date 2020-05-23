@@ -30,7 +30,7 @@ class CompareTelemetryWidget : public QWidget
 	explicit CompareTelemetryWidget(const QString &unitX, QWidget *parent = nullptr);
 	virtual ~CompareTelemetryWidget();
 
-	void addTelemetryData(const QVector<TelemetryData *> &telemetry);
+	void addTelemetryData(QVector<TelemetryData *> telemetry);
 
 	void saveSettings(QSettings *settings);
 	void loadSettings(QSettings *settings);

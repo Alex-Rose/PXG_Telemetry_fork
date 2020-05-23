@@ -1,5 +1,7 @@
 #include "Race.h"
 
+#include <QVariant>
+
 Race::Race(const QVector<TelemetryInfo> &dataInfo) : Lap(dataInfo) {}
 
 QString Race::description() const
@@ -22,6 +24,8 @@ void Race::resetData()
 	nbSafetyCars = 0;
 	nbVirtualSafetyCars = 0;
 }
+
+QVariant Race::autoSortData() const { return endPosition; }
 
 int Race::nbLaps() const { return countData(); }
 

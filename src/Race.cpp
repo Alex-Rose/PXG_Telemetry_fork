@@ -17,6 +17,10 @@ void Race::resetData()
 	pitstops.clear();
 	stintsLaps.clear();
 	stintsTyre.clear();
+
+	penalties = 0;
+	nbSafetyCars = 0;
+	nbVirtualSafetyCars = 0;
 }
 
 int Race::nbLaps() const { return countData(); }
@@ -45,6 +49,6 @@ void Race::loadData(QDataStream &in)
 	QDataStream inLap(&lapData, QIODevice::ReadOnly);
 	Lap::loadData(inLap);
 
-	in >> lapData >> penalties >> nbSafetyCars >> nbVirtualSafetyCars >> pitstops >> stintsLaps >> stintsTyre >>
+	in >> penalties >> nbSafetyCars >> nbVirtualSafetyCars >> pitstops >> stintsLaps >> stintsTyre >>
 		startedGridPosition >> endPosition;
 }

@@ -17,14 +17,14 @@ class Race : public Lap
 	// Saving - Loading
 	static Race *fromFile(const QString &filename);
 
-	int penalties;
-	int nbSafetyCars;
-	int nbVirtualSafetyCars;
+	int penalties = 0;
+	int nbSafetyCars = 0;
+	int nbVirtualSafetyCars = 0;
 	QList<float> pitstops;
 	QVector<int> stintsLaps;
 	QVector<int> stintsTyre;
-	int startedGridPosition;
-	int endPosition;
+	int startedGridPosition = 0;
+	int endPosition = 0;
 
   protected:
 	virtual void saveData(QDataStream &out) const;

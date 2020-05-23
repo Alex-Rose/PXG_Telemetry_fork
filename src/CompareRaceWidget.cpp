@@ -12,7 +12,7 @@ CompareRaceWidget::CompareRaceWidget(QWidget *parent) : CompareTelemetryWidget("
 
 void CompareRaceWidget::browseData()
 {
-	auto files = QFileDialog::getOpenFileNames(this, "Select some stints to compare", "", "*.f1stint", nullptr,
+	auto files = QFileDialog::getOpenFileNames(this, "Select some stints to compare", "", "*.f1race", nullptr,
 											   QFileDialog::DontUseNativeDialog);
 
 	QVector<TelemetryData *> races;

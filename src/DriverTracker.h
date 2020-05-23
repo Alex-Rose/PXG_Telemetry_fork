@@ -76,6 +76,11 @@ class DriverTracker : public F1PacketInterface
 	void startLap(const LapData &lapData);
 
 	void makeDriverDir();
+
+	int sessionTimePassed();
+
+  private slots:
+	void onSessionEnd();
 };
 
 #endif // DRIVERTRACKER_H

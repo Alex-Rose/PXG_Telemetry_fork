@@ -6,6 +6,7 @@
 #include "TelemetryDefinitions.h"
 
 #include <QTime>
+#include <QTimer>
 #include <QtDebug>
 #include <QtGlobal>
 #include <cmath>
@@ -164,27 +165,27 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_isLapRecorded = false;
 		}
 	} else if(finishLineCrossed(lapData)) {
-		if(_isLapRecorded && driverDirDefined) {
-			// A tracked lap ended
-			saveCurrentLap(lapData);
-		}
-
-		if(_currentLap) {
-			addLapToRace(_currentLap, lapData);
-		}
+		// A tracked lap ended
+		saveCurrentLap(lapData);
 
 		if(!lastRaceLap) {
 			startLap(lapData);
-		} else if(isRace()) {
-			saveCurrentRace();
 		}
+
+		if(isRace() && _previousLapData.m_lapDistance >= 0.0f) {
+			addLapToRace(_currentLap, lapData);
+		}
+
+		//		if(isRace() && lastRaceLap) {
+		//			saveCurrentRace();
+		//		}
 	}
 
 	//	qInfo() << "Driver:" << _driverIndex << _currentLap->driver.m_name << "Distance:" << lapData.m_lapDistance
-	//			<< "pitStatus:" << lapData.m_pitStatus << "driverStatus: " << lapData.m_driverStatus;
+	//			<< "pitStatus:" << lapData.m_pitStatus << "driverStatus: " << lapData.m_driverStatus << lastRaceLap;
 
-	if((lapData.m_pitStatus > 0 && lapData.m_driverStatus != 3) || lastRaceLap) {
-		if(lapData.m_driverStatus == 2 && _isLapRecorded) { // In lap
+	if((lapData.m_pitStatus > 0 && lapData.m_driverStatus != 3)) {
+		if(lapData.m_driverStatus == 2) { // In lap
 			_currentLap->isInLap = true;
 			saveCurrentLap(lapData);
 		}
@@ -223,7 +224,7 @@ void DriverTracker::saveCurrentStint()
 		++_currentStintNum;
 		Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
 	} else {
-		qWarning() << "Save empty strint !";
+		qWarning() << "Save empty stint !";
 	}
 
 	_currentStint->resetData();
@@ -235,7 +236,6 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 		return;
 	}
 
-	qInfo() << "Lap Time" << lapData.m_currentLapTime << "Last Lap Time" << lapData.m_lastLapTime;
 	_currentLap->averageEndTyreWear = averageTyreWear(_currentStatusData);
 	_currentLap->endTyreWear.setArray(_currentStatusData.m_tyresWear);
 	_currentLap->fuelOnEnd = double(_currentStatusData.m_fuelInTank);
@@ -278,19 +278,18 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->ers.finalize(double(_currentSessionData.m_trackLength));
 	_currentLap->fuelMix.finalize(double(_currentSessionData.m_trackLength));
 
-	auto lapTime = QTime(0, 0).addMSecs(int(_currentLap->lapTime * 1000.0)).toString("m.ss.zzz");
+	if(_isLapRecorded) {
+		makeDriverDir();
+		auto lapTime = QTime(0, 0).addMSecs(int(_currentLap->lapTime * 1000.0)).toString("m.ss.zzz");
+		auto fileName = "Lap" + QString::number(_currentLapNum) + "_" + lapTime + lapType + ".f1lap";
+		auto filePath = driverDataDirectory.absoluteFilePath(fileName);
+		_currentLap->save(filePath);
+		++_currentLapNum;
+		Logger::instance()->log(QString("Lap recorded: ").append(driverDataDirectory.dirName()));
 
-
-	makeDriverDir();
-
-	auto fileName = "Lap" + QString::number(_currentLapNum) + "_" + lapTime + lapType + ".f1lap";
-	auto filePath = driverDataDirectory.absoluteFilePath(fileName);
-	_currentLap->save(filePath);
-	++_currentLapNum;
-	Logger::instance()->log(QString("Lap recorded: ").append(driverDataDirectory.dirName()));
-
-	_timeDiff = 0;
-	addLapToStint(_currentLap);
+		_timeDiff = 0;
+		addLapToStint(_currentLap);
+	}
 }
 
 void DriverTracker::addLapToStint(Lap *lap)
@@ -304,7 +303,7 @@ void DriverTracker::addLapToStint(Lap *lap)
 	_currentStint->recordDate = QDateTime::currentDateTime();
 	_currentStint->endTyreWear = lap->endTyreWear;
 	_currentStint->averageEndTyreWear = lap->averageEndTyreWear;
-	_currentStint->fuelOnEnd = _currentLap->fuelOnEnd;
+	_currentStint->fuelOnEnd = lap->fuelOnEnd;
 	_currentStint->lapTime = addMean(_currentStint->lapTime, lap->lapTime, _currentStint->nbLaps());
 	_currentStint->sector1Time = addMean(_currentStint->sector1Time, lap->sector1Time, _currentStint->nbLaps());
 	_currentStint->sector2Time = addMean(_currentStint->sector2Time, lap->sector2Time, _currentStint->nbLaps());
@@ -335,21 +334,44 @@ void DriverTracker::addLapToStint(Lap *lap)
 
 void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 {
+	if(!_currentRace->hasData()) {
+		makeDriverDir();
+		qDebug() << "RACE Started : " << driverDataDirectory.dirName();
+
+		_currentRace->track = lap->track;
+		_currentRace->driver = lap->driver;
+		_currentRace->session_type = lap->session_type;
+		_currentRace->tyreCompound = lap->tyreCompound;
+		_currentRace->visualTyreCompound = lap->visualTyreCompound;
+		_currentRace->trackTemp = lap->trackTemp;
+		_currentRace->airTemp = lap->airTemp;
+		_currentRace->weather = lap->weather;
+		_currentRace->startTyreWear.frontLeft = lap->startTyreWear.frontLeft;
+		_currentRace->startTyreWear.frontRight = lap->startTyreWear.frontRight;
+		_currentRace->startTyreWear.rearLeft = lap->startTyreWear.rearLeft;
+		_currentRace->startTyreWear.rearRight = lap->startTyreWear.rearRight;
+		_currentRace->averageStartTyreWear = lap->averageStartTyreWear;
+		_currentRace->fuelOnStart = lap->fuelOnStart;
+		_currentRace->setup = lap->setup;
+		_currentRace->recordDate = QDateTime::currentDateTime();
+		_currentRace->trackDistance = lap->trackDistance;
+		_currentRace->startedGridPosition = lapData.m_gridPosition;
+	}
+
 	auto values = {float(lapData.m_carPosition),
-				   float(_currentSessionData.m_sessionDuration),
+				   float(sessionTimePassed()),
 				   lap->lapTime,
 				   float(lap->averageEndTyreWear),
-				   float(lap->calculatedTotalLostTraction),
 				   float(lap->fuelOnEnd),
 				   float(lap->energy / 1000.0),
 				   float(_currentSessionData.m_weather),
 				   float(_currentSessionData.m_trackTemperature),
 				   float(_currentSessionData.m_airTemperature)};
-	_currentRace->addData(_currentLap->countData() + 1, values);
+	_currentRace->addData(_currentRace->countData() + 1, values);
 	_currentRace->recordDate = QDateTime::currentDateTime();
 	_currentRace->endTyreWear = lap->endTyreWear;
 	_currentRace->averageEndTyreWear = lap->averageEndTyreWear;
-	_currentRace->fuelOnEnd = _currentLap->fuelOnEnd;
+	_currentRace->fuelOnEnd = lap->fuelOnEnd;
 	_currentRace->lapTime = addMean(_currentRace->lapTime, lap->lapTime, _currentRace->nbLaps());
 	_currentRace->sector1Time = addMean(_currentRace->sector1Time, lap->sector1Time, _currentRace->nbLaps());
 	_currentRace->sector2Time = addMean(_currentRace->sector2Time, lap->sector2Time, _currentRace->nbLaps());
@@ -363,8 +385,6 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 	}
 
 	_currentRace->nbFlashback += lap->nbFlashback;
-
-	_currentRace->startedGridPosition = lapData.m_gridPosition;
 	_currentRace->endPosition = lapData.m_carPosition;
 }
 
@@ -387,12 +407,12 @@ void DriverTracker::recordRaceLapEvents(const LapData &lapData)
 		}
 
 		if(_previousLapData.m_pitStatus == 0 && lapData.m_pitStatus > 0) {
-			startPitTime = _currentSessionData.m_sessionDuration;
+			startPitTime = sessionTimePassed();
 			recordRaceStint();
 		}
 
 		if(_previousLapData.m_pitStatus > 0 && lapData.m_pitStatus == 0) {
-			_currentRace->pitstops << _currentSessionData.m_sessionDuration - startPitTime;
+			_currentRace->pitstops << sessionTimePassed() - startPitTime;
 		}
 	} else {
 		if(_previousLapData.m_pitStatus == 0 && lapData.m_pitStatus > 0) {
@@ -417,7 +437,12 @@ void DriverTracker::saveCurrentRace()
 		recordRaceStint();
 
 		auto fileName = driverDataDirectory.dirName() + ".f1race";
-		auto filePath = dataDirectory.absoluteFilePath(fileName);
+		auto raceDir = dataDirectory;
+		auto sessionType = UdpSpecification::instance()->session_type(_currentRace->session_type);
+		auto raceDirName = QString("_Race Data (").append(sessionType).append(")");
+		raceDir.mkdir(raceDirName);
+		raceDir.cd(raceDirName);
+		auto filePath = raceDir.absoluteFilePath(fileName);
 		_currentRace->save(filePath);
 		Logger::instance()->log(QString("Race recorded: ").append(driverDataDirectory.dirName()));
 	} else {
@@ -452,7 +477,7 @@ void DriverTracker::startLap(const LapData &lapData)
 	_currentLap->energyBalance = _currentStatusData.m_ersStoreEnergy;
 
 
-	if(!_currentStint->hasData() and driverDirDefined) {
+	if(!_currentStint->hasData() && driverDirDefined) {
 		qDebug() << "STINT Started : " << driverDataDirectory.dirName();
 
 		// A new stint started
@@ -541,8 +566,8 @@ void DriverTracker::participant(const PacketHeader &header, const PacketParticip
 
 void DriverTracker::makeDriverDir()
 {
-	auto driverData = _currentLap->driver;
 	if(!driverDirDefined) {
+		auto driverData = _currentLap->driver;
 		auto team = UdpSpecification::instance()->team(driverData.m_teamId);
 		auto subDirName = driverData.m_name + " " + team;
 		if(dataDirectory.mkdir(subDirName)) {
@@ -563,6 +588,11 @@ void DriverTracker::makeDriverDir()
 	}
 }
 
+int DriverTracker::sessionTimePassed()
+{
+	return _currentSessionData.m_sessionDuration - _currentSessionData.m_sessionTimeLeft;
+}
+
 void DriverTracker::motionData(const PacketHeader &header, const PacketMotionData &data)
 {
 	Q_UNUSED(header)
@@ -573,22 +603,32 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 {
 	Q_UNUSED(header)
 	switch(data.event) {
-		case Event::SessionEnded:
 		case Event::ChequeredFlag:
-			//			qInfo() << "E" << _previousLapData.m_lapDistance << _currentSessionData.m_trackLength
-			//					<< _previousLapData.m_pitStatus << _previousLapData.m_driverStatus;
-			if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 &&
-			   _previousLapData.m_pitStatus == 0) {
-				saveCurrentLap(_previousLapData);
-			}
-			saveCurrentStint();
-			saveCurrentRace();
+			qInfo() << "Delayed end of race";
+			QTimer::singleShot(120 * 1000, [this]() { onSessionEnd(); });
+			break;
+		case Event::SessionEnded:
+			onSessionEnd();
 			break;
 		default:
 			break;
 	}
 
 	qDebug() << "Event Received : " << data.m_eventStringCode << int(data.event);
+}
+
+void DriverTracker::onSessionEnd()
+{
+	if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {
+		saveCurrentLap(_previousLapData);
+
+		if(isRace() && _currentLap->hasData()) {
+			addLapToRace(_currentLap, _previousLapData);
+		}
+	}
+	saveCurrentStint();
+	saveCurrentRace();
+	_currentLap->resetData();
 }
 
 bool DriverTracker::finishLineCrossed(const LapData &data) const

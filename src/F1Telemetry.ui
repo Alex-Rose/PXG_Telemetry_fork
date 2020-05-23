@@ -43,6 +43,11 @@
         <string>Stints Analysis</string>
        </attribute>
       </widget>
+      <widget class="CompareRaceWidget" name="compareRaceWidget">
+       <attribute name="title">
+        <string>Race Analysis</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -85,6 +90,12 @@
    <class>CompareStintsWidget</class>
    <extends>QWidget</extends>
    <header>CompareStintsWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CompareRaceWidget</class>
+   <extends>QWidget</extends>
+   <header>CompareRaceWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -66,6 +66,7 @@ void F1Telemetry::loadSettings()
 	ui->trackingWidget->loadSettings(&settings);
 	ui->compareLapsWidget->loadSettings(&settings);
 	ui->compareStintsWidget->loadSettings(&settings);
+	ui->compareRaceWidget->loadSettings(&settings);
 
 	restoreGeometry(settings.value("windowGeometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
@@ -77,7 +78,8 @@ void F1Telemetry::saveSetings()
 	QSettings settings;
 	ui->trackingWidget->saveSettings(&settings);
 	ui->compareLapsWidget->saveSettings(&settings);
-	ui->compareStintsWidget->loadSettings(&settings);
+	ui->compareStintsWidget->saveSettings(&settings);
+	ui->compareRaceWidget->saveSettings(&settings);
 
 	settings.setValue("windowGeometry", saveGeometry());
 	settings.setValue("windowState", saveState());

@@ -8,6 +8,7 @@
 
 class Lap;
 class Stint;
+class Race;
 
 
 class DriverTracker : public F1PacketInterface
@@ -44,6 +45,7 @@ class DriverTracker : public F1PacketInterface
 	bool _isLapRecorded = false;
 	Lap *_currentLap = nullptr;
 	Stint *_currentStint = nullptr;
+	Race *_currentRace = nullptr;
 	int _currentLapNum = 1;
 	int _currentStintNum = 1;
 	double _startErsBalance = 0;
@@ -60,6 +62,9 @@ class DriverTracker : public F1PacketInterface
 
 	void saveCurrentStint();
 	void addLapToStint(Lap *lap);
+
+	void addLapToRace(Lap *lap, const LapData &lapData);
+	void saveCurrentRace();
 
 	void saveCurrentLap(const LapData &lapData);
 	void startLap(const LapData &lapData);

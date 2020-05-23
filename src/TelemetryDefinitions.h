@@ -15,6 +15,7 @@ class TelemetryDefinitions
 	static const QVector<TelemetryInfo> TELEMETRY_INFO;
 	static const QVector<TelemetryInfo> EXTENDED_TELEMETRY_INFO;
 	static const QVector<TelemetryInfo> TELEMETRY_STINT_INFO;
+	static const QVector<TelemetryInfo> TELEMETRY_RACE_INFO;
 
 	static int indexOfLapTelemetry(const QString &name);
 	static int indexOfStintTelemetry(const QString &name);

@@ -51,6 +51,7 @@ class CompareTelemetryWidget : public QWidget
 	QToolBar *_toolbar;
 	QMenu *_telemetryContextMenu;
 	int _trackIndex = -1;
+	bool _selectionHighlighted = true;
 
 	QSignalMapper *_diffCheckMapper;
 	QSignalMapper *_statsCheckMapper;
@@ -82,6 +83,9 @@ class CompareTelemetryWidget : public QWidget
 	int ceilToDigit(int num, int roundFactor = 2) const;
 	int floorToDigit(int num, int roundFactor = 2) const;
 
+	void highlight(int lapIndex);
+	void refreshHighlighting();
+
   protected slots:
 	virtual void browseData() {}
 
@@ -109,6 +113,7 @@ class CompareTelemetryWidget : public QWidget
 	void updateDataVisibilities();
 	void variableChecked(bool value);
 	void home();
+	void highlightSelection(bool value);
 	void distanceZoomChanged(qreal min, qreal max);
 	void telemetryDataSelected(const QModelIndex &current, const QModelIndex &previous);
 	void changeVariableDiff(int varIndex);

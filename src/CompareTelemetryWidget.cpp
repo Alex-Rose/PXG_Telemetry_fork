@@ -23,6 +23,9 @@ const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
 const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
+const int HIGHLIGHTED_LINE_WIDTH = 3;
+const int NORMAL_LINE_WIDTH = 1;
+
 enum class ChartConfigurationWidgetType { Diff = 0, Stats = 1 };
 
 CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *parent)
@@ -64,6 +67,11 @@ void CompareTelemetryWidget::initActions()
 {
 	auto homeAction = _toolbar->addAction("Home", this, &CompareTelemetryWidget::home);
 	homeAction->setShortcut(Qt::Key_Escape);
+
+	auto hightlightAction =
+		_toolbar->addAction("Highlight Selection", this, &CompareTelemetryWidget::highlightSelection);
+	hightlightAction->setCheckable(true);
+	hightlightAction->setChecked(_selectionHighlighted);
 
 	ui->lapsTableView->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui->lapsTableView, &QTableView::customContextMenuRequested, this,
@@ -123,10 +131,6 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 				chart->addSeries(statsSeries);
 			}
 		}
-
-
-		// Uncomment to print the track distance under the mouse
-		// connect(lineSeries, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
 
 	if(chart->series().isEmpty()) {
@@ -423,6 +427,25 @@ void CompareTelemetryWidget::setTrackIndex(int trackIndex)
 	}
 }
 
+void CompareTelemetryWidget::highlight(int lapIndex)
+{
+	for(const auto &chartView : _variablesCharts) {
+		int index = 0;
+		for(const auto &serie : chartView->chart()->series()) {
+			if(serie->type() == QAbstractSeries::SeriesTypeLine) {
+				auto lineSerie = static_cast<QXYSeries *>(serie);
+				auto pen = lineSerie->pen();
+				pen.setWidth(lapIndex == index && _selectionHighlighted ? HIGHLIGHTED_LINE_WIDTH : NORMAL_LINE_WIDTH);
+				lineSerie->setPen(pen);
+			}
+
+			++index;
+		}
+	}
+}
+
+void CompareTelemetryWidget::refreshHighlighting() { highlight(ui->lapsTableView->currentIndex().row()); }
+
 void CompareTelemetryWidget::clearVariables()
 {
 	for(auto it = _variableCheckboxes.constBegin(); it != _variableCheckboxes.constEnd(); ++it) {
@@ -469,6 +492,12 @@ void CompareTelemetryWidget::home()
 		chartView->home();
 }
 
+void CompareTelemetryWidget::highlightSelection(bool value)
+{
+	_selectionHighlighted = value;
+	refreshHighlighting();
+}
+
 void CompareTelemetryWidget::distanceZoomChanged(qreal min, qreal max)
 {
 	auto chart = qobject_cast<QChart *>(sender());
@@ -484,6 +513,8 @@ void CompareTelemetryWidget::telemetryDataSelected(const QModelIndex &current, c
 	Q_UNUSED(previous);
 	const auto &data = _telemetryDataModel->getTelemetryData().value(current.row());
 	fillInfoTree(ui->infoTreeWidget, data);
+
+	highlight(current.row());
 
 	//	ui->lapInfo->setLap(data);
 }
@@ -501,6 +532,7 @@ void CompareTelemetryWidget::changeVariableDiff(int varIndex)
 	auto newAxis = qobject_cast<QValueAxis *>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	newAxis->setRange(prevMin, prevMax);
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
+	refreshHighlighting();
 }
 
 void CompareTelemetryWidget::changeStats(int varIndex)

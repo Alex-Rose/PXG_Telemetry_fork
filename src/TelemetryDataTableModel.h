@@ -38,6 +38,9 @@ class TelemetryDataTableModel : public QAbstractTableModel
 
 	QColor getNewColor();
 
+	void setVisibleAllExcept(int row, bool value);
+	void setVisibleAll(bool value);
+
   private:
 	QVector<TelemetryData *> _telemetryData;
 	QVector<bool> _visibility;

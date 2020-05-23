@@ -7,7 +7,8 @@
 
 #include <QtDebug>
 
-const QList<QColor> BASIC_COLOR_LIST = {QColor(41, 141, 198), QColor(153, 202, 83), QColor(246, 166, 83), QColor(190, 95, 213)};
+const QList<QColor> BASIC_COLOR_LIST = {QColor(41, 141, 198), QColor(153, 202, 83), QColor(246, 166, 83),
+										QColor(190, 95, 213)};
 
 TelemetryDataTableModel::TelemetryDataTableModel()
 {
@@ -150,3 +151,19 @@ QColor TelemetryDataTableModel::getNewColor()
 
 	return QColor(Qt::black);
 }
+
+void TelemetryDataTableModel::setVisibleAllExcept(int row, bool value)
+{
+	for(auto i = 0; i < _visibility.count(); ++i) {
+		if(value) {
+			_visibility[i] = i != row;
+		} else {
+			_visibility[i] = i == row;
+		}
+	}
+
+	emit dataChanged(QModelIndex(), QModelIndex());
+	emit visibilityChanged();
+}
+
+void TelemetryDataTableModel::setVisibleAll(bool value) { setVisibleAllExcept(-1, value); }

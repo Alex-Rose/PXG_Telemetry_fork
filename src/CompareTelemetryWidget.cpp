@@ -78,10 +78,34 @@ void CompareTelemetryWidget::initActions()
 			&CompareTelemetryWidget::telemetryTableContextMenu);
 
 	_telemetryContextMenu = new QMenu(this);
-	auto setRefAction = _telemetryContextMenu->addAction("Define as reference lap (R)");
+	auto setRefAction = _telemetryContextMenu->addAction("Define as reference (R)");
 	setRefAction->setShortcut(Qt::Key_R);
 	connect(setRefAction, &QAction::triggered, this, &CompareTelemetryWidget::changeReferenceData);
 	addAction(setRefAction);
+
+	addAction(_telemetryContextMenu->addSeparator());
+
+	auto checkAllAction = _telemetryContextMenu->addAction("Check All");
+	connect(checkAllAction, &QAction::triggered, this, [this]() { _telemetryDataModel->setVisibleAll(true); });
+	addAction(checkAllAction);
+
+	auto checkOthersAction = _telemetryContextMenu->addAction("Check Others");
+	connect(checkOthersAction, &QAction::triggered, this,
+			[this]() { _telemetryDataModel->setVisibleAllExcept(ui->lapsTableView->currentIndex().row(), true); });
+	addAction(checkOthersAction);
+
+	addAction(_telemetryContextMenu->addSeparator());
+
+	auto uncheckAllAction = _telemetryContextMenu->addAction("Uncheck All");
+	connect(uncheckAllAction, &QAction::triggered, this, [this]() { _telemetryDataModel->setVisibleAll(false); });
+	addAction(uncheckAllAction);
+
+	auto uncheckOthersAction = _telemetryContextMenu->addAction("Uncheck Others");
+	connect(uncheckOthersAction, &QAction::triggered, this,
+			[this]() { _telemetryDataModel->setVisibleAllExcept(ui->lapsTableView->currentIndex().row(), false); });
+	addAction(uncheckOthersAction);
+
+	addAction(_telemetryContextMenu->addSeparator());
 
 	auto removeAction = _telemetryContextMenu->addAction("Rem");
 	removeAction->setShortcut(QKeySequence::Delete);

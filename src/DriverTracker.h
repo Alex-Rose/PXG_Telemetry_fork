@@ -43,6 +43,7 @@ class DriverTracker : public F1PacketInterface
 	CarStatusData _currentStatusData;
 	PacketMotionData _currentMotionData;
 	bool _isLapRecorded = false;
+	bool _sessionFlashbackOccured = false;
 	Lap *_currentLap = nullptr;
 	Stint *_currentStint = nullptr;
 	Race *_currentRace = nullptr;
@@ -52,18 +53,23 @@ class DriverTracker : public F1PacketInterface
 	double _timeDiff = 0;
 	double _previousTelemetryDistance = 0;
 
+	float startPitTime = 0;
+
 	TyresData<DegradationData> degradations;
 
 	bool finishLineCrossed(const LapData &data) const;
 	bool flashbackDetected(const LapData &data) const;
 	double averageTyreWear(const CarStatusData &carStatus) const;
 
+	bool isRace() const;
 	bool isLastRaceLap(const LapData &data) const;
 
 	void saveCurrentStint();
 	void addLapToStint(Lap *lap);
 
 	void addLapToRace(Lap *lap, const LapData &lapData);
+	void recordRaceStint();
+	void recordRaceLapEvents(const LapData &lapData);
 	void saveCurrentRace();
 
 	void saveCurrentLap(const LapData &lapData);

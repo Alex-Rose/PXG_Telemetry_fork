@@ -10,6 +10,7 @@ class Race : public Lap
 	Race(const QVector<TelemetryInfo> &dataInfo = {});
 
 	QString description() const;
+	void resetData();
 
 	int nbLaps() const;
 
@@ -18,6 +19,7 @@ class Race : public Lap
 
 	int penalties;
 	int nbSafetyCars;
+	int nbVirtualSafetyCars;
 	QList<float> pitstops;
 	QVector<int> stintsLaps;
 	QVector<int> stintsTyre;

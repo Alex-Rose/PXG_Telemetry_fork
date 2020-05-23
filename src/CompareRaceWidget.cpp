@@ -54,6 +54,7 @@ void CompareRaceWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	auto raceResultItem = new QTreeWidgetItem(tree, {"Race Result", QString::number(race->endPosition)});
 	new QTreeWidgetItem(raceResultItem, {"Started Position", QString::number(race->startedGridPosition)});
 	new QTreeWidgetItem(raceResultItem, {"Safety Cars", QString::number(race->nbSafetyCars)});
+	new QTreeWidgetItem(raceResultItem, {"Virtual Safety Cars", QString::number(race->nbVirtualSafetyCars)});
 	new QTreeWidgetItem(raceResultItem, {"Total Pernalties", QString::number(race->penalties) + "s"});
 	tree->expandItem(raceResultItem);
 

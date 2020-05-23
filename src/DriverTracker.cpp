@@ -15,6 +15,7 @@ DriverTracker::DriverTracker(int driverIndex) : _driverIndex(driverIndex)
 {
 	_currentLap = new Lap(TelemetryDefinitions::TELEMETRY_INFO);
 	_currentStint = new Stint(TelemetryDefinitions::TELEMETRY_STINT_INFO);
+	_currentRace = new Race(TelemetryDefinitions::TELEMETRY_RACE_INFO);
 }
 
 void DriverTracker::init(const QDir &directory)
@@ -23,10 +24,8 @@ void DriverTracker::init(const QDir &directory)
 	driverDirDefined = false;
 	_extendedPlayerTelemetry = false;
 	_currentLap->setTelemetryInfo(TelemetryDefinitions::TELEMETRY_INFO);
+	_currentRace->resetData();
 	_isLapRecorded = false;
-
-	delete _currentLap;
-	_currentLap = nullptr;
 }
 
 void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data)
@@ -135,6 +134,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 	auto lastRaceLap = isLastRaceLap(lapData);
 
+	if(isRace()) {
+		recordRaceLapEvents(lapData);
+	}
+
 	// Out lap recording - désactivated because telemetry during this lap is not working properly
 	//	if(!_isLapRecorded && lapData.m_driverStatus == 3 && lapData.m_pitStatus == 0 &&
 	//	   ((lapData.m_lapDistance > 0 && lapData.m_lapDistance < _currentSessionData.m_trackLength / 4.0) ||
@@ -145,6 +148,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	//		_timeDiff = lapData.m_currentLapTime;
 	//		_currentLap->isOutLap = true;
 	//	}
+
+	if(flashbackDetected(lapData)) {
+		_sessionFlashbackOccured = true;
+	}
 
 	if(_isLapRecorded && flashbackDetected(lapData)) {
 		// Flashback
@@ -168,7 +175,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 		if(!lastRaceLap) {
 			startLap(lapData);
-		} else {
+		} else if(isRace()) {
 			saveCurrentRace();
 		}
 	}
@@ -220,7 +227,6 @@ void DriverTracker::saveCurrentStint()
 	}
 
 	_currentStint->resetData();
-	_currentStint->clearData();
 }
 
 void DriverTracker::saveCurrentLap(const LapData &lapData)
@@ -329,10 +335,6 @@ void DriverTracker::addLapToStint(Lap *lap)
 
 void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 {
-	if(!_currentRace) {
-		return;
-	}
-
 	auto values = {float(lapData.m_carPosition),
 				   float(_currentSessionData.m_sessionDuration),
 				   lap->lapTime,
@@ -361,12 +363,58 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 	}
 
 	_currentRace->nbFlashback += lap->nbFlashback;
+
+	_currentRace->startedGridPosition = lapData.m_gridPosition;
+	_currentRace->endPosition = lapData.m_carPosition;
+}
+
+void DriverTracker::recordRaceStint()
+{
+	_currentRace->stintsTyre << _currentStatusData.m_tyreVisualCompound;
+
+	auto previousStintsLaps = 0;
+	for(const auto &num : _currentRace->stintsLaps) {
+		previousStintsLaps += num;
+	}
+	_currentRace->stintsLaps << _currentSessionData.m_totalLaps - previousStintsLaps;
+}
+
+void DriverTracker::recordRaceLapEvents(const LapData &lapData)
+{
+	if(!flashbackDetected(lapData)) {
+		if(_previousLapData.m_penalties < lapData.m_penalties) {
+			_currentRace->penalties += lapData.m_penalties - _previousLapData.m_penalties;
+		}
+
+		if(_previousLapData.m_pitStatus == 0 && lapData.m_pitStatus > 0) {
+			startPitTime = _currentSessionData.m_sessionDuration;
+			recordRaceStint();
+		}
+
+		if(_previousLapData.m_pitStatus > 0 && lapData.m_pitStatus == 0) {
+			_currentRace->pitstops << _currentSessionData.m_sessionDuration - startPitTime;
+		}
+	} else {
+		if(_previousLapData.m_pitStatus == 0 && lapData.m_pitStatus > 0) {
+			_currentRace->pitstops.removeLast();
+		}
+		if(_previousLapData.m_pitStatus > 0 && lapData.m_pitStatus == 0) {
+			_currentRace->stintsTyre.removeLast();
+			_currentRace->stintsLaps.removeLast();
+		}
+
+		if(_previousLapData.m_penalties > lapData.m_penalties) {
+			_currentRace->penalties -= _previousLapData.m_penalties - lapData.m_penalties;
+		}
+	}
 }
 
 void DriverTracker::saveCurrentRace()
 {
-	if(_currentRace && _currentRace->hasData()) {
-		// A stint ended
+	if(isRace() && _currentRace->hasData()) {
+		// A race ended
+
+		recordRaceStint();
 
 		auto fileName = driverDataDirectory.dirName() + ".f1race";
 		auto filePath = dataDirectory.absoluteFilePath(fileName);
@@ -377,7 +425,6 @@ void DriverTracker::saveCurrentRace()
 	}
 
 	_currentRace->resetData();
-	_currentRace->clearData();
 }
 
 void DriverTracker::startLap(const LapData &lapData)
@@ -439,11 +486,37 @@ void DriverTracker::startLap(const LapData &lapData)
 void DriverTracker::sessionData(const PacketHeader &header, const PacketSessionData &data)
 {
 	Q_UNUSED(header)
-	_currentSessionData = data;
 
-	if(!_currentRace && (data.m_sessionType == 10 || data.m_sessionType == 11)) {
-		_currentRace = new Race(TelemetryDefinitions::TELEMETRY_RACE_INFO);
+	if(isRace()) {
+		if(!_sessionFlashbackOccured && _currentSessionData.m_safetyCarStatus == 0 && data.m_safetyCarStatus > 0) {
+			// The safety car appears
+			switch(data.m_safetyCarStatus) {
+				case 1:
+					_currentRace->nbSafetyCars += 1;
+					break;
+				case 2:
+					_currentRace->nbVirtualSafetyCars += 1;
+					break;
+				default:
+					break;
+			}
+		} else if(_sessionFlashbackOccured && _currentSessionData.m_safetyCarStatus > 0 &&
+				  data.m_safetyCarStatus == 0) {
+			switch(_currentSessionData.m_safetyCarStatus) {
+				case 1:
+					_currentRace->nbSafetyCars -= 1;
+					break;
+				case 2:
+					_currentRace->nbVirtualSafetyCars -= 1;
+					break;
+				default:
+					break;
+			}
+		}
 	}
+
+	_currentSessionData = data;
+	_sessionFlashbackOccured = false;
 }
 
 void DriverTracker::setupData(const PacketHeader &header, const PacketCarSetupData &data)
@@ -546,7 +619,12 @@ double DriverTracker::averageTyreWear(const CarStatusData &carStatus) const
 		   4.0;
 }
 
+bool DriverTracker::isRace() const
+{
+	return _currentSessionData.m_sessionType == 10 || _currentSessionData.m_sessionType == 11;
+}
+
 bool DriverTracker::isLastRaceLap(const LapData &data) const
 {
-	return _currentRace && data.m_currentLapNum == _currentSessionData.m_totalLaps;
+	return isRace() && data.m_currentLapNum == _currentSessionData.m_totalLaps;
 }

@@ -18,7 +18,7 @@ class Lap : public TelemetryData
 
 	virtual QString description() const;
 
-	void resetData();
+	virtual void resetData();
 	void removeTelemetryFrom(float distance);
 
 	// Metadata

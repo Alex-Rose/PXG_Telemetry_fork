@@ -10,6 +10,15 @@ QString Race::description() const
 	return driver.m_name + " " + team + " - " + trackName + " - " + nbLap + "Laps";
 }
 
+void Race::resetData()
+{
+	Lap::resetData();
+
+	pitstops.clear();
+	stintsLaps.clear();
+	stintsTyre.clear();
+}
+
 int Race::nbLaps() const { return countData(); }
 
 Race *Race::fromFile(const QString &filename)
@@ -25,8 +34,8 @@ void Race::saveData(QDataStream &out) const
 	QByteArray lapData;
 	QDataStream outLap(&lapData, QIODevice::WriteOnly);
 	Lap::saveData(outLap);
-	out << lapData << penalties << nbSafetyCars << pitstops << stintsLaps << stintsTyre << startedGridPosition
-		<< endPosition;
+	out << lapData << penalties << nbSafetyCars << nbVirtualSafetyCars << pitstops << stintsLaps << stintsTyre
+		<< startedGridPosition << endPosition;
 }
 
 void Race::loadData(QDataStream &in)
@@ -36,6 +45,6 @@ void Race::loadData(QDataStream &in)
 	QDataStream inLap(&lapData, QIODevice::ReadOnly);
 	Lap::loadData(inLap);
 
-	in >> lapData >> penalties >> nbSafetyCars >> pitstops >> stintsLaps >> stintsTyre >> startedGridPosition >>
-		endPosition;
+	in >> lapData >> penalties >> nbSafetyCars >> nbVirtualSafetyCars >> pitstops >> stintsLaps >> stintsTyre >>
+		startedGridPosition >> endPosition;
 }

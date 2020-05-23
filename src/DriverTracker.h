@@ -55,6 +55,8 @@ class DriverTracker : public F1PacketInterface
 
 	float startPitTime = 0;
 
+	int lastRaceSessionPassedTime = 0;
+
 	TyresData<DegradationData> degradations;
 
 	bool finishLineCrossed(const LapData &data) const;

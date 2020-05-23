@@ -269,6 +269,11 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 		_currentLap->sector3Time =
 			lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
 	}
+
+	if(std::isnan(_currentLap->lapTime)) {
+		_currentLap->lapTime = 0;
+	}
+
 	_currentLap->energy = double(_currentStatusData.m_ersStoreEnergy);
 	_currentLap->harvestedEnergy =
 		double(_currentStatusData.m_ersHarvestedThisLapMGUH + _currentStatusData.m_ersHarvestedThisLapMGUK);
@@ -358,8 +363,15 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 		_currentRace->startedGridPosition = lapData.m_gridPosition;
 	}
 
+	float raceTime = lastRaceSessionPassedTime;
+	if(raceTime == 0.0f || lap->lapTime == 0.0f) {
+		raceTime = sessionTimePassed();
+	} else {
+		raceTime += lap->lapTime;
+	}
+
 	auto values = {float(lapData.m_carPosition),
-				   float(sessionTimePassed()),
+				   raceTime,
 				   lap->lapTime,
 				   float(lap->averageEndTyreWear),
 				   float(lap->fuelOnEnd),
@@ -367,6 +379,8 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 				   float(_currentSessionData.m_weather),
 				   float(_currentSessionData.m_trackTemperature),
 				   float(_currentSessionData.m_airTemperature)};
+	lastRaceSessionPassedTime = sessionTimePassed();
+
 	_currentRace->addData(_currentRace->countData() + 1, values);
 	_currentRace->recordDate = QDateTime::currentDateTime();
 	_currentRace->endTyreWear = lap->endTyreWear;
@@ -604,7 +618,7 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 	Q_UNUSED(header)
 	switch(data.event) {
 		case Event::ChequeredFlag:
-			qInfo() << "Delayed end of race";
+			// Ensure the last lap is saved, event if the sessionEnd event is not raised
 			QTimer::singleShot(120 * 1000, [this]() { onSessionEnd(); });
 			break;
 		case Event::SessionEnded:

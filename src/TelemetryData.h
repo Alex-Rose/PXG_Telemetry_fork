@@ -34,6 +34,8 @@ class TelemetryData
 	QVector<float> xValues() const;
 	QVector<float> data(int index) const;
 
+	QVector<float> lastRecordedData() const;
+
 	void setTelemetryInfo(const QVector<TelemetryInfo> &dataNames);
 	virtual QVector<TelemetryInfo> availableData() const { return _telemetryInfo; }
 

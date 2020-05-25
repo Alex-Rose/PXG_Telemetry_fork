@@ -30,6 +30,10 @@ void Lap::resetData()
 	innerTemperatures.frontRight.clear();
 	innerTemperatures.rearLeft.clear();
 	innerTemperatures.rearRight.clear();
+	startTyreWear.frontLeft = 0.0;
+	startTyreWear.frontRight = 0.0;
+	startTyreWear.rearLeft = 0.0;
+	startTyreWear.rearRight = 0.0;
 	nbFlashback = 0;
 	isOutLap = false;
 	isInLap = false;

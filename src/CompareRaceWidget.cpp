@@ -37,9 +37,9 @@ void CompareRaceWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	auto nbStints = qMin(race->stintsLaps.count(), race->stintsTyre.count());
 	auto stintsItem = new QTreeWidgetItem(tree, {"Stints", QString::number(nbStints)});
 	for(int i = 0; i < nbStints; ++i) {
-		new QTreeWidgetItem(stintsItem, {"Laps", QString::number(race->stintsLaps.value(i))});
 		auto compound = UdpSpecification::instance()->tyre(race->stintsTyre.value(i));
-		new QTreeWidgetItem(stintsItem, {"Tyre Compound", compound});
+		auto stintDesc = QString("%1 (%2 Laps)").arg(compound).arg(race->stintsLaps.value(i));
+		new QTreeWidgetItem(stintsItem, {"Stint " + QString::number(i + 1), stintDesc});
 	}
 	tree->expandItem(stintsItem);
 
@@ -47,7 +47,7 @@ void CompareRaceWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	auto pitstopItem = new QTreeWidgetItem(tree, {"Pitstops", QString::number(nbPitstops)});
 	for(int i = 0; i < nbPitstops; ++i) {
 		new QTreeWidgetItem(pitstopItem,
-							{"Pitstop " + QString::number(i), QString::number(race->pitstops.value(i)) + "s"});
+							{"Pitstop " + QString::number(i + 1), QString::number(race->pitstops.value(i)) + "s"});
 	}
 	tree->expandItem(pitstopItem);
 

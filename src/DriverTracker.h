@@ -52,6 +52,7 @@ class DriverTracker : public F1PacketInterface
 	double _startErsBalance = 0;
 	double _timeDiff = 0;
 	double _previousTelemetryDistance = 0;
+	bool _raceFinished = false;
 
 	float startPitTime = 0;
 
@@ -70,10 +71,11 @@ class DriverTracker : public F1PacketInterface
 	void addLapToStint(Lap *lap);
 
 	void addLapToRace(Lap *lap, const LapData &lapData);
-	void recordRaceStint();
+	void recordRaceStint(const LapData &lapData);
 	void recordRaceLapEvents(const LapData &lapData);
 	void saveCurrentRace();
 
+	void initLap(Lap *lap, const LapData &lapData);
 	void saveCurrentLap(const LapData &lapData);
 	void startLap(const LapData &lapData);
 

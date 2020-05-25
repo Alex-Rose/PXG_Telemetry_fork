@@ -27,8 +27,10 @@ int TelemetryData::countData() const { return _data.count(); }
 
 void TelemetryData::removeLastData()
 {
-	_xValues.removeLast();
-	_data.removeLast();
+	if(hasData()) {
+		_xValues.removeLast();
+		_data.removeLast();
+	}
 }
 
 QVector<float> TelemetryData::xValues() const { return _xValues; }
@@ -44,6 +46,8 @@ QVector<float> TelemetryData::data(int index) const
 
 	return dataValues;
 }
+
+QVector<float> TelemetryData::lastRecordedData() const { return _data.last(); }
 
 void TelemetryData::setTelemetryInfo(const QVector<TelemetryInfo> &dataNames) { _telemetryInfo = dataNames; }
 

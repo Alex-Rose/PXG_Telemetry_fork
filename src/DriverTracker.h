@@ -14,7 +14,7 @@ class Race;
 class DriverTracker : public F1PacketInterface
 {
   public:
-	DriverTracker(int driverIndex = 0);
+	DriverTracker(int driverIndex = 0, bool raceOnly = false);
 	virtual ~DriverTracker() override {}
 
 	void init(const QDir &directory);
@@ -34,6 +34,7 @@ class DriverTracker : public F1PacketInterface
   protected:
 	bool _extendedPlayerTelemetry = false;
 	int _driverIndex;
+	bool _raceOnly;
 	bool _isPlayer = false;
 	QDir dataDirectory;
 	bool driverDirDefined = false;

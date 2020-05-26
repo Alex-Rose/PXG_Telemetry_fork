@@ -44,6 +44,7 @@ void TrackingWidget::saveSettings(QSettings *settings)
 	settings->setValue("trackPlayer", ui->player->isChecked());
 	settings->setValue("trackTeammate", ui->teammate->isChecked());
 	settings->setValue("trackAll", ui->allcars->isChecked());
+	settings->setValue("trackAllRace", ui->allRace->isChecked());
 	settings->endGroup();
 }
 
@@ -55,6 +56,7 @@ void TrackingWidget::loadSettings(QSettings *settings)
 	ui->player->setChecked(settings->value("trackPlayer").toBool());
 	ui->teammate->setChecked(settings->value("trackTeammate").toBool());
 	ui->allcars->setChecked(settings->value("trackAll").toBool());
+	ui->allRace->setChecked(settings->value("trackAllRace").toBool());
 	settings->endGroup();
 }
 
@@ -114,7 +116,8 @@ void TrackingWidget::showQuickInstructions()
 						   "Launch a session in F1 2019, when the name of the session appear, select the drivers you "
 						   "want to track and click \"Start\".";
 
-	QMessageBox msgBox(QMessageBox::Information, "Quick Connection Instructions", instructionText, QMessageBox::Ok, this);
+	QMessageBox msgBox(QMessageBox::Information, "Quick Connection Instructions", instructionText, QMessageBox::Ok,
+					   this);
 	QSpacerItem *horizontalSpacer = new QSpacerItem(800, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	QGridLayout *layout = (QGridLayout *)msgBox.layout();
 	layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
@@ -150,7 +153,8 @@ void TrackingWidget::startStop()
 		if(ui->leDataDir->text().isEmpty()) {
 			browseDataDirectory();
 			if(ui->leDataDir->text().isEmpty()) {
-				QMessageBox::critical(this, "Missing data directory", "A data directory where the data will be stored must be selected.");
+				QMessageBox::critical(this, "Missing data directory",
+									  "A data directory where the data will be stored must be selected.");
 				return;
 			}
 		}
@@ -160,7 +164,8 @@ void TrackingWidget::startStop()
 			if(_driverCheckBoxes[i]->isChecked())
 				trackedId << i;
 		}
-		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), ui->allcars->isChecked(), trackedId);
+		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), ui->allcars->isChecked(),
+						   ui->allRace->isChecked(), trackedId);
 	} else {
 		emit stopStracking();
 	}
@@ -168,8 +173,8 @@ void TrackingWidget::startStop()
 
 void TrackingWidget::browseDataDirectory()
 {
-	auto directory = QFileDialog::getExistingDirectory(this, "Please select the directory where the data should be stored",
-													   ui->leDataDir->text());
+	auto directory = QFileDialog::getExistingDirectory(
+		this, "Please select the directory where the data should be stored", ui->leDataDir->text());
 	ui->leDataDir->setText(directory);
 	QDir::setCurrent(directory);
 }
@@ -179,6 +184,8 @@ void TrackingWidget::allCarsChecked(bool checked)
 	for(const auto &check : _driverCheckBoxes) {
 		check->setDisabled(checked);
 	}
+
+	ui->allRace->setDisabled(checked);
 }
 
 void TrackingWidget::editPort()
@@ -186,7 +193,8 @@ void TrackingWidget::editPort()
 	auto port = QSettings().value(PORT).toInt();
 	bool ok = false;
 	port = QInputDialog::getInt(ui->btnEditPort, "Listened port",
-								"Enter the port number configured in the game telemetry settings", port, 1, 999999, 1, &ok);
+								"Enter the port number configured in the game telemetry settings", port, 1, 999999, 1,
+								&ok);
 	if(ok) {
 		QSettings().setValue(PORT, port);
 		updateNetworkData();
@@ -198,8 +206,10 @@ void TrackingWidget::editServer()
 {
 	auto server = QSettings().value(SERVER).toString();
 	bool ok = false;
-	server = QInputDialog::getText(ui->btnEditServer, "Listened IP address", "Enter the IP address of the computer where F1 2019 is running.\n(Leave empty to listen to any IP address)",
-								   QLineEdit::Normal, server, &ok);
+	server = QInputDialog::getText(
+		ui->btnEditServer, "Listened IP address",
+		"Enter the IP address of the computer where F1 2019 is running.\n(Leave empty to listen to any IP address)",
+		QLineEdit::Normal, server, &ok);
 	if(ok) {
 		if(!server.isEmpty() && QHostAddress(server).isNull()) {
 			QMessageBox::critical(this, "Invalid IP address", QString("\"%1\" is not a valid IP address!").arg(server));

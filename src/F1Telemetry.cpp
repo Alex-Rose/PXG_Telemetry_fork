@@ -137,6 +137,7 @@ void F1Telemetry::closeEvent(QCloseEvent *event)
 void F1Telemetry::startTracking(bool trackPlayer,
 								bool trackTeammate,
 								bool trackAllCars,
+								bool trackAllRace,
 								const QVector<int> &trackedDriverIds)
 {
 	_tracker->clearTrackedDrivers();
@@ -146,6 +147,8 @@ void F1Telemetry::startTracking(bool trackPlayer,
 		_tracker->trackTeammate();
 	if(trackAllCars)
 		_tracker->trackAllCars();
+	if(trackAllRace)
+		_tracker->trackAllRace();
 	for(auto id : trackedDriverIds)
 		_tracker->trackDriver(id);
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());

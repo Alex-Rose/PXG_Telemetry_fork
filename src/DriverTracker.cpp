@@ -12,7 +12,7 @@
 #include <cmath>
 
 
-DriverTracker::DriverTracker(int driverIndex) : _driverIndex(driverIndex)
+DriverTracker::DriverTracker(int driverIndex, bool raceOnly) : _driverIndex(driverIndex), _raceOnly(raceOnly)
 {
 	_currentLap = new Lap(TelemetryDefinitions::TELEMETRY_INFO);
 	_currentStint = new Stint(TelemetryDefinitions::TELEMETRY_STINT_INFO);
@@ -213,7 +213,7 @@ void DriverTracker::saveCurrentStint()
 {
 	_isLapRecorded = false;
 
-	if(_currentStint->hasData()) {
+	if(_currentStint->hasData() && !_raceOnly) {
 		// A stint ended
 		makeDriverDir();
 
@@ -284,7 +284,7 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	_currentLap->ers.finalize(double(_currentSessionData.m_trackLength));
 	_currentLap->fuelMix.finalize(double(_currentSessionData.m_trackLength));
 
-	if(_isLapRecorded) {
+	if(_isLapRecorded && !_raceOnly) {
 		makeDriverDir();
 		auto lapTime = QTime(0, 0).addMSecs(int(_currentLap->lapTime * 1000.0)).toString("m.ss.zzz");
 		auto fileName = "Lap" + QString::number(_currentLapNum) + "_" + lapTime + lapType + ".f1lap";
@@ -665,10 +665,7 @@ double DriverTracker::averageTyreWear(const CarStatusData &carStatus) const
 		   4.0;
 }
 
-bool DriverTracker::isRace() const
-{
-	return _currentSessionData.m_sessionType == 10 || _currentSessionData.m_sessionType == 11;
-}
+bool DriverTracker::isRace() const { return _currentSessionData.isRace(); }
 
 bool DriverTracker::isLastRaceLap(const LapData &data) const
 {

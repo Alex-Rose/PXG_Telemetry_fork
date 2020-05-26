@@ -458,3 +458,5 @@ Event stringToEvent(const QString str)
 
 	return Event::Unknown;
 }
+
+bool PacketSessionData::isRace() const { return m_sessionType == 10 || m_sessionType == 11; }

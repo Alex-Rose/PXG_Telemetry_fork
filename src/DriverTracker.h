@@ -84,6 +84,8 @@ class DriverTracker : public F1PacketInterface
 
 	int sessionTimePassed();
 
+	LapData leaderLapData(const PacketLapData &lapsData) const;
+
   private slots:
 	void onSessionEnd();
 };

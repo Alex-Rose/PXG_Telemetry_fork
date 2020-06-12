@@ -137,6 +137,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 	auto lastRaceLap = isLastRaceLap(lapData);
 
 	if(isRace()) {
+		auto leaderData = leaderLapData(data);
+		if(leaderData.m_resultStatus == 3) {
+			_raceFinished = true;
+		}
 		recordRaceLapEvents(lapData);
 	}
 
@@ -177,6 +181,10 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 
 		if(isRace() && _previousLapData.m_lapDistance >= 0.0f) {
 			addLapToRace(_currentLap, lapData);
+
+			if(_raceFinished) {
+				saveCurrentRace();
+			}
 		}
 
 		startLap(lapData);
@@ -213,7 +221,11 @@ void DriverTracker::saveCurrentStint()
 {
 	_isLapRecorded = false;
 
-	if(_currentStint->hasData() && !_raceOnly) {
+	if(_raceOnly) {
+		return;
+	}
+
+	if(_currentStint->hasData()) {
 		// A stint ended
 		makeDriverDir();
 
@@ -224,10 +236,7 @@ void DriverTracker::saveCurrentStint()
 		_currentStint->save(filePath);
 		++_currentStintNum;
 		Logger::instance()->log(QString("Stint recorded: ").append(driverDataDirectory.dirName()));
-	} else {
-		qWarning() << "Save empty stint !" << driverDataDirectory.dirName();
 	}
-
 	_currentStint->resetData();
 }
 
@@ -345,7 +354,7 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 		qDebug() << "RACE Started : " << driverDataDirectory.dirName();
 
 		initLap(_currentRace, lapData);
-		_currentRace->startedGridPosition = lapData.m_gridPosition;
+		_currentRace->startedGridPosition = lapData.m_gridPosition + 1;
 	}
 
 	float raceTime = sessionTimePassed();
@@ -432,6 +441,7 @@ void DriverTracker::saveCurrentRace()
 {
 	if(isRace() && _currentRace->hasData()) {
 		// A race ended
+		qInfo() << "RACE FINISHED: " << driverDataDirectory.dirName();
 
 		recordRaceStint(_previousLapData);
 
@@ -475,11 +485,13 @@ void DriverTracker::startLap(const LapData &lapData)
 {
 	// A new lap started
 	makeDriverDir();
-	qDebug() << "LAP Started : " << driverDataDirectory.dirName();
+	if(!_raceOnly)
+		qDebug() << "LAP Started : " << driverDataDirectory.dirName();
 
 	initLap(_currentLap, lapData);
 	if(!_currentStint->hasData() && driverDirDefined) {
-		qDebug() << "STINT Started : " << driverDataDirectory.dirName();
+		if(!_raceOnly)
+			qDebug() << "STINT Started : " << driverDataDirectory.dirName();
 
 		// A new stint started
 		_currentStint->track = _currentLap->track;
@@ -595,6 +607,18 @@ int DriverTracker::sessionTimePassed()
 	return _currentSessionData.m_sessionDuration - _currentSessionData.m_sessionTimeLeft;
 }
 
+LapData DriverTracker::leaderLapData(const PacketLapData &lapsData) const
+{
+	for(int i = 0; i < lapsData.m_lapData.count(); ++i) {
+		const auto &data = lapsData.m_lapData[i];
+		if(lapsData.m_lapData.value(i).m_carPosition == 1) {
+			return data;
+		}
+	}
+
+	return LapData();
+}
+
 void DriverTracker::motionData(const PacketHeader &header, const PacketMotionData &data)
 {
 	Q_UNUSED(header)
@@ -628,6 +652,7 @@ void DriverTracker::onSessionEnd()
 {
 	if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {
 		saveCurrentLap(_previousLapData);
+		_currentLap->lapTime = _previousLapData.m_currentLapTime;
 
 		if(isRace() && _currentLap->hasData()) {
 			addLapToRace(_currentLap, _previousLapData);

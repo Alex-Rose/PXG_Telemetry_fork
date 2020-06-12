@@ -157,7 +157,7 @@ class LapData
 	float m_totalDistance = -999999; // Total distance travelled in session in metres – could
 									 // be negative if line hasn’t been crossed yet
 	float m_safetyCarDelta;          // Delta in seconds for safety car
-	quint8 m_carPosition;            // Car race position
+	quint8 m_carPosition = 0;        // Car race position
 	quint8 m_currentLapNum;          // Current lap number
 	quint8 m_pitStatus;              // 0 = none, 1 = pitting, 2 = in pit area
 	quint8 m_sector;                 // 0 = sector1, 1 = sector2, 2 = sector3
@@ -257,6 +257,8 @@ struct PacketSessionData {
 	quint8 m_safetyCarStatus;            // 0 = no safety car, 1 = full safety car
 										 // 2 = virtual safety car
 	quint8 m_networkGame;                // 0 = offline, 1 = online
+
+	bool isRace() const;
 };
 
 struct CarStatusData {

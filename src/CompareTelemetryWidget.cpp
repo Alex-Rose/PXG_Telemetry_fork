@@ -6,6 +6,7 @@
 #include <QBarCategoryAxis>
 #include <QBoxPlotSeries>
 #include <QCategoryAxis>
+#include <QColorDialog>
 #include <QFileDialog>
 #include <QGraphicsProxyWidget>
 #include <QLineSeries>
@@ -82,6 +83,11 @@ void CompareTelemetryWidget::initActions()
 	setRefAction->setShortcut(Qt::Key_R);
 	connect(setRefAction, &QAction::triggered, this, &CompareTelemetryWidget::changeReferenceData);
 	addAction(setRefAction);
+
+	auto setColorAction = _telemetryContextMenu->addAction("Change color...");
+	connect(setColorAction, &QAction::triggered, this, &CompareTelemetryWidget::changeColor);
+	connect(ui->lapsTableView, &QTableView::doubleClicked, this, &CompareTelemetryWidget::changeColor);
+	addAction(setColorAction);
 
 	addAction(_telemetryContextMenu->addSeparator());
 
@@ -590,6 +596,21 @@ void CompareTelemetryWidget::changeReferenceData()
 	if(currentIndex.isValid()) {
 		_telemetryDataModel->setReferenceLapIndex(currentIndex.row());
 		updateData();
+		highlight(currentIndex.row());
+	}
+}
+
+void CompareTelemetryWidget::changeColor()
+{
+	auto currentIndex = ui->lapsTableView->currentIndex();
+	if(currentIndex.isValid()) {
+		auto colors = _telemetryDataModel->colors();
+		auto color = colors.value(currentIndex.row());
+		color = QColorDialog::getColor(color, this, "Select the new color");
+		colors[currentIndex.row()] = color;
+		_telemetryDataModel->setColors(colors);
+		updateData();
+		highlight(currentIndex.row());
 	}
 }
 

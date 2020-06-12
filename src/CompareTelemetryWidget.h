@@ -122,6 +122,7 @@ class CompareTelemetryWidget : public QWidget
 	void changeReferenceData();
 	void removeData();
 	void showTrackLayout(bool value);
+	void changeColor();
 };
 
 #endif // COMPARETELEMETRYWIDGET_H

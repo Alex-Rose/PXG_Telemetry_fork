@@ -113,7 +113,6 @@ class CompareTelemetryWidget : public QWidget
 	void updateDataVisibilities();
 	void variableChecked(bool value);
 	void home();
-	void highlightSelection(bool value);
 	void distanceZoomChanged(qreal min, qreal max);
 	void telemetryDataSelected(const QModelIndex &current, const QModelIndex &previous);
 	void changeVariableDiff(int varIndex);

@@ -69,11 +69,6 @@ void CompareTelemetryWidget::initActions()
 	auto homeAction = _toolbar->addAction("Home", this, &CompareTelemetryWidget::home);
 	homeAction->setShortcut(Qt::Key_Escape);
 
-	auto hightlightAction =
-		_toolbar->addAction("Highlight Selection", this, &CompareTelemetryWidget::highlightSelection);
-	hightlightAction->setCheckable(true);
-	hightlightAction->setChecked(_selectionHighlighted);
-
 	ui->lapsTableView->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui->lapsTableView, &QTableView::customContextMenuRequested, this,
 			&CompareTelemetryWidget::telemetryTableContextMenu);
@@ -522,12 +517,6 @@ void CompareTelemetryWidget::home()
 {
 	for(auto chartView : _variablesCharts)
 		chartView->home();
-}
-
-void CompareTelemetryWidget::highlightSelection(bool value)
-{
-	_selectionHighlighted = value;
-	refreshHighlighting();
 }
 
 void CompareTelemetryWidget::distanceZoomChanged(qreal min, qreal max)

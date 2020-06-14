@@ -1,4 +1,5 @@
 #include "CompareTelemetryWidget.h"
+#include "SettingsKeys.h"
 #include "TelemetryChartView.h"
 #include "TelemetryDataTableModel.h"
 #include "ui_CompareTelemetryWidget.h"
@@ -24,8 +25,8 @@ const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
 const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
-const int HIGHLIGHTED_LINE_WIDTH = 3;
-const int NORMAL_LINE_WIDTH = 1;
+const int HIGHLIGHTED_LINE_WIDTH = 4;
+const int NORMAL_LINE_WIDTH = 2;
 
 enum class ChartConfigurationWidgetType { Diff = 0, Stats = 1 };
 
@@ -39,7 +40,7 @@ CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *pa
 	ui->graphLayout->insertWidget(0, _toolbar);
 	initActions();
 
-	_telemetryDataModel = new TelemetryDataTableModel();
+	_telemetryDataModel = new TelemetryDataTableModel(themeColors(_theme));
 	ui->lapsTableView->setModel(_telemetryDataModel);
 	ui->lapsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->lapsTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -381,6 +382,7 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 			chart->legend()->hide();
 			chart->setTitle(var.completeName());
 
+			chart->setTheme(_theme);
 
 			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			pol.setVerticalStretch(1);
@@ -454,6 +456,20 @@ void CompareTelemetryWidget::setTrackIndex(int trackIndex)
 	}
 }
 
+void CompareTelemetryWidget::setTheme(QChart::ChartTheme theme)
+{
+	if(_theme != theme) {
+		_theme = theme;
+		_telemetryDataModel->setBaseColors(themeColors(theme));
+		for(const auto &view : qAsConst(_variablesCharts)) {
+			view->chart()->setTheme(theme);
+		}
+
+		updateData();
+		refreshHighlighting();
+	}
+}
+
 void CompareTelemetryWidget::highlight(int lapIndex)
 {
 	for(const auto &chartView : _variablesCharts) {
@@ -472,6 +488,22 @@ void CompareTelemetryWidget::highlight(int lapIndex)
 }
 
 void CompareTelemetryWidget::refreshHighlighting() { highlight(ui->lapsTableView->currentIndex().row()); }
+
+QList<QColor> CompareTelemetryWidget::themeColors(QChart::ChartTheme theme) const
+{
+	QList<QColor> colors;
+
+	QChart chart;
+	chart.setTheme(theme);
+
+	for(int i = 0; i < 5; ++i) {
+		auto serie = new QLineSeries(&chart);
+		chart.addSeries(serie);
+		colors << serie->color();
+	}
+
+	return colors;
+}
 
 void CompareTelemetryWidget::clearVariables()
 {
@@ -596,10 +628,12 @@ void CompareTelemetryWidget::changeColor()
 		auto colors = _telemetryDataModel->colors();
 		auto color = colors.value(currentIndex.row());
 		color = QColorDialog::getColor(color, this, "Select the new color");
-		colors[currentIndex.row()] = color;
-		_telemetryDataModel->setColors(colors);
-		updateData();
-		highlight(currentIndex.row());
+		if(color.isValid()) {
+			colors[currentIndex.row()] = color;
+			_telemetryDataModel->setColors(colors);
+			updateData();
+			highlight(currentIndex.row());
+		}
 	}
 }
 

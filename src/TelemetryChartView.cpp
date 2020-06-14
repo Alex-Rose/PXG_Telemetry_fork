@@ -63,6 +63,7 @@ void TelemetryChartView::mouseMoveEvent(QMouseEvent *event)
 		auto chartValue = chart()->mapToValue(event->localPos());
 		_posLabel->setText(QString::number(chartValue.x()) + _unitX + " / " + QString::number(chartValue.y()) + _unitY);
 		_posLabel->resize(_posLabel->sizeHint());
+		_posLabel->setStyleSheet(QString("QLabel{color: %1}").arg(chart()->titleBrush().color().name()));
 		updateLabelsPosition();
 		QChartView::mouseMoveEvent(event);
 	}
@@ -77,7 +78,7 @@ void TelemetryChartView::resizeEvent(QResizeEvent *event)
 void TelemetryChartView::updateLabelsPosition()
 {
 	if(_posLabel->isVisible()) {
-		_posLabel->move(width() - _posLabel->sizeHint().width() - 50, 12);
+		_posLabel->move(width() - _posLabel->sizeHint().width() - 50, 14);
 	}
 }
 

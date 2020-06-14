@@ -31,6 +31,7 @@ SOURCES += \
     TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
     TelemetryDefinitions.cpp \
+    ThemeDialog.cpp \
         main.cpp \
         F1Telemetry.cpp \
     F1Listener.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     TTGhostsTracker.h \
     TelemetryChartView.h \
     TelemetryDefinitions.h \
+    ThemeDialog.h \
     UdpSpecification.h \
     Tracker.h \
     DriverTracker.h \
@@ -81,6 +83,7 @@ HEADERS += \
 FORMS += \
     CheckUpdatesDialog.ui \
         F1Telemetry.ui \
+    ThemeDialog.ui \
     TrackingWidget.ui \
     CompareTelemetryWidget.ui \
     AboutDialog.ui

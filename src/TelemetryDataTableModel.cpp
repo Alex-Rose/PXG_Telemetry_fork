@@ -7,22 +7,7 @@
 
 #include <QtDebug>
 
-const QList<QColor> BASIC_COLOR_LIST = {QColor(41, 141, 198), QColor(153, 202, 83), QColor(246, 166, 83),
-										QColor(190, 95, 213)};
-
-TelemetryDataTableModel::TelemetryDataTableModel()
-{
-	for(int i = 0; i < 5; ++i) {
-		for(const auto &color : BASIC_COLOR_LIST) {
-			_availableColors << color.darker(100 + i * 20);
-		}
-	}
-	for(int i = 0; i < 5; ++i) {
-		for(const auto &color : BASIC_COLOR_LIST) {
-			_availableColors << color.darker(100 - i * 20);
-		}
-	}
-}
+TelemetryDataTableModel::TelemetryDataTableModel(const QList<QColor> &baseColors) { setBaseColors(baseColors); }
 
 QVariant TelemetryDataTableModel::data(const QModelIndex &index, int role) const
 {
@@ -167,3 +152,22 @@ void TelemetryDataTableModel::setVisibleAllExcept(int row, bool value)
 }
 
 void TelemetryDataTableModel::setVisibleAll(bool value) { setVisibleAllExcept(-1, value); }
+
+void TelemetryDataTableModel::setBaseColors(const QList<QColor> &colors)
+{
+	_availableColors.clear();
+	for(int i = 0; i < 5; ++i) {
+		for(const auto &color : colors) {
+			_availableColors << color.darker(100 + i * 10);
+		}
+	}
+	for(int i = 1; i < 5; ++i) {
+		for(const auto &color : colors) {
+			_availableColors << color.darker(100 - i * 10);
+		}
+	}
+
+	for(int i = 0; i < _colors.count(); ++i) {
+		_colors[i] = _availableColors.takeFirst();
+	}
+}

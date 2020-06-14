@@ -3,6 +3,7 @@
 #include "CheckUpdatesDialog.h"
 #include "FileDownloader.h"
 #include "SettingsKeys.h"
+#include "ThemeDialog.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
@@ -18,6 +19,8 @@ F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Te
 	initDefaultSettings();
 
 	ui->setupUi(this);
+
+	updateTheme();
 
 	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
 	setWindowTitle(qApp->applicationName() + " " + qApp->applicationVersion());
@@ -93,10 +96,15 @@ void F1Telemetry::initDefaultSettings()
 		settings.setValue(PORT, 20777);
 	if(!settings.contains(SERVER))
 		settings.setValue(SERVER, "");
+	if(!settings.contains(THEME))
+		settings.setValue(THEME, 0);
 }
 
 void F1Telemetry::initMenu()
 {
+	auto viewMenu = ui->menuBar->addMenu("&View");
+	viewMenu->addAction("Theme...", this, &F1Telemetry::editTheme);
+
 	auto helpMenu = ui->menuBar->addMenu("&Help");
 
 	helpMenu->addAction("About &Qt", [=]() { QMessageBox::aboutQt(this, qApp->applicationName()); });
@@ -248,4 +256,20 @@ void F1Telemetry::contact()
 	layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
 
 	msg.exec();
+}
+
+void F1Telemetry::editTheme()
+{
+	ThemeDialog d;
+	if(d.exec() == QDialog::Accepted) {
+		updateTheme();
+	}
+}
+
+void F1Telemetry::updateTheme()
+{
+	auto theme = static_cast<QtCharts::QChart::ChartTheme>(QSettings().value(THEME).toInt());
+	ui->compareLapsWidget->setTheme(theme);
+	ui->compareStintsWidget->setTheme(theme);
+	ui->compareRaceWidget->setTheme(theme);
 }

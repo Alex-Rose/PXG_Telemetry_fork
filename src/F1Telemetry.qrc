@@ -27,4 +27,7 @@
 	<file alias="Interlagos">../Ressources/TrackLayouts/Interlagos.png</file>
 	<file alias="Abu Dhabi">../Ressources/TrackLayouts/Abu Dhabi.png</file>
     </qresource>
+    <qresource prefix="/themes">
+        <file alias="dark">../Ressources/Themes/dark.png</file>
+    </qresource>
 </RCC>

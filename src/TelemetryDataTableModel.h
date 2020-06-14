@@ -15,7 +15,7 @@ class TelemetryDataTableModel : public QAbstractTableModel
 	void visibilityChanged();
 
   public:
-	TelemetryDataTableModel();
+	TelemetryDataTableModel(const QList<QColor> &baseColors);
 
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
@@ -40,6 +40,8 @@ class TelemetryDataTableModel : public QAbstractTableModel
 
 	void setVisibleAllExcept(int row, bool value);
 	void setVisibleAll(bool value);
+
+	void setBaseColors(const QList<QColor> &colors);
 
   private:
 	QVector<TelemetryData *> _telemetryData;

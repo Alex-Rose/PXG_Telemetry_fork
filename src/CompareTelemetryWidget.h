@@ -39,9 +39,12 @@ class CompareTelemetryWidget : public QWidget
 
 	void setTrackIndex(int trackIndex);
 
+	void setTheme(QtCharts::QChart::ChartTheme theme);
+
   private:
 	Ui::CompareTelemetryWidget *ui;
 	QString _unitX;
+	QtCharts::QChart::ChartTheme _theme = QtCharts::QChart::ChartThemeLight;
 	TelemetryDataTableModel *_telemetryDataModel;
 	QList<QCheckBox *> _variableCheckboxes;
 	QList<QCheckBox *> _diffCheckboxes;
@@ -85,6 +88,8 @@ class CompareTelemetryWidget : public QWidget
 
 	void highlight(int lapIndex);
 	void refreshHighlighting();
+
+	QList<QColor> themeColors(QtCharts::QChart::ChartTheme theme) const;
 
   protected slots:
 	virtual void browseData() {}

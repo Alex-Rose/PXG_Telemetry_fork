@@ -28,6 +28,7 @@ void ColorButton::askColor()
 // ------------------
 
 ChartThemeWidget::ChartThemeWidget(const QString &name, const QString &imagePath, QButtonGroup *group, QWidget *parent)
+: QFrame(parent)
 {
 	_button = new QRadioButton(name, this);
 	group->addButton(_button);

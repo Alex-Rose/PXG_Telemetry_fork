@@ -29,5 +29,12 @@
     </qresource>
     <qresource prefix="/themes">
         <file alias="dark">../Ressources/Themes/dark.png</file>
+	<file alias="light">../Ressources/Themes/light.png</file>
+	<file alias="blueCerulean">../Ressources/Themes/blueCerulean.png</file>
+	<file alias="brownSand">../Ressources/Themes/brownSand.png</file>
+	<file alias="blueNcs">../Ressources/Themes/blueNcs.png</file>
+	<file alias="blueIcy">../Ressources/Themes/blueIcy.png</file>
+	<file alias="highContrast">../Ressources/Themes/highContrast.png</file>
+	<file alias="qt">../Ressources/Themes/qt.png</file>
     </qresource>
 </RCC>

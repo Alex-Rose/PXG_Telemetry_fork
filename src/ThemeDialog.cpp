@@ -37,7 +37,7 @@ ChartThemeWidget::ChartThemeWidget(const QString &name, const QString &imagePath
 	nameLabel->setAlignment(Qt::AlignCenter);
 
 	auto imageLabel = new QLabel(this);
-	auto pixmap = QPixmap(imagePath).scaledToWidth(200, Qt::SmoothTransformation);
+	auto pixmap = QPixmap(imagePath).scaledToWidth(150, Qt::SmoothTransformation);
 	imageLabel->setPixmap(pixmap);
 	imageLabel->setScaledContents(true);
 	imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -79,19 +79,19 @@ ThemeDialog::ThemeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::ThemeDia
 	auto group = new QButtonGroup(this);
 
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeLight,
-						 new ChartThemeWidget("Light", ":/themes/dark", group, this));
+						 new ChartThemeWidget("Light", ":/themes/light", group, this));
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeBlueCerulean,
-						 new ChartThemeWidget("Blue Cerulean", ":/themes/dark", group, this));
+						 new ChartThemeWidget("Blue Cerulean", ":/themes/blueCerulean", group, this));
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeDark, new ChartThemeWidget("Dark", ":/themes/dark", group, this));
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeBlueIcy,
-						 new ChartThemeWidget("Blue Icy", ":/themes/dark", group, this));
+						 new ChartThemeWidget("Blue Icy", ":/themes/blueIcy", group, this));
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeBlueNcs,
-						 new ChartThemeWidget("Blue Ncs", ":/themes/dark", group, this));
+						 new ChartThemeWidget("Blue Ncs", ":/themes/blueNcs", group, this));
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeBrownSand,
-						 new ChartThemeWidget("Brown Sand", ":/themes/dark", group, this));
+						 new ChartThemeWidget("Brown Sand", ":/themes/brownSand", group, this));
 	_themeWidgets.insert(QtCharts::QChart::ChartThemeHighContrast,
-						 new ChartThemeWidget("High Contrast", ":/themes/dark", group, this));
-	_themeWidgets.insert(QtCharts::QChart::ChartThemeQt, new ChartThemeWidget("Qt", ":/themes/dark", group, this));
+						 new ChartThemeWidget("High Contrast", ":/themes/highContrast", group, this));
+	_themeWidgets.insert(QtCharts::QChart::ChartThemeQt, new ChartThemeWidget("Qt", ":/themes/qt", group, this));
 
 	int nbCol = 4;
 	int col = 0;

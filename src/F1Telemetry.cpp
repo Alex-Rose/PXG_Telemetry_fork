@@ -260,8 +260,8 @@ void F1Telemetry::contact()
 
 void F1Telemetry::editTheme()
 {
-	ThemeDialog d;
-	if(d.exec() == QDialog::Accepted) {
+	ThemeDialog dialog(this);
+	if(dialog.exec() == QDialog::Accepted) {
 		updateTheme();
 	}
 }

@@ -29,6 +29,13 @@ class ColorButton : public QToolButton
 	void askColor();
 };
 
+// struct CustomTheme {
+//	QColor backgroundColor;
+//	QColor gridColor;
+//	QColor textColor;
+//	QList<QColor> seriesColors;
+//};
+
 class ChartThemeWidget : public QFrame
 {
 	Q_OBJECT

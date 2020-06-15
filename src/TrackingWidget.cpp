@@ -1,5 +1,5 @@
 #include "TrackingWidget.h"
-#include "SettingsKeys.h"
+#include "F1TelemetrySettings.h"
 #include "ui_TrackingWidget.h"
 
 #include <QDateTime>
@@ -37,7 +37,7 @@ TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Tr
 
 TrackingWidget::~TrackingWidget() { delete ui; }
 
-void TrackingWidget::saveSettings(QSettings *settings)
+void TrackingWidget::saveSettings(F1TelemetrySettings *settings)
 {
 	settings->beginGroup("Tracking");
 	settings->setValue("dataDirectory", ui->leDataDir->text());
@@ -48,7 +48,7 @@ void TrackingWidget::saveSettings(QSettings *settings)
 	settings->endGroup();
 }
 
-void TrackingWidget::loadSettings(QSettings *settings)
+void TrackingWidget::loadSettings(F1TelemetrySettings *settings)
 {
 	settings->beginGroup("Tracking");
 	ui->leDataDir->setText(settings->value("dataDirectory").toString());
@@ -136,14 +136,14 @@ QString TrackingWidget::getLocalIpAddress() const
 
 void TrackingWidget::updateNetworkData()
 {
-	auto serverAddress = QSettings().value(SERVER).toString();
+	F1TelemetrySettings settings;
+	auto serverAddress = settings.server();
 	if(serverAddress.isEmpty()) {
 		serverAddress = "Any";
 	}
-	auto port = QSettings().value(PORT).toInt();
 
 	ui->lblIP->setText(getLocalIpAddress());
-	ui->lblPort->setText(QString::number(port));
+	ui->lblPort->setText(QString::number(settings.port()));
 	ui->lblServer->setText(serverAddress);
 }
 
@@ -190,13 +190,14 @@ void TrackingWidget::allCarsChecked(bool checked)
 
 void TrackingWidget::editPort()
 {
-	auto port = QSettings().value(PORT).toInt();
+	F1TelemetrySettings settings;
+	auto port = settings.port();
 	bool ok = false;
 	port = QInputDialog::getInt(ui->btnEditPort, "Listened port",
 								"Enter the port number configured in the game telemetry settings", port, 1, 999999, 1,
 								&ok);
 	if(ok) {
-		QSettings().setValue(PORT, port);
+		settings.setPort(port);
 		updateNetworkData();
 		emit networkInfoChanged();
 	}
@@ -204,7 +205,8 @@ void TrackingWidget::editPort()
 
 void TrackingWidget::editServer()
 {
-	auto server = QSettings().value(SERVER).toString();
+	F1TelemetrySettings settings;
+	auto server = settings.server();
 	bool ok = false;
 	server = QInputDialog::getText(
 		ui->btnEditServer, "Listened IP address",
@@ -216,7 +218,7 @@ void TrackingWidget::editServer()
 			editServer();
 			return;
 		}
-		QSettings().setValue(SERVER, server);
+		settings.setServer(server);
 		updateNetworkData();
 		emit networkInfoChanged();
 	}

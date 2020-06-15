@@ -8,7 +8,6 @@
 #include <QCheckBox>
 #include <QLineSeries>
 #include <QRadioButton>
-#include <QSettings>
 #include <QSignalMapper>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -19,6 +18,7 @@ namespace Ui
 class CompareTelemetryWidget;
 }
 
+class F1TelemetrySettings;
 class TelemetryDataTableModel;
 class TelemetryChartView;
 
@@ -32,8 +32,8 @@ class CompareTelemetryWidget : public QWidget
 
 	void addTelemetryData(QVector<TelemetryData *> telemetry);
 
-	void saveSettings(QSettings *settings);
-	void loadSettings(QSettings *settings);
+	void saveSettings(F1TelemetrySettings *settings);
+	void loadSettings(F1TelemetrySettings *settings);
 
 	void setDataName(const QString &name);
 

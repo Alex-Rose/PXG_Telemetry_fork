@@ -1,13 +1,12 @@
 #include "ThemeDialog.h"
+#include "F1TelemetrySettings.h"
 #include "ui_ThemeDialog.h"
 
 #include <QBoxLayout>
 #include <QButtonGroup>
 #include <QColorDialog>
 #include <QLabel>
-#include <QSettings>
 
-#include "SettingsKeys.h"
 
 ColorButton::ColorButton(const QColor &color, QWidget *parent) : QToolButton(parent) { setColor(color); }
 
@@ -106,7 +105,7 @@ ThemeDialog::ThemeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::ThemeDia
 		}
 	}
 
-	auto selectedTheme = static_cast<QtCharts::QChart::ChartTheme>(QSettings().value(THEME).toInt());
+	auto selectedTheme = F1TelemetrySettings().theme();
 	_themeWidgets[selectedTheme]->setChecked(true);
 	resize(minimumSizeHint());
 }
@@ -115,10 +114,10 @@ ThemeDialog::~ThemeDialog() { delete ui; }
 
 void ThemeDialog::accept()
 {
-	QSettings settings;
+	F1TelemetrySettings settings;
 	for(auto it = _themeWidgets.constBegin(); it != _themeWidgets.constEnd(); ++it) {
 		if(it.value()->isChecked()) {
-			settings.setValue(THEME, int(it.key()));
+			settings.setTheme(it.key());
 			break;
 		}
 	}

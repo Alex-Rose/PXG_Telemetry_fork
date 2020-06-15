@@ -1,5 +1,5 @@
 #include "CompareTelemetryWidget.h"
-#include "SettingsKeys.h"
+#include "F1TelemetrySettings.h"
 #include "TelemetryChartView.h"
 #include "TelemetryDataTableModel.h"
 #include "ui_CompareTelemetryWidget.h"
@@ -420,7 +420,7 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 	ui->variableLayout->setColumnStretch(1, 1);
 }
 
-void CompareTelemetryWidget::saveSettings(QSettings *settings)
+void CompareTelemetryWidget::saveSettings(F1TelemetrySettings *settings)
 {
 	settings->beginGroup("LapComparison");
 	settings->setValue("splitterState", ui->splitter->saveState());
@@ -428,7 +428,7 @@ void CompareTelemetryWidget::saveSettings(QSettings *settings)
 	settings->endGroup();
 }
 
-void CompareTelemetryWidget::loadSettings(QSettings *settings)
+void CompareTelemetryWidget::loadSettings(F1TelemetrySettings *settings)
 {
 	settings->beginGroup("LapComparison");
 	ui->splitter->restoreState(settings->value("splitterState").toByteArray());

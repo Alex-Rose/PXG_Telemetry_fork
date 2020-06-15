@@ -1,8 +1,8 @@
 #include "F1Telemetry.h"
 #include "AboutDialog.h"
 #include "CheckUpdatesDialog.h"
+#include "F1TelemetrySettings.h"
 #include "FileDownloader.h"
-#include "SettingsKeys.h"
 #include "ThemeDialog.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
@@ -57,15 +57,14 @@ F1Telemetry::~F1Telemetry() { delete ui; }
 void F1Telemetry::buildListener()
 {
 	delete _listener;
-	auto address = QSettings().value(SERVER).toString();
-	auto port = QSettings().value(PORT).toInt();
-	_listener = new F1Listener(_tracker, address, port, this);
+	F1TelemetrySettings settings;
+	_listener = new F1Listener(_tracker, settings.server(), settings.port(), this);
 	ui->trackingWidget->setConnectionStatus(_listener->isConnected());
 }
 
 void F1Telemetry::loadSettings()
 {
-	QSettings settings;
+	F1TelemetrySettings settings;
 	ui->trackingWidget->loadSettings(&settings);
 	ui->compareLapsWidget->loadSettings(&settings);
 	ui->compareStintsWidget->loadSettings(&settings);
@@ -78,7 +77,7 @@ void F1Telemetry::loadSettings()
 
 void F1Telemetry::saveSetings()
 {
-	QSettings settings;
+	F1TelemetrySettings settings;
 	ui->trackingWidget->saveSettings(&settings);
 	ui->compareLapsWidget->saveSettings(&settings);
 	ui->compareStintsWidget->saveSettings(&settings);
@@ -91,13 +90,8 @@ void F1Telemetry::saveSetings()
 
 void F1Telemetry::initDefaultSettings()
 {
-	QSettings settings;
-	if(!settings.contains(PORT))
-		settings.setValue(PORT, 20777);
-	if(!settings.contains(SERVER))
-		settings.setValue(SERVER, "");
-	if(!settings.contains(THEME))
-		settings.setValue(THEME, 0);
+	F1TelemetrySettings settings;
+	settings.init();
 }
 
 void F1Telemetry::initMenu()
@@ -176,7 +170,7 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 		if(isGreaterVersion(data)) {
 
 			qInfo() << "A newer version is available";
-			QSettings settings;
+			F1TelemetrySettings settings;
 			if(!_isAutoCheckUpdates || settings.value("skipedVersion") != data) {
 				_downloader->downloadFile(
 					QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/Changelog.md"), ChangelogFile);
@@ -232,9 +226,8 @@ void F1Telemetry::showChangeLog()
 
 void F1Telemetry::changelogAutoDisplay()
 {
-	QSettings settings;
-	if(!settings.allKeys().isEmpty() &&
-	   settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
+	F1TelemetrySettings settings;
+	if(!settings.isEmpty() && settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
 		QTimer::singleShot(0, this, &F1Telemetry::showChangeLog);
 		settings.setValue("lastChangelogAutoDisplay", qApp->applicationVersion());
 	}
@@ -268,7 +261,7 @@ void F1Telemetry::editTheme()
 
 void F1Telemetry::updateTheme()
 {
-	auto theme = static_cast<QtCharts::QChart::ChartTheme>(QSettings().value(THEME).toInt());
+	auto theme = F1TelemetrySettings().theme();
 	ui->compareLapsWidget->setTheme(theme);
 	ui->compareStintsWidget->setTheme(theme);
 	ui->compareRaceWidget->setTheme(theme);

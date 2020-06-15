@@ -2,7 +2,6 @@
 #define TRACKINGWIDGET_H
 
 #include <QCheckBox>
-#include <QSettings>
 #include <QWidget>
 
 #include "Logger.h"
@@ -11,6 +10,8 @@ namespace Ui
 {
 class TrackingWidget;
 }
+
+class F1TelemetrySettings;
 
 class TrackingWidget : public QWidget, public LogInterface
 {
@@ -25,8 +26,8 @@ class TrackingWidget : public QWidget, public LogInterface
 	explicit TrackingWidget(QWidget *parent = nullptr);
 	virtual ~TrackingWidget() override;
 
-	void saveSettings(QSettings *settings);
-	void loadSettings(QSettings *settings);
+	void saveSettings(F1TelemetrySettings *settings);
+	void loadSettings(F1TelemetrySettings *settings);
 
 	QString getDataDirectory() const;
 

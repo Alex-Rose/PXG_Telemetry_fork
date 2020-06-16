@@ -26,11 +26,11 @@ class ApplicationSettings
 
     void setValue(const QString &key, const QVariant &value);
     void setColorValue(const QString &key, const QColor &color);
-    void setColorListValue(const QString &key, const QVector<QColor> &colors);
+	void setColorListValue(const QString &key, const QList<QColor> &colors);
 
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
     QColor colorValue(const QString &key, const QColor &defaultColor = QColor()) const;
-    QVector<QColor> colorListValue(const QString &key) const;
+	QList<QColor> colorListValue(const QString &key, const QList<QColor> &defaultColorList = QList<QColor>()) const;
 
 	void beginGroup(const QString &groupName);
 	void endGroup();

@@ -1,6 +1,8 @@
 #ifndef OPTIONSDIALOG_H
 #define OPTIONSDIALOG_H
 
+#include "CustomTheme.h"
+
 #include <QChart>
 #include <QDialog>
 #include <QFrame>
@@ -17,7 +19,7 @@ class ColorButton : public QToolButton
 	Q_OBJECT
 
   public:
-	explicit ColorButton(const QColor &color, QWidget *parent = nullptr);
+	explicit ColorButton(QWidget *parent = nullptr, const QColor &color = QColor(Qt::black));
 
 	void setColor(const QColor &color);
 	const QColor &color() const { return _color; }
@@ -29,14 +31,27 @@ class ColorButton : public QToolButton
 	void askColor();
 };
 
-// struct CustomTheme {
-//	QColor backgroundColor;
-//	QColor gridColor;
-//	QColor textColor;
-//	QList<QColor> seriesColors;
-//};
+class SelectableFrame : public QFrame
+{
+	Q_OBJECT
 
-class ChartThemeWidget : public QFrame
+  public:
+	explicit SelectableFrame(QWidget *parent);
+
+	QRadioButton *button() const;
+	void setButton(QRadioButton *button);
+
+  private:
+	QRadioButton *_button = nullptr;
+
+  protected:
+	void mousePressEvent(QMouseEvent *event);
+
+  private slots:
+	void toggled(bool checked);
+};
+
+class ChartThemeWidget : public SelectableFrame
 {
 	Q_OBJECT
 
@@ -48,15 +63,6 @@ class ChartThemeWidget : public QFrame
 
 	void setChecked(bool value);
 	bool isChecked() const;
-
-  private:
-	QRadioButton *_button;
-
-  protected:
-	void mousePressEvent(QMouseEvent *event);
-
-  private slots:
-	void toggled(bool checked);
 };
 
 class ThemeDialog : public QDialog
@@ -65,7 +71,7 @@ class ThemeDialog : public QDialog
 
   public:
 	explicit ThemeDialog(QWidget *parent = nullptr);
-	~ThemeDialog();
+	~ThemeDialog() override;
 
   public slots:
 	void accept() override;
@@ -74,6 +80,10 @@ class ThemeDialog : public QDialog
 	Ui::ThemeDialog *ui;
 
 	QMap<QtCharts::QChart::ChartTheme, ChartThemeWidget *> _themeWidgets;
+	QList<ColorButton *> _customSeriesColorWidgets;
+
+	void setCustomTheme(const CustomTheme &theme);
+	CustomTheme customTheme() const;
 };
 
 #endif // OPTIONSDIALOG_H

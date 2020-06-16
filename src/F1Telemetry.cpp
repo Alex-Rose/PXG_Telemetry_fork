@@ -261,8 +261,16 @@ void F1Telemetry::editTheme()
 
 void F1Telemetry::updateTheme()
 {
-	auto theme = F1TelemetrySettings().theme();
-	ui->compareLapsWidget->setTheme(theme);
-	ui->compareStintsWidget->setTheme(theme);
-	ui->compareRaceWidget->setTheme(theme);
+	F1TelemetrySettings settings;
+	if(settings.useCustomTheme()) {
+		auto customTheme = settings.customTheme();
+		ui->compareLapsWidget->setCustomTheme(customTheme);
+		ui->compareStintsWidget->setCustomTheme(customTheme);
+		ui->compareRaceWidget->setCustomTheme(customTheme);
+	} else {
+		auto theme = settings.theme();
+		ui->compareLapsWidget->setTheme(theme);
+		ui->compareStintsWidget->setTheme(theme);
+		ui->compareRaceWidget->setTheme(theme);
+	}
 }

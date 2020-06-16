@@ -8,7 +8,11 @@
 #include <QLabel>
 
 
-ColorButton::ColorButton(const QColor &color, QWidget *parent) : QToolButton(parent) { setColor(color); }
+ColorButton::ColorButton(QWidget *parent, const QColor &color) : QToolButton(parent)
+{
+	setColor(color);
+	connect(this, &QToolButton::clicked, this, &ColorButton::askColor);
+}
 
 void ColorButton::setColor(const QColor &color)
 {
@@ -26,12 +30,39 @@ void ColorButton::askColor()
 
 // ------------------
 
-ChartThemeWidget::ChartThemeWidget(const QString &name, const QString &imagePath, QButtonGroup *group, QWidget *parent)
-: QFrame(parent)
+SelectableFrame::SelectableFrame(QWidget *parent) : QFrame(parent) { toggled(false); }
+
+QRadioButton *SelectableFrame::button() const { return _button; }
+
+void SelectableFrame::setButton(QRadioButton *button)
 {
-	_button = new QRadioButton(name, this);
-	group->addButton(_button);
-	_button->hide();
+	_button = button;
+	connect(_button, &QRadioButton::toggled, this, &SelectableFrame::toggled);
+	toggled(false);
+}
+
+void SelectableFrame::mousePressEvent(QMouseEvent *event)
+{
+	if(event->button() == Qt::LeftButton) {
+		_button->toggle();
+	}
+}
+
+void SelectableFrame::toggled(bool checked)
+{
+	setFrameShadow(checked ? QFrame::Plain : QFrame::Sunken);
+	setFrameShape(checked ? QFrame::Panel : QFrame::Box);
+	setLineWidth(checked ? 6 : 3);
+}
+
+// ------------------
+
+ChartThemeWidget::ChartThemeWidget(const QString &name, const QString &imagePath, QButtonGroup *group, QWidget *parent)
+: SelectableFrame(parent)
+{
+	setButton(new QRadioButton(name, this));
+	group->addButton(button());
+	button()->hide();
 
 	auto nameLabel = new QLabel(name, this);
 	nameLabel->setAlignment(Qt::AlignCenter);
@@ -44,31 +75,14 @@ ChartThemeWidget::ChartThemeWidget(const QString &name, const QString &imagePath
 
 	auto layout = new QVBoxLayout(this);
 	layout->setContentsMargins(5, 0, 5, 5);
-	layout->addWidget(_button);
+	layout->addWidget(button());
 	layout->addWidget(nameLabel);
 	layout->addWidget(imageLabel);
-
-	toggled(false);
-	connect(_button, &QRadioButton::toggled, this, &ChartThemeWidget::toggled);
 }
 
-void ChartThemeWidget::setChecked(bool value) { _button->setChecked(value); }
+void ChartThemeWidget::setChecked(bool value) { button()->setChecked(value); }
 
-bool ChartThemeWidget::isChecked() const { return _button->isChecked(); }
-
-void ChartThemeWidget::mousePressEvent(QMouseEvent *event)
-{
-	if(event->button() == Qt::LeftButton) {
-		_button->toggle();
-	}
-}
-
-void ChartThemeWidget::toggled(bool checked)
-{
-	setFrameShadow(checked ? QFrame::Plain : QFrame::Sunken);
-	setFrameShape(checked ? QFrame::Panel : QFrame::Box);
-	setLineWidth(checked ? 4 : 2);
-}
+bool ChartThemeWidget::isChecked() const { return button()->isChecked(); }
 
 // ------------------
 
@@ -105,8 +119,19 @@ ThemeDialog::ThemeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::ThemeDia
 		}
 	}
 
-	auto selectedTheme = F1TelemetrySettings().theme();
-	_themeWidgets[selectedTheme]->setChecked(true);
+	ui->customThemeFrame->setButton(ui->rbCustomTheme);
+	ui->rbCustomTheme->hide();
+	group->addButton(ui->rbCustomTheme);
+
+	F1TelemetrySettings settings;
+	setCustomTheme(settings.customTheme());
+	if(settings.useCustomTheme()) {
+		ui->rbCustomTheme->setChecked(true);
+	} else {
+		auto selectedTheme = settings.theme();
+		_themeWidgets[selectedTheme]->setChecked(true);
+	}
+
 	resize(minimumSizeHint());
 }
 
@@ -115,6 +140,8 @@ ThemeDialog::~ThemeDialog() { delete ui; }
 void ThemeDialog::accept()
 {
 	F1TelemetrySettings settings;
+	settings.setUseCustomTheme(ui->rbCustomTheme->isChecked());
+	settings.setCustomTheme(customTheme());
 	for(auto it = _themeWidgets.constBegin(); it != _themeWidgets.constEnd(); ++it) {
 		if(it.value()->isChecked()) {
 			settings.setTheme(it.key());
@@ -122,4 +149,33 @@ void ThemeDialog::accept()
 		}
 	}
 	QDialog::accept();
+}
+
+void ThemeDialog::setCustomTheme(const CustomTheme &theme)
+{
+	ui->colorBackground->setColor(theme.backgroundColor);
+	ui->colorText->setColor(theme.textColor);
+	ui->colorGrid->setColor(theme.gridColor);
+
+	qDeleteAll(_customSeriesColorWidgets);
+	_customSeriesColorWidgets.clear();
+	for(const auto &color : theme.seriesColors) {
+		auto button = new ColorButton(this, color);
+		_customSeriesColorWidgets << button;
+		ui->seriesColorsLayout->addWidget(button);
+	}
+}
+
+CustomTheme ThemeDialog::customTheme() const
+{
+	CustomTheme theme;
+	theme.backgroundColor = ui->colorBackground->color();
+	theme.textColor = ui->colorText->color();
+	theme.gridColor = ui->colorGrid->color();
+	theme.seriesColors.clear();
+	for(const auto &button : _customSeriesColorWidgets) {
+		theme.seriesColors << button->color();
+	}
+
+	return theme;
 }

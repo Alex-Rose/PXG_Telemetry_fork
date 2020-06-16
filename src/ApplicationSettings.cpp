@@ -52,7 +52,7 @@ void ApplicationSettings::setColorValue(const QString &key, const QColor &color)
     m_settings.setValue(key, color.name());
 }
 
-void ApplicationSettings::setColorListValue(const QString &key, const QVector<QColor> &colors)
+void ApplicationSettings::setColorListValue(const QString &key, const QList<QColor> &colors)
 {
     QVariantList values;
 	for(const auto &color : colors) {
@@ -77,10 +77,14 @@ QColor ApplicationSettings::colorValue(const QString &key, const QColor &default
     return {colorName};
 }
 
-QVector<QColor> ApplicationSettings::colorListValue(const QString &key) const
+QList<QColor> ApplicationSettings::colorListValue(const QString &key, const QList<QColor> &defaultColorList) const
 {
+	if(!m_settings.contains(key)) {
+		return defaultColorList;
+	}
+
     const auto list = value(key).toList();
-    QVector<QColor> colors;
+	QList<QColor> colors;
 	for(const auto &value : list) {
         colors << QColor(value.toString());
     }

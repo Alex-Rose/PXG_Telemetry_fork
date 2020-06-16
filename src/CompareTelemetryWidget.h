@@ -1,6 +1,7 @@
 #ifndef COMPARETELEMETRYWIDGET_H
 #define COMPARETELEMETRYWIDGET_H
 
+#include "CustomTheme.h"
 #include "Lap.h"
 
 #include <QAbstractSeries>
@@ -40,11 +41,13 @@ class CompareTelemetryWidget : public QWidget
 	void setTrackIndex(int trackIndex);
 
 	void setTheme(QtCharts::QChart::ChartTheme theme);
+	void setCustomTheme(const CustomTheme &theme);
 
   private:
 	Ui::CompareTelemetryWidget *ui;
 	QString _unitX;
 	QtCharts::QChart::ChartTheme _theme = QtCharts::QChart::ChartThemeLight;
+	CustomTheme _customTheme;
 	TelemetryDataTableModel *_telemetryDataModel;
 	QList<QCheckBox *> _variableCheckboxes;
 	QList<QCheckBox *> _diffCheckboxes;

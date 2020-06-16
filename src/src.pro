@@ -26,6 +26,7 @@ CONFIG += c++14
 
 SOURCES += \
     CheckUpdatesDialog.cpp \
+    CustomTheme.cpp \
     F1TelemetrySettings.cpp \
     FileDownloader.cpp \
     Race.cpp \
@@ -56,6 +57,7 @@ SOURCES += \
 
 HEADERS += \
     CheckUpdatesDialog.h \
+    CustomTheme.h \
         F1Telemetry.h \
     F1Listener.h \
     F1TelemetrySettings.h \

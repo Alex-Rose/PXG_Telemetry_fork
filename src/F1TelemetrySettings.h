@@ -2,8 +2,10 @@
 #define F1TELEMETRYSETTINGS_H
 
 #include "ApplicationSettings.h"
+#include "CustomTheme.h"
 
 #include <QChart>
+
 
 class F1TelemetrySettings : public ApplicationSettings
 {
@@ -14,6 +16,12 @@ class F1TelemetrySettings : public ApplicationSettings
 
 	QtCharts::QChart::ChartTheme theme() const;
 	void setTheme(QtCharts::QChart::ChartTheme theme);
+
+	CustomTheme customTheme() const;
+	void setCustomTheme(const CustomTheme &theme);
+
+	bool useCustomTheme() const;
+	void setUseCustomTheme(bool value);
 
 	int port() const;
 	void setPort(int value);

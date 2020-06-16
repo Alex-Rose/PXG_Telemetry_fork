@@ -312,6 +312,10 @@ void CompareTelemetryWidget::createAxis(QChart *chart, bool stats)
 		auto xAxis = static_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal)[0]);
 		xAxis->setLabelsVisible(false);
 	}
+
+	if(_customTheme.isValid()) {
+		_customTheme.apply(chart);
+	}
 }
 
 void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry)
@@ -383,6 +387,9 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 			chart->setTitle(var.completeName());
 
 			chart->setTheme(_theme);
+			if(_customTheme.isValid()) {
+				_customTheme.apply(chart);
+			}
 
 			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			pol.setVerticalStretch(1);
@@ -460,12 +467,26 @@ void CompareTelemetryWidget::setTheme(QChart::ChartTheme theme)
 {
 	if(_theme != theme) {
 		_theme = theme;
+		_customTheme = CustomTheme();
 		_telemetryDataModel->setBaseColors(themeColors(theme));
 		for(const auto &view : qAsConst(_variablesCharts)) {
 			view->chart()->setTheme(theme);
 		}
 
 		updateData();
+		refreshHighlighting();
+	}
+}
+
+void CompareTelemetryWidget::setCustomTheme(const CustomTheme &theme)
+{
+	if(theme != _customTheme && theme.isValid()) {
+		_customTheme = theme;
+		_telemetryDataModel->setBaseColors(theme.seriesColors);
+		updateData();
+		for(const auto &view : qAsConst(_variablesCharts)) {
+			theme.apply(view->chart());
+		}
 		refreshHighlighting();
 	}
 }

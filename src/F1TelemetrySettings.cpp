@@ -1,5 +1,7 @@
 #include "F1TelemetrySettings.h"
 
+#include <QTemporaryFile>
+
 namespace SettingsKeys
 {
 
@@ -13,6 +15,9 @@ const constexpr char *CUSTOM_THEME_GRID_COLOR = "customTheme/gridColor";
 const constexpr char *CUSTOM_THEME_SERIES_COLORS = "customTheme/seriesColors";
 const constexpr char *CUSTOM_THEME_USED = "customTheme/used";
 
+const constexpr char *LINE_WIDTH = "lines/width";
+const constexpr char *SELECTED_LINE_WIDTH = "lines/selectedWidth";
+
 
 } // namespace SettingsKeys
 
@@ -22,9 +27,23 @@ const constexpr int PORT = 20777;
 const constexpr int THEME = 0;
 const CustomTheme CUSTOM_THEME = CustomTheme::defaultTheme();
 const constexpr bool CUSTOM_THEME_USED = false;
+const constexpr int LINE_WIDTH = 2;
+const constexpr int SELECTED_LINE_WIDTH = 4;
 } // namespace SettingsDefaultValues
 
 F1TelemetrySettings::F1TelemetrySettings() : ApplicationSettings() {}
+
+F1TelemetrySettings::F1TelemetrySettings(const QString &iniFile) : ApplicationSettings(iniFile) {}
+
+std::shared_ptr<F1TelemetrySettings> F1TelemetrySettings::defaultSettings()
+{
+	QTemporaryFile file;
+	file.open();
+
+	auto defaultSettings = std::make_shared<F1TelemetrySettings>(file.fileName());
+	defaultSettings->init();
+	return defaultSettings;
+}
 
 void F1TelemetrySettings::reset()
 {
@@ -74,3 +93,15 @@ bool F1TelemetrySettings::useCustomTheme() const
 }
 
 void F1TelemetrySettings::setUseCustomTheme(bool value) { setValue(SettingsKeys::CUSTOM_THEME_USED, value); }
+
+int F1TelemetrySettings::linesWidth() const
+{
+	return value(SettingsKeys::LINE_WIDTH, SettingsDefaultValues::LINE_WIDTH).toInt();
+}
+void F1TelemetrySettings::setLinesWidth(int value) { setValue(SettingsKeys::LINE_WIDTH, value); }
+
+int F1TelemetrySettings::selectedLinesWidth() const
+{
+	return value(SettingsKeys::SELECTED_LINE_WIDTH, SettingsDefaultValues::SELECTED_LINE_WIDTH).toInt();
+}
+void F1TelemetrySettings::setSelectedLinesWidth(int value) { setValue(SettingsKeys::SELECTED_LINE_WIDTH, value); }

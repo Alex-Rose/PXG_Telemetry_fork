@@ -11,6 +11,9 @@ class F1TelemetrySettings : public ApplicationSettings
 {
   public:
 	F1TelemetrySettings();
+	F1TelemetrySettings(const QString &iniFile);
+
+	static std::shared_ptr<F1TelemetrySettings> defaultSettings();
 
 	void reset() override;
 
@@ -22,6 +25,12 @@ class F1TelemetrySettings : public ApplicationSettings
 
 	bool useCustomTheme() const;
 	void setUseCustomTheme(bool value);
+
+	int linesWidth() const;
+	void setLinesWidth(int value);
+
+	int selectedLinesWidth() const;
+	void setSelectedLinesWidth(int value);
 
 	int port() const;
 	void setPort(int value);

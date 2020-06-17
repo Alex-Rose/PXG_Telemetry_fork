@@ -39,7 +39,7 @@ CustomTheme CustomTheme::defaultTheme()
 	theme.backgroundColor = Qt::white;
 	theme.gridColor = Qt::black;
 	theme.textColor = Qt::black;
-	theme.seriesColors = {Qt::darkRed, Qt::darkGreen, Qt::darkBlue, Qt::darkYellow, Qt::darkCyan};
+	theme.seriesColors = {Qt::red, Qt::green, Qt::blue, Qt::yellow, Qt::cyan};
 
 	return theme;
 }

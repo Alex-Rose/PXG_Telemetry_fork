@@ -10,6 +10,7 @@ class ApplicationSettings
 {
   public:
 	ApplicationSettings();
+	ApplicationSettings(const QString &iniFile);
 
     virtual ~ApplicationSettings() = default;
 

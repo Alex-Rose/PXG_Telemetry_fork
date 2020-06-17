@@ -87,6 +87,7 @@ HEADERS += \
 
 FORMS += \
     CheckUpdatesDialog.ui \
+    CustomThemeWidget.ui \
         F1Telemetry.ui \
     ThemeDialog.ui \
     TrackingWidget.ui \

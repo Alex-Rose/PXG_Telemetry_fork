@@ -25,9 +25,6 @@ const int LEFT_PANEL_DEFAULT_WIDTH = 250;
 
 const int MAX_NB_ROWS_OF_VARIABLE = 5;
 
-const int HIGHLIGHTED_LINE_WIDTH = 4;
-const int NORMAL_LINE_WIDTH = 2;
-
 enum class ChartConfigurationWidgetType { Diff = 0, Stats = 1 };
 
 CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *parent)
@@ -474,8 +471,9 @@ void CompareTelemetryWidget::setTheme(QChart::ChartTheme theme)
 		}
 
 		updateData();
-		refreshHighlighting();
 	}
+
+	refreshHighlighting();
 }
 
 void CompareTelemetryWidget::setCustomTheme(const CustomTheme &theme)
@@ -487,19 +485,22 @@ void CompareTelemetryWidget::setCustomTheme(const CustomTheme &theme)
 		for(const auto &view : qAsConst(_variablesCharts)) {
 			theme.apply(view->chart());
 		}
-		refreshHighlighting();
 	}
+
+	refreshHighlighting();
 }
 
 void CompareTelemetryWidget::highlight(int lapIndex)
 {
+	F1TelemetrySettings settings;
 	for(const auto &chartView : _variablesCharts) {
 		int index = 0;
 		for(const auto &serie : chartView->chart()->series()) {
 			if(serie->type() == QAbstractSeries::SeriesTypeLine) {
 				auto lineSerie = static_cast<QXYSeries *>(serie);
 				auto pen = lineSerie->pen();
-				pen.setWidth(lapIndex == index && _selectionHighlighted ? HIGHLIGHTED_LINE_WIDTH : NORMAL_LINE_WIDTH);
+				pen.setWidth(lapIndex == index && _selectionHighlighted ? settings.selectedLinesWidth() :
+																		  settings.linesWidth());
 				lineSerie->setPen(pen);
 			}
 

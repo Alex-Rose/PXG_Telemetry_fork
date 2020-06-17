@@ -6,6 +6,8 @@
 
 ApplicationSettings::ApplicationSettings() {}
 
+ApplicationSettings::ApplicationSettings(const QString &iniFile) : m_settings(iniFile, QSettings::IniFormat) {}
+
 void ApplicationSettings::init()
 {
 	if(m_settings.allKeys().isEmpty() || !QFile::exists(m_settings.fileName())) {

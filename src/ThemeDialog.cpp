@@ -1,11 +1,14 @@
 #include "ThemeDialog.h"
 #include "F1TelemetrySettings.h"
+#include "ui_CustomThemeWidget.h"
 #include "ui_ThemeDialog.h"
+
 
 #include <QBoxLayout>
 #include <QButtonGroup>
 #include <QColorDialog>
 #include <QLabel>
+#include <cmath>
 
 
 ColorButton::ColorButton(QWidget *parent, const QColor &color) : QToolButton(parent)
@@ -86,9 +89,59 @@ bool ChartThemeWidget::isChecked() const { return button()->isChecked(); }
 
 // ------------------
 
+CustomThemeWidget::CustomThemeWidget(const QString &name, QButtonGroup *group, QWidget *parent)
+: SelectableFrame(parent), ui(new Ui::CustomThemeWidget)
+{
+	ui->setupUi(this);
+	ui->rbCustomTheme->setText(name);
+	ui->rbCustomTheme->hide();
+	ui->lblName->setText(name);
+	setButton(ui->rbCustomTheme);
+	group->addButton(ui->rbCustomTheme);
+}
+
+CustomThemeWidget::~CustomThemeWidget() { delete ui; }
+
+void CustomThemeWidget::setChecked(bool value) { ui->rbCustomTheme->setChecked(value); }
+
+bool CustomThemeWidget::isChecked() const { return ui->rbCustomTheme->isChecked(); }
+
+void CustomThemeWidget::setCustomTheme(const CustomTheme &theme)
+{
+	ui->colorBackground->setColor(theme.backgroundColor);
+	ui->colorText->setColor(theme.textColor);
+	ui->colorGrid->setColor(theme.gridColor);
+
+	qDeleteAll(_customSeriesColorWidgets);
+	_customSeriesColorWidgets.clear();
+	for(const auto &color : theme.seriesColors) {
+		auto button = new ColorButton(this, color);
+		_customSeriesColorWidgets << button;
+		ui->seriesColorsLayout->addWidget(button);
+	}
+}
+
+CustomTheme CustomThemeWidget::customTheme() const
+{
+	CustomTheme theme;
+	theme.backgroundColor = ui->colorBackground->color();
+	theme.textColor = ui->colorText->color();
+	theme.gridColor = ui->colorGrid->color();
+	theme.seriesColors.clear();
+	for(const auto &button : _customSeriesColorWidgets) {
+		theme.seriesColors << button->color();
+	}
+
+	return theme;
+}
+
+// ------------------
+
 ThemeDialog::ThemeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::ThemeDialog)
 {
 	ui->setupUi(this);
+
+	connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &ThemeDialog::buttonClicked);
 
 	auto group = new QButtonGroup(this);
 
@@ -119,18 +172,11 @@ ThemeDialog::ThemeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::ThemeDia
 		}
 	}
 
-	ui->customThemeFrame->setButton(ui->rbCustomTheme);
-	ui->rbCustomTheme->hide();
-	group->addButton(ui->rbCustomTheme);
+	_customThemeWidget = new CustomThemeWidget("Custom Theme", group, this);
+	ui->themeGridLayout->addWidget(_customThemeWidget, floor(_themeWidgets.count() / nbCol), 0, 1, 2);
 
 	F1TelemetrySettings settings;
-	setCustomTheme(settings.customTheme());
-	if(settings.useCustomTheme()) {
-		ui->rbCustomTheme->setChecked(true);
-	} else {
-		auto selectedTheme = settings.theme();
-		_themeWidgets[selectedTheme]->setChecked(true);
-	}
+	setSettings(settings);
 
 	resize(minimumSizeHint());
 }
@@ -140,42 +186,37 @@ ThemeDialog::~ThemeDialog() { delete ui; }
 void ThemeDialog::accept()
 {
 	F1TelemetrySettings settings;
-	settings.setUseCustomTheme(ui->rbCustomTheme->isChecked());
-	settings.setCustomTheme(customTheme());
+	settings.setUseCustomTheme(_customThemeWidget->isChecked());
+	settings.setCustomTheme(_customThemeWidget->customTheme());
 	for(auto it = _themeWidgets.constBegin(); it != _themeWidgets.constEnd(); ++it) {
 		if(it.value()->isChecked()) {
 			settings.setTheme(it.key());
 			break;
 		}
 	}
+	settings.setLinesWidth(ui->spLineWidth->value());
+	settings.setSelectedLinesWidth(ui->spSelectedLineWidth->value());
 	QDialog::accept();
 }
 
-void ThemeDialog::setCustomTheme(const CustomTheme &theme)
+void ThemeDialog::buttonClicked(QAbstractButton *button)
 {
-	ui->colorBackground->setColor(theme.backgroundColor);
-	ui->colorText->setColor(theme.textColor);
-	ui->colorGrid->setColor(theme.gridColor);
-
-	qDeleteAll(_customSeriesColorWidgets);
-	_customSeriesColorWidgets.clear();
-	for(const auto &color : theme.seriesColors) {
-		auto button = new ColorButton(this, color);
-		_customSeriesColorWidgets << button;
-		ui->seriesColorsLayout->addWidget(button);
+	if(ui->buttonBox->buttonRole(button) == QDialogButtonBox::ResetRole) {
+		auto defaultSettings = F1TelemetrySettings::defaultSettings();
+		setSettings(*defaultSettings);
 	}
 }
 
-CustomTheme ThemeDialog::customTheme() const
+void ThemeDialog::setSettings(const F1TelemetrySettings &settings)
 {
-	CustomTheme theme;
-	theme.backgroundColor = ui->colorBackground->color();
-	theme.textColor = ui->colorText->color();
-	theme.gridColor = ui->colorGrid->color();
-	theme.seriesColors.clear();
-	for(const auto &button : _customSeriesColorWidgets) {
-		theme.seriesColors << button->color();
+	_customThemeWidget->setCustomTheme(settings.customTheme());
+	if(settings.useCustomTheme()) {
+		_customThemeWidget->setChecked(true);
+	} else {
+		auto selectedTheme = settings.theme();
+		_themeWidgets[selectedTheme]->setChecked(true);
 	}
 
-	return theme;
+	ui->spLineWidth->setValue(settings.linesWidth());
+	ui->spSelectedLineWidth->setValue(settings.selectedLinesWidth());
 }

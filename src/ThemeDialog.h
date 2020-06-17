@@ -12,7 +12,10 @@
 namespace Ui
 {
 class ThemeDialog;
-}
+class CustomThemeWidget;
+} // namespace Ui
+
+class F1TelemetrySettings;
 
 class ColorButton : public QToolButton
 {
@@ -65,6 +68,27 @@ class ChartThemeWidget : public SelectableFrame
 	bool isChecked() const;
 };
 
+class CustomThemeWidget : public SelectableFrame
+{
+	Q_OBJECT
+
+  public:
+	explicit CustomThemeWidget(const QString &name, QButtonGroup *group, QWidget *parent = nullptr);
+	~CustomThemeWidget() override;
+
+
+	void setChecked(bool value);
+	bool isChecked() const;
+
+	void setCustomTheme(const CustomTheme &theme);
+	CustomTheme customTheme() const;
+
+  private:
+	Ui::CustomThemeWidget *ui;
+
+	QList<ColorButton *> _customSeriesColorWidgets;
+};
+
 class ThemeDialog : public QDialog
 {
 	Q_OBJECT
@@ -75,15 +99,14 @@ class ThemeDialog : public QDialog
 
   public slots:
 	void accept() override;
+	void buttonClicked(QAbstractButton *button);
 
   private:
 	Ui::ThemeDialog *ui;
-
+	CustomThemeWidget *_customThemeWidget;
 	QMap<QtCharts::QChart::ChartTheme, ChartThemeWidget *> _themeWidgets;
-	QList<ColorButton *> _customSeriesColorWidgets;
 
-	void setCustomTheme(const CustomTheme &theme);
-	CustomTheme customTheme() const;
+	void setSettings(const F1TelemetrySettings &settings);
 };
 
 #endif // OPTIONSDIALOG_H

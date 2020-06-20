@@ -106,3 +106,8 @@ void Lap::loadData(QDataStream &in)
 	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
 	calculatedTyreDegradation >> calculatedTotalLostTraction;
 }
+
+void Lap::exportData(const QString path) const
+{
+    Q_UNUSED(path);
+}

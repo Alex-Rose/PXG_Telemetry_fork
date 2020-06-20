@@ -4,6 +4,7 @@
 #include <QModelIndex>
 #include <QPixmap>
 #include <QVariant>
+#include <QtConcurrent/QtConcurrent>
 
 #include <QtDebug>
 
@@ -149,4 +150,13 @@ QColor TelemetryDataTableModel::getNewColor()
 	}
 
 	return QColor(Qt::black);
+}
+
+void TelemetryDataTableModel::exportRowToCsv(int index, QString path)
+{
+    auto data = _telemetryData[index];
+
+    QtConcurrent::run([data, path] {
+        data->exportData(path);
+    });
 }

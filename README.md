@@ -1,56 +1,23 @@
 
-PXG F1 Telemetry is a tool to record, review and analyse UDP telemetry data from Codemasters F1 2019.
+PXG F1 Telemetry is a tool to record, review and analyse UDP telemetry data from Codemasters F1 2019. 
+It was originally written by Thibaud Rabillard and the original repo is available at 
+[https://bitbucket.org/Fiingon/pxg-f1-telemetry/src/master/](https://bitbucket.org/Fiingon/pxg-f1-telemetry/src/master/).
 
-## Features
+## Readme
 
-F1 Telemetry is able to analyse laps and stints (multiple consecutive laps) of every drivers in the session (human or a.i.).
+Original [readme](README.original.md).
 
-It allows you to :
+## License
+This software is licensed under [GPLv3](http://www.gnu.org/licenses/gpl-3.0.html).
 
-- Compare your lap with the A.I. or other drivers to improve your driving
-- Refine your setups
-- Prepare your own practice programmes 
-
-Data of the selected drivers is recorded on the hard drive during the session and can be reviewed later. There is no real time display !
-
-![Tracked drivers sélection](Screenshots/tracking.png)
-
-### Analysis available for laps
-
-- Speed
-- Throttle input
-- Brake input
-- Steering input
-- Gear
-- Time differences
-- Tyre wear
-- Tyre temperatures
-- Tyre degradation
-- Suspension
-- ERS balance
-- Tyres lockup
-- Car balance i.e. oversteer / understeer
-- Multiple laps comparison
-
-![Comparaison of laps](Screenshots/Laps.png)
-
-### Analysis available for stints
-
-- Lap times
-- Average tyre wear per lap
-- Max tyre temperature
-- Fuel consumption
-- ERS energy
-- Multiple stints comparison
-
-![Comparaison of stints](Screenshots/Stints.png)
-
+### Qt
+This software uses Qt under [GPLv3](license.txt) license. More information about using
+Qt for open source at [https://www.qt.io/download-open-source#obligations](https://www.qt.io/download-open-source#obligations).
 
 ## Compilation
 
 - Download and install Qt 5.14.1 or higher from www.qt.io
 - Open "F1Telemetry.pro" with Qt creator and compile the project
-
 
 ## Deployment
 
@@ -65,5 +32,5 @@ Data of the selected drivers is recorded on the hard drive during the session an
  - Arguments: "src\release\PXG F1 Telemetry.exe" --dir package
 - Copy "PXG F1 Telemetry.exe" in the package directory
 
-## Author
-Thibaud Rabillard (trabillard@laposte.net)
+## Original author
+Thibaud Rabillard

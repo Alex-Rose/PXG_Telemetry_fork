@@ -5,8 +5,39 @@
 #include <QFile>
 #include <QtDebug>
 
+#include <unordered_map>
+
 #include <fstream>
 
+namespace
+{
+    const std::unordered_map<int, std::string> c_visualTyreCompound
+    {
+        {16, "Soft"},
+        {17, "Medium"},
+        {18, "Hard"},
+        {7, "Inter"},
+        {8, "Wet"},
+    };
+
+    const std::unordered_map<int, std::string> c_actualTyreCompound
+    {
+        {16, "C5"},
+        {17, "C4"},
+        {18, "C3"},
+        {19, "C2"},
+        {20, "C1"},
+        {7, "Inter"},
+        {8, "Wet"},
+        {9, "Dry"},
+        {10, "Wet"},
+        {11, "Super soft"},
+        {12, "Soft"},
+        {13, "Medium"},
+        {14, "Hard"},
+        {15, "Wet"},
+    };
+}
 
 Stint::Stint(const QVector<TelemetryInfo> &dataInfo) : Lap(dataInfo) {}
 
@@ -54,7 +85,7 @@ void Stint::exportData(const QString path) const
 
     if (fs.is_open())
     {
-        fs << "S1,S2,S3,Lap time,Fuel end,Fuel used,Tyre wear end,Tyre wear,Tyre compound\n";
+        fs << "S1,S2,S3,Lap time,Fuel level,Tyre life,Tyre wear / lap,Fuel used,Tyre name, Tyre compound\n";
         for (const auto& lapData : laps)
         {
             fs << lapData.sector1Time        << ',';
@@ -65,7 +96,28 @@ void Stint::exportData(const QString path) const
             fs << lapData.endAverageTyreWear << ',';
             fs << lapData.tyreWear           << ',';
             fs << lapData.fuelConsumption    << ',';
-            fs << lapData.tyreCompound       << '\n';
+            {
+                auto it = c_visualTyreCompound.find(lapData.visualTyreCompound);
+                if (it != c_visualTyreCompound.end())
+                {
+                    fs << it->second << ',';
+                }
+                else
+                {
+                    fs << lapData.visualTyreCompound << ',';
+                }
+            }
+            {
+                auto it = c_actualTyreCompound.find(lapData.tyreCompound);
+                if (it != c_actualTyreCompound.end())
+                {
+                    fs << it->second << '\n';
+                }
+                else
+                {
+                    fs << lapData.tyreCompound << '\n';
+                }
+            }
         }
         fs.close();
     }
@@ -82,6 +134,7 @@ void Stint::addLap(const Lap& lap)
     lapData.endAverageTyreWear = lap.averageEndTyreWear;
     lapData.tyreWear = lap.averageEndTyreWear - lap.averageStartTyreWear;
     lapData.fuelConsumption = lap.fuelOnStart - lap.fuelOnEnd;
+    lapData.visualTyreCompound = lap.visualTyreCompound;
     lapData.tyreCompound = lap.tyreCompound;
     laps.append(lapData);
 }

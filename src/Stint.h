@@ -21,6 +21,7 @@ namespace Telemetry
         float endAverageTyreWear;
         float tyreWear;
         float fuelConsumption;
+        int visualTyreCompound;
         int tyreCompound;
 
         friend QDataStream& operator<<(QDataStream& stream, const LapData& lapData)
@@ -33,6 +34,7 @@ namespace Telemetry
             stream << lapData.endAverageTyreWear;
             stream << lapData.tyreWear          ;
             stream << lapData.fuelConsumption   ;
+            stream << lapData.visualTyreCompound;
             stream << lapData.tyreCompound      ;
             return stream;
         }
@@ -47,6 +49,7 @@ namespace Telemetry
             stream >> lapData.endAverageTyreWear;
             stream >> lapData.tyreWear          ;
             stream >> lapData.fuelConsumption   ;
+            stream >> lapData.visualTyreCompound;
             stream >> lapData.tyreCompound      ;
             return stream;
         }

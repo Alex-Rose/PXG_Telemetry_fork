@@ -80,6 +80,10 @@ void CompareTelemetryWidget::initActions()
 	removeAction->setText("Remove (" + removeAction->shortcut().toString() + ")");
 	connect(removeAction, &QAction::triggered, this, &CompareTelemetryWidget::removeData);
 	addAction(removeAction);
+
+    auto setExportAction = _telemetryContextMenu->addAction("Export data to CSV");
+    connect(setExportAction, &QAction::triggered, this, &CompareTelemetryWidget::exportCsv);
+    addAction(setExportAction);
 }
 
 CompareTelemetryWidget::~CompareTelemetryWidget() { delete ui; }
@@ -687,4 +691,19 @@ bool CompareTelemetryWidget::eventFilter(QObject *obj, QEvent *event)
 	}
 
 	return QWidget::eventFilter(obj, event);
+}
+
+void CompareTelemetryWidget::exportCsv()
+{
+    auto path = QFileDialog::getSaveFileName(this, "Export data to CSV", "", "*.csv", nullptr,
+                                               QFileDialog::DontUseNativeDialog);
+    if (!path.endsWith(".csv"))
+    {
+        path.append(".csv");
+    }
+
+    auto currentIndex = ui->lapsTableView->currentIndex();
+    if(currentIndex.isValid()) {
+        _telemetryDataModel->exportRowToCsv(currentIndex.row(), path);
+    }
 }

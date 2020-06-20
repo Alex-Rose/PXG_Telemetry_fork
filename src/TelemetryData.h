@@ -21,6 +21,7 @@ class TelemetryData
 	virtual ~TelemetryData() = default;
 
 	virtual QString description() const = 0;
+    virtual void exportData(const QString path) const = 0;
 
 	void addData(float x, const QVector<float> &dataValues);
 	void clearData();

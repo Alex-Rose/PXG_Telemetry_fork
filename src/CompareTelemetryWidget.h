@@ -109,6 +109,7 @@ class CompareTelemetryWidget : public QWidget
 	void changeReferenceData();
 	void removeData();
 	void showTrackLayout(bool value);
+    void exportCsv();
 };
 
 #endif // COMPARETELEMETRYWIDGET_H

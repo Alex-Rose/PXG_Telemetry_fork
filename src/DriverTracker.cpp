@@ -8,6 +8,7 @@
 #include <QtDebug>
 #include <QtGlobal>
 #include <cmath>
+#include <QtMath>
 
 
 DriverTracker::DriverTracker(int driverIndex) : _driverIndex(driverIndex)
@@ -152,7 +153,7 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 			_isLapRecorded = false;
 		}
 	} else if(finishLineCrossed(lapData)) {
-		if(_isLapRecorded and driverDirDefined) {
+        if(_isLapRecorded && driverDirDefined) {
 			// A tracked lap ended
 			saveCurrentLap(lapData);
 		}
@@ -312,6 +313,9 @@ void DriverTracker::addLapToStint(Lap *lap)
 	}
 
 	_currentStint->nbFlashback += lap->nbFlashback;
+
+    // Add full lap data to stint
+    _currentStint->addLap(*lap);
 }
 
 void DriverTracker::startLap(const LapData &lapData)
@@ -339,7 +343,7 @@ void DriverTracker::startLap(const LapData &lapData)
 	_currentLap->energyBalance = _currentStatusData.m_ersStoreEnergy;
 
 
-	if(!_currentStint->hasData() and driverDirDefined) {
+    if(!_currentStint->hasData() && driverDirDefined) {
 		qDebug() << "STINT Started : " << driverDataDirectory.dirName();
 
 		// A new stint started

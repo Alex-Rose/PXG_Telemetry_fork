@@ -26,6 +26,7 @@ class TelemetryDataTableModel : public QAbstractTableModel
 	void addTelemetryData(const QVector<TelemetryData *> &data);
 	void removeTelemetryData(int index);
 	void clear();
+    void exportRowToCsv(int index, QString path);
 
 	void setColors(const QList<QColor> &colors);
 	QList<QColor> colors() const;

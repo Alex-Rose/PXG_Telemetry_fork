@@ -79,7 +79,6 @@ void CompareTelemetryWidget::initActions()
 
 	auto setColorAction = _telemetryContextMenu->addAction("Change color...");
 	connect(setColorAction, &QAction::triggered, this, &CompareTelemetryWidget::changeColor);
-	connect(ui->lapsTableView, &QTableView::doubleClicked, this, &CompareTelemetryWidget::changeColor);
 	addAction(setColorAction);
 
 	addAction(_telemetryContextMenu->addSeparator());

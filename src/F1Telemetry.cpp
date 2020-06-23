@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QTextEdit>
 #include <QTimer>
 
@@ -218,6 +219,7 @@ void F1Telemetry::showChangeLog()
 		simplifyRegexp.setMinimal(true);
 		html.remove(simplifyRegexp);
 		edit->document()->setHtml(html);
+		edit->moveCursor(QTextCursor::Start);
 
 		dialog.resize(700, 700);
 		dialog.exec();

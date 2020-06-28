@@ -3,15 +3,16 @@ PXG F1 Telemetry is a tool to record, review and analyse UDP telemetry data from
 
 ## Features
 
-F1 Telemetry is able to analyse laps and stints (multiple consecutive laps) of every drivers in the session (human or a.i.).
+F1 Telemetry is able to analyse laps, stints (multiple consecutive laps) and races of every drivers in the session (human or a.i.).
 
 It allows you to :
 
-- Compare your lap with the A.I. or other drivers to improve your driving
+- Compare your laps with the A.I. or other drivers to improve your driving
 - Refine your setups
 - Prepare your own practice programmes 
+- Analyse what happend during a race
 
-Data of the selected drivers is recorded on the hard drive during the session and can be reviewed later. There is no real time display !
+Data of the selected drivers is recorded on the hard drive during the sessions and can be reviewed later. There is no real time display !
 
 ![Tracked drivers sélection](Screenshots/tracking.png)
 
@@ -45,10 +46,26 @@ Data of the selected drivers is recorded on the hard drive during the session an
 
 ![Comparaison of stints](Screenshots/Stints.png)
 
+### Analysis available for races
+
+- Race position
+- Race time
+- Lap times
+- Tyre life
+- Fuel consumption
+- ERS energy
+- Weather changes
+- Air / track temperature
+- Front wing damage
+- Pitstop duration
+- Penalities received
+
+![Analysis of races](Screenshots/Race.png)
+
 
 ## Compilation
 
-- Download and install Qt 5.14.1 or higher from www.qt.io
+- Download and install the open source version of Qt 5.14.1 or higher from www.qt.io
 - Open "F1Telemetry.pro" with Qt creator and compile the project
 
 
@@ -64,6 +81,7 @@ Data of the selected drivers is recorded on the hard drive during the session an
  - Command: %QTDIR%/bin/windeployqt.exe
  - Arguments: "src\release\PXG F1 Telemetry.exe" --dir package
 - Copy "PXG F1 Telemetry.exe" in the package directory
+- Install and copy the OpenSSL dll inside the package directory
 
 ## Author
-Thibaud Rabillard (trabillard@laposte.net)
+Thibaud Rabillard (pxgf1telemetry@laposte.net)

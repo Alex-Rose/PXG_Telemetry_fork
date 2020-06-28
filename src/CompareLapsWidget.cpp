@@ -29,17 +29,9 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 
 	tree->clear();
 
-	auto team = UdpSpecification::instance()->team(lap->driver.m_teamId);
-	new QTreeWidgetItem(tree, {"Driver", lap->driver.m_name + QString(" (%1)").arg(team)});
-
-	auto track = UdpSpecification::instance()->track(lap->track);
-	auto sessionType = UdpSpecification::instance()->session_type(lap->session_type);
-	new QTreeWidgetItem(tree, {"Track", track + QString(" (%1)").arg(sessionType)});
-
-	auto weather = UdpSpecification::instance()->weather(lap->weather);
-	auto weatherItem = new QTreeWidgetItem(tree, {"Weather", weather});
-	new QTreeWidgetItem(weatherItem, {"Air Temp.", QString::number(lap->airTemp) + "°C"});
-	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(lap->trackTemp) + "°C"});
+	driverItem(tree, lap);
+	trackItem(tree, lap);
+	weatherItem(tree, lap);
 
 	auto time = QTime(0, 0).addMSecs(int(double(lap->lapTime) * 1000.0)).toString("m:ss.zzz");
 	if(lap->isOutLap)
@@ -62,13 +54,7 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	new QTreeWidgetItem(maxSpeedItem, {"Fuel Mix", fuelMix});
 	maxSpeedItem->setExpanded(true);
 
-	auto compound = UdpSpecification::instance()->tyre(lap->tyreCompound);
-	auto visualCompound = UdpSpecification::instance()->visualTyre(lap->visualTyreCompound);
-	if(compound != visualCompound && !visualCompound.isEmpty()) {
-		compound += " - " + visualCompound;
-	}
-	new QTreeWidgetItem(tree, {"Tyre Compound", compound});
-
+	tyreCompoundItem(tree, lap);
 	tyreItem(tree, lap);
 
 	auto tempItem = tyreTempItem(tree, lap);
@@ -78,6 +64,11 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	auto fuelItem = new QTreeWidgetItem(tree, {"Fuel Consumption", QString::number(qAbs(lapFuel)) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"Start", QString::number(lap->fuelOnStart) + "kg"});
 	new QTreeWidgetItem(fuelItem, {"End", QString::number(lap->fuelOnEnd) + "kg"});
+	for(auto it = lap->fuelMix.distancesPerMode.constBegin(); it != lap->fuelMix.distancesPerMode.constEnd(); ++it) {
+		auto percentage = (it.value() / lap->trackDistance) * 100.0;
+		new QTreeWidgetItem(
+			fuelItem, {UdpSpecification::instance()->fuelMix(it.key()), QString::number(percentage, 'f', 2) + "%"});
+	}
 
 	auto ersItem = new QTreeWidgetItem(tree, {"ERS Energy", QString::number(int(lap->energy / 1000.0)) + "kJ"});
 	new QTreeWidgetItem(ersItem, {"Balance", QString::number(int(lap->energyBalance / 1000.0)) + "kJ"});
@@ -85,7 +76,8 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 	new QTreeWidgetItem(ersItem, {"Harvested", QString::number(int(lap->harvestedEnergy / 1000.0)) + "kJ"});
 	for(auto it = lap->ers.distancesPerMode.constBegin(); it != lap->ers.distancesPerMode.constEnd(); ++it) {
 		auto percentage = (it.value() / lap->trackDistance) * 100.0;
-		new QTreeWidgetItem(ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(percentage, 'f', 2) + "%"});
+		new QTreeWidgetItem(
+			ersItem, {UdpSpecification::instance()->ersMode(it.key()), QString::number(percentage, 'f', 2) + "%"});
 	}
 	ersItem->setExpanded(true);
 
@@ -93,8 +85,7 @@ void CompareLapsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *dat
 
 	new QTreeWidgetItem(tree, {"Balance", QString::number(lap->meanBalance)});
 
-	auto recordItem = new QTreeWidgetItem(tree, {"Record Date", lap->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
-	new QTreeWidgetItem(recordItem, {"Flashbacks", QString::number(lap->nbFlashback)});
+	recordItem(tree, lap);
 
 	tree->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }

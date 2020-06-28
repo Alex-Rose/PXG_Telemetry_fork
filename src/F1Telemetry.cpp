@@ -1,8 +1,9 @@
 #include "F1Telemetry.h"
 #include "AboutDialog.h"
 #include "CheckUpdatesDialog.h"
+#include "F1TelemetrySettings.h"
 #include "FileDownloader.h"
-#include "SettingsKeys.h"
+#include "ThemeDialog.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
 
@@ -10,19 +11,22 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QTextEdit>
 #include <QTimer>
 
 F1Telemetry::F1Telemetry(QWidget *parent) : QMainWindow(parent), ui(new Ui::F1Telemetry)
 {
+	initDefaultSettings();
+
 	ui->setupUi(this);
+
+	updateTheme();
 
 	setWindowIcon(QIcon(":/Ressources/F1Telemetry.png"));
 	setWindowTitle(qApp->applicationName() + " " + qApp->applicationVersion());
 
 	_tracker = new Tracker(this);
-
-	initDefaultSettings();
 
 	buildListener();
 
@@ -54,18 +58,18 @@ F1Telemetry::~F1Telemetry() { delete ui; }
 void F1Telemetry::buildListener()
 {
 	delete _listener;
-	auto address = QSettings().value(SERVER).toString();
-	auto port = QSettings().value(PORT).toInt();
-	_listener = new F1Listener(_tracker, address, port, this);
+	F1TelemetrySettings settings;
+	_listener = new F1Listener(_tracker, settings.server(), settings.port(), this);
 	ui->trackingWidget->setConnectionStatus(_listener->isConnected());
 }
 
 void F1Telemetry::loadSettings()
 {
-	QSettings settings;
+	F1TelemetrySettings settings;
 	ui->trackingWidget->loadSettings(&settings);
 	ui->compareLapsWidget->loadSettings(&settings);
 	ui->compareStintsWidget->loadSettings(&settings);
+	ui->compareRaceWidget->loadSettings(&settings);
 
 	restoreGeometry(settings.value("windowGeometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
@@ -74,10 +78,11 @@ void F1Telemetry::loadSettings()
 
 void F1Telemetry::saveSetings()
 {
-	QSettings settings;
+	F1TelemetrySettings settings;
 	ui->trackingWidget->saveSettings(&settings);
 	ui->compareLapsWidget->saveSettings(&settings);
-	ui->compareStintsWidget->loadSettings(&settings);
+	ui->compareStintsWidget->saveSettings(&settings);
+	ui->compareRaceWidget->saveSettings(&settings);
 
 	settings.setValue("windowGeometry", saveGeometry());
 	settings.setValue("windowState", saveState());
@@ -86,15 +91,15 @@ void F1Telemetry::saveSetings()
 
 void F1Telemetry::initDefaultSettings()
 {
-	QSettings settings;
-	if(!settings.contains(PORT))
-		settings.setValue(PORT, 20777);
-	if(!settings.contains(SERVER))
-		settings.setValue(SERVER, "");
+	F1TelemetrySettings settings;
+	settings.init();
 }
 
 void F1Telemetry::initMenu()
 {
+	auto viewMenu = ui->menuBar->addMenu("&View");
+	viewMenu->addAction("Theme...", this, &F1Telemetry::editTheme);
+
 	auto helpMenu = ui->menuBar->addMenu("&Help");
 
 	helpMenu->addAction("About &Qt", [=]() { QMessageBox::aboutQt(this, qApp->applicationName()); });
@@ -135,6 +140,7 @@ void F1Telemetry::closeEvent(QCloseEvent *event)
 void F1Telemetry::startTracking(bool trackPlayer,
 								bool trackTeammate,
 								bool trackAllCars,
+								bool trackAllRace,
 								const QVector<int> &trackedDriverIds)
 {
 	_tracker->clearTrackedDrivers();
@@ -144,6 +150,8 @@ void F1Telemetry::startTracking(bool trackPlayer,
 		_tracker->trackTeammate();
 	if(trackAllCars)
 		_tracker->trackAllCars();
+	if(trackAllRace)
+		_tracker->trackAllRace();
 	for(auto id : trackedDriverIds)
 		_tracker->trackDriver(id);
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
@@ -163,7 +171,7 @@ void F1Telemetry::fileDownloaded(int type, const QByteArray &data)
 		if(isGreaterVersion(data)) {
 
 			qInfo() << "A newer version is available";
-			QSettings settings;
+			F1TelemetrySettings settings;
 			if(!_isAutoCheckUpdates || settings.value("skipedVersion") != data) {
 				_downloader->downloadFile(
 					QUrl("https://bitbucket.org/Fiingon/pxg-f1-telemetry/raw/master/Changelog.md"), ChangelogFile);
@@ -211,6 +219,7 @@ void F1Telemetry::showChangeLog()
 		simplifyRegexp.setMinimal(true);
 		html.remove(simplifyRegexp);
 		edit->document()->setHtml(html);
+		edit->moveCursor(QTextCursor::Start);
 
 		dialog.resize(700, 700);
 		dialog.exec();
@@ -219,9 +228,8 @@ void F1Telemetry::showChangeLog()
 
 void F1Telemetry::changelogAutoDisplay()
 {
-	QSettings settings;
-	if(!settings.allKeys().isEmpty() &&
-	   settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
+	F1TelemetrySettings settings;
+	if(!settings.isEmpty() && settings.value("lastChangelogAutoDisplay").toString() != qApp->applicationVersion()) {
 		QTimer::singleShot(0, this, &F1Telemetry::showChangeLog);
 		settings.setValue("lastChangelogAutoDisplay", qApp->applicationVersion());
 	}
@@ -243,4 +251,28 @@ void F1Telemetry::contact()
 	layout->addItem(horizontalSpacer, layout->rowCount(), 0, 1, layout->columnCount());
 
 	msg.exec();
+}
+
+void F1Telemetry::editTheme()
+{
+	ThemeDialog dialog(this);
+	if(dialog.exec() == QDialog::Accepted) {
+		updateTheme();
+	}
+}
+
+void F1Telemetry::updateTheme()
+{
+	F1TelemetrySettings settings;
+	if(settings.useCustomTheme()) {
+		auto customTheme = settings.customTheme();
+		ui->compareLapsWidget->setCustomTheme(customTheme);
+		ui->compareStintsWidget->setCustomTheme(customTheme);
+		ui->compareRaceWidget->setCustomTheme(customTheme);
+	} else {
+		auto theme = settings.theme();
+		ui->compareLapsWidget->setTheme(theme);
+		ui->compareStintsWidget->setTheme(theme);
+		ui->compareRaceWidget->setTheme(theme);
+	}
 }

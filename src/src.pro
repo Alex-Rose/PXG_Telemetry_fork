@@ -1,4 +1,4 @@
-#-------------------------------------------------
+    #-------------------------------------------------
 #
 # Project created by QtCreator 2018-10-21T14:38:28
 #
@@ -26,10 +26,14 @@ CONFIG += c++14
 
 SOURCES += \
     CheckUpdatesDialog.cpp \
+    CustomTheme.cpp \
+    F1TelemetrySettings.cpp \
     FileDownloader.cpp \
+    Race.cpp \
     TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
     TelemetryDefinitions.cpp \
+    ThemeDialog.cpp \
         main.cpp \
         F1Telemetry.cpp \
     F1Listener.cpp \
@@ -47,17 +51,22 @@ SOURCES += \
     CompareTelemetryWidget.cpp \
     CompareLapsWidget.cpp \
     CompareStintsWidget.cpp \
-    AboutDialog.cpp
+    CompareRaceWidget.cpp \
+    AboutDialog.cpp \
+    ApplicationSettings.cpp
 
 HEADERS += \
     CheckUpdatesDialog.h \
+    CustomTheme.h \
         F1Telemetry.h \
     F1Listener.h \
+    F1TelemetrySettings.h \
     FileDownloader.h \
-    SettingsKeys.h \
+    Race.h \
     TTGhostsTracker.h \
     TelemetryChartView.h \
     TelemetryDefinitions.h \
+    ThemeDialog.h \
     UdpSpecification.h \
     Tracker.h \
     DriverTracker.h \
@@ -72,11 +81,15 @@ HEADERS += \
     CompareTelemetryWidget.h \
     CompareLapsWidget.h \
     CompareStintsWidget.h \
-    AboutDialog.h
+    CompareRaceWidget.h \
+    AboutDialog.h \
+    ApplicationSettings.h
 
 FORMS += \
     CheckUpdatesDialog.ui \
+    CustomThemeWidget.ui \
         F1Telemetry.ui \
+    ThemeDialog.ui \
     TrackingWidget.ui \
     CompareTelemetryWidget.ui \
     AboutDialog.ui

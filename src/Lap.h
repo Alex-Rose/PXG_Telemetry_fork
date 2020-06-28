@@ -17,8 +17,9 @@ class Lap : public TelemetryData
 	Lap(const QVector<TelemetryInfo> &dataInfo = {});
 
 	virtual QString description() const;
+	virtual void resetData();
+	QVariant autoSortData() const;
 
-	void resetData();
 	void removeTelemetryFrom(float distance);
 
 	// Metadata
@@ -47,7 +48,8 @@ class Lap : public TelemetryData
 	int visualTyreCompound = -1;
 	double fuelOnStart = 0;
 	double fuelOnEnd = 0;
-	ErsData ers;
+	ModeData ers;
+	ModeData fuelMix;
 	double energy = 0;
 	double harvestedEnergy = 0;
 	double deployedEnergy = 0;

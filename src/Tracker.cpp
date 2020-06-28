@@ -55,6 +55,15 @@ void Tracker::updateAutoTrackedDrivers()
 		if(!_trackedIndexes.contains(carIndex))
 			trackDriver(carIndex);
 	}
+
+	if(_addAllRaceCarsTrackingOnStart && _session.isRace()) {
+		for(int carIndex = 0; carIndex < 20; ++carIndex) {
+			if(!_participants.m_participants[carIndex].m_name.isEmpty() && !_trackedIndexes.contains(carIndex)) {
+				trackDriver(carIndex, true);
+				_autoTrackedIndexes.insert(carIndex);
+			}
+		}
+	}
 }
 
 void Tracker::start()
@@ -97,9 +106,9 @@ void Tracker::stop()
 	emit statusChanged("", false);
 }
 
-void Tracker::trackDriver(int index)
+void Tracker::trackDriver(int index, bool raceOnly)
 {
-	auto driver = std::make_shared<DriverTracker>(index);
+	auto driver = std::make_shared<DriverTracker>(index, raceOnly);
 	_trackedDrivers.append(driver);
 	_trackedIndexes.insert(index);
 }
@@ -109,6 +118,8 @@ void Tracker::trackPlayer() { _addPlayerTrackingOnStart = true; }
 void Tracker::trackTeammate() { _addTeammateTrackingOnStart = true; }
 
 void Tracker::trackAllCars() { _addAllCarsTrackingOnStart = true; }
+
+void Tracker::trackAllRace() { _addAllRaceCarsTrackingOnStart = true; }
 
 void Tracker::untrackDriver(int index)
 {
@@ -129,6 +140,7 @@ void Tracker::clearTrackedDrivers()
 	_addPlayerTrackingOnStart = false;
 	_addTeammateTrackingOnStart = false;
 	_addAllCarsTrackingOnStart = false;
+	_addAllRaceCarsTrackingOnStart = false;
 }
 
 QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const

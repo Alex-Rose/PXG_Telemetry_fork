@@ -48,13 +48,19 @@ class F1Telemetry : public QMainWindow
 
   private slots:
 	void buildListener();
-	void startTracking(bool trackPlayer, bool trackTeammate, bool trackAllCars, const QVector<int> &trackedDriverIds);
+	void startTracking(bool trackPlayer,
+					   bool trackTeammate,
+					   bool trackAllCars,
+					   bool trackAllRace,
+					   const QVector<int> &trackedDriverIds);
 
 	void checkUpdates();
 	void fileDownloaded(int type, const QByteArray &data);
 	void showChangeLog();
 	void changelogAutoDisplay();
 	void contact();
+	void editTheme();
+	void updateTheme();
 };
 
 #endif // F1TELEMETRY_H

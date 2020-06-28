@@ -1,4 +1,5 @@
 #include "CompareTelemetryWidget.h"
+#include "F1TelemetrySettings.h"
 #include "TelemetryChartView.h"
 #include "TelemetryDataTableModel.h"
 #include "ui_CompareTelemetryWidget.h"
@@ -6,6 +7,7 @@
 #include <QBarCategoryAxis>
 #include <QBoxPlotSeries>
 #include <QCategoryAxis>
+#include <QColorDialog>
 #include <QFileDialog>
 #include <QGraphicsProxyWidget>
 #include <QLineSeries>
@@ -35,7 +37,7 @@ CompareTelemetryWidget::CompareTelemetryWidget(const QString &unitX, QWidget *pa
 	ui->graphLayout->insertWidget(0, _toolbar);
 	initActions();
 
-	_telemetryDataModel = new TelemetryDataTableModel();
+	_telemetryDataModel = new TelemetryDataTableModel(themeColors(_theme));
 	ui->lapsTableView->setModel(_telemetryDataModel);
 	ui->lapsTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->lapsTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -70,10 +72,38 @@ void CompareTelemetryWidget::initActions()
 			&CompareTelemetryWidget::telemetryTableContextMenu);
 
 	_telemetryContextMenu = new QMenu(this);
-	auto setRefAction = _telemetryContextMenu->addAction("Define as reference lap (R)");
+	auto setRefAction = _telemetryContextMenu->addAction("Define as reference (R)");
 	setRefAction->setShortcut(Qt::Key_R);
 	connect(setRefAction, &QAction::triggered, this, &CompareTelemetryWidget::changeReferenceData);
 	addAction(setRefAction);
+
+	auto setColorAction = _telemetryContextMenu->addAction("Change color...");
+	connect(setColorAction, &QAction::triggered, this, &CompareTelemetryWidget::changeColor);
+	addAction(setColorAction);
+
+	addAction(_telemetryContextMenu->addSeparator());
+
+	auto checkAllAction = _telemetryContextMenu->addAction("Check All");
+	connect(checkAllAction, &QAction::triggered, this, [this]() { _telemetryDataModel->setVisibleAll(true); });
+	addAction(checkAllAction);
+
+	auto checkOthersAction = _telemetryContextMenu->addAction("Check Others");
+	connect(checkOthersAction, &QAction::triggered, this,
+			[this]() { _telemetryDataModel->setVisibleAllExcept(ui->lapsTableView->currentIndex().row(), true); });
+	addAction(checkOthersAction);
+
+	addAction(_telemetryContextMenu->addSeparator());
+
+	auto uncheckAllAction = _telemetryContextMenu->addAction("Uncheck All");
+	connect(uncheckAllAction, &QAction::triggered, this, [this]() { _telemetryDataModel->setVisibleAll(false); });
+	addAction(uncheckAllAction);
+
+	auto uncheckOthersAction = _telemetryContextMenu->addAction("Uncheck Others");
+	connect(uncheckOthersAction, &QAction::triggered, this,
+			[this]() { _telemetryDataModel->setVisibleAllExcept(ui->lapsTableView->currentIndex().row(), false); });
+	addAction(uncheckOthersAction);
+
+	addAction(_telemetryContextMenu->addSeparator());
 
 	auto removeAction = _telemetryContextMenu->addAction("Rem");
 	removeAction->setShortcut(QKeySequence::Delete);
@@ -84,8 +114,10 @@ void CompareTelemetryWidget::initActions()
 
 CompareTelemetryWidget::~CompareTelemetryWidget() { delete ui; }
 
-void CompareTelemetryWidget::addTelemetryData(const QVector<TelemetryData *> &telemetry)
+void CompareTelemetryWidget::addTelemetryData(QVector<TelemetryData *> telemetry)
 {
+	std::sort(telemetry.begin(), telemetry.end(),
+			  [](auto t1, auto t2) { return t1->autoSortData() < t2->autoSortData(); });
 	_telemetryDataModel->addTelemetryData(telemetry);
 	ui->lapsTableView->setCurrentIndex(
 		_telemetryDataModel->index(_telemetryDataModel->rowCount() - telemetry.count(), 0));
@@ -123,10 +155,6 @@ void CompareTelemetryWidget::reloadVariableSeries(QChart *chart,
 				chart->addSeries(statsSeries);
 			}
 		}
-
-
-		// Uncomment to print the track distance under the mouse
-		// connect(lineSeries, &QLineSeries::hovered, [](const auto& point){qDebug() << "Distance : " << point;});
 	}
 
 	if(chart->series().isEmpty()) {
@@ -280,6 +308,10 @@ void CompareTelemetryWidget::createAxis(QChart *chart, bool stats)
 		auto xAxis = static_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal)[0]);
 		xAxis->setLabelsVisible(false);
 	}
+
+	if(_customTheme.isValid()) {
+		_customTheme.apply(chart);
+	}
 }
 
 void CompareTelemetryWidget::setTelemetry(const QVector<TelemetryData *> &telemetry)
@@ -350,6 +382,10 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 			chart->legend()->hide();
 			chart->setTitle(var.completeName());
 
+			chart->setTheme(_theme);
+			if(_customTheme.isValid()) {
+				_customTheme.apply(chart);
+			}
 
 			QSizePolicy pol(QSizePolicy::Expanding, QSizePolicy::Expanding);
 			pol.setVerticalStretch(1);
@@ -387,7 +423,7 @@ void CompareTelemetryWidget::createVariables(const QVector<TelemetryInfo> &varia
 	ui->variableLayout->setColumnStretch(1, 1);
 }
 
-void CompareTelemetryWidget::saveSettings(QSettings *settings)
+void CompareTelemetryWidget::saveSettings(F1TelemetrySettings *settings)
 {
 	settings->beginGroup("LapComparison");
 	settings->setValue("splitterState", ui->splitter->saveState());
@@ -395,7 +431,7 @@ void CompareTelemetryWidget::saveSettings(QSettings *settings)
 	settings->endGroup();
 }
 
-void CompareTelemetryWidget::loadSettings(QSettings *settings)
+void CompareTelemetryWidget::loadSettings(F1TelemetrySettings *settings)
 {
 	settings->beginGroup("LapComparison");
 	ui->splitter->restoreState(settings->value("splitterState").toByteArray());
@@ -421,6 +457,73 @@ void CompareTelemetryWidget::setTrackIndex(int trackIndex)
 									   .scaled(QSize(ui->lblTrackMap->width(), ui->lblTrackMap->height()),
 											   Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	}
+}
+
+void CompareTelemetryWidget::setTheme(QChart::ChartTheme theme)
+{
+	if(_theme != theme) {
+		_theme = theme;
+		_customTheme = CustomTheme();
+		_telemetryDataModel->setBaseColors(themeColors(theme));
+		for(const auto &view : qAsConst(_variablesCharts)) {
+			view->chart()->setTheme(theme);
+		}
+
+		updateData();
+	}
+
+	refreshHighlighting();
+}
+
+void CompareTelemetryWidget::setCustomTheme(const CustomTheme &theme)
+{
+	if(theme != _customTheme && theme.isValid()) {
+		_customTheme = theme;
+		_telemetryDataModel->setBaseColors(theme.seriesColors);
+		updateData();
+		for(const auto &view : qAsConst(_variablesCharts)) {
+			theme.apply(view->chart());
+		}
+	}
+
+	refreshHighlighting();
+}
+
+void CompareTelemetryWidget::highlight(int lapIndex)
+{
+	F1TelemetrySettings settings;
+	for(const auto &chartView : _variablesCharts) {
+		int index = 0;
+		for(const auto &serie : chartView->chart()->series()) {
+			if(serie->type() == QAbstractSeries::SeriesTypeLine) {
+				auto lineSerie = static_cast<QXYSeries *>(serie);
+				auto pen = lineSerie->pen();
+				pen.setWidth(lapIndex == index && _selectionHighlighted ? settings.selectedLinesWidth() :
+																		  settings.linesWidth());
+				lineSerie->setPen(pen);
+			}
+
+			++index;
+		}
+	}
+}
+
+void CompareTelemetryWidget::refreshHighlighting() { highlight(ui->lapsTableView->currentIndex().row()); }
+
+QList<QColor> CompareTelemetryWidget::themeColors(QChart::ChartTheme theme) const
+{
+	QList<QColor> colors;
+
+	QChart chart;
+	chart.setTheme(theme);
+
+	for(int i = 0; i < 5; ++i) {
+		auto serie = new QLineSeries(&chart);
+		chart.addSeries(serie);
+		colors << serie->color();
+	}
+
+	return colors;
 }
 
 void CompareTelemetryWidget::clearVariables()
@@ -485,6 +588,8 @@ void CompareTelemetryWidget::telemetryDataSelected(const QModelIndex &current, c
 	const auto &data = _telemetryDataModel->getTelemetryData().value(current.row());
 	fillInfoTree(ui->infoTreeWidget, data);
 
+	highlight(current.row());
+
 	//	ui->lapInfo->setLap(data);
 }
 
@@ -501,6 +606,7 @@ void CompareTelemetryWidget::changeVariableDiff(int varIndex)
 	auto newAxis = qobject_cast<QValueAxis *>(chartView->chart()->axes(Qt::Horizontal)[0]);
 	newAxis->setRange(prevMin, prevMax);
 	setTelemetryVisibility(_telemetryDataModel->getVisibility());
+	refreshHighlighting();
 }
 
 void CompareTelemetryWidget::changeStats(int varIndex)
@@ -532,6 +638,23 @@ void CompareTelemetryWidget::changeReferenceData()
 	if(currentIndex.isValid()) {
 		_telemetryDataModel->setReferenceLapIndex(currentIndex.row());
 		updateData();
+		highlight(currentIndex.row());
+	}
+}
+
+void CompareTelemetryWidget::changeColor()
+{
+	auto currentIndex = ui->lapsTableView->currentIndex();
+	if(currentIndex.isValid()) {
+		auto colors = _telemetryDataModel->colors();
+		auto color = colors.value(currentIndex.row());
+		color = QColorDialog::getColor(color, this, "Select the new color");
+		if(color.isValid()) {
+			colors[currentIndex.row()] = color;
+			_telemetryDataModel->setColors(colors);
+			updateData();
+			highlight(currentIndex.row());
+		}
 	}
 }
 
@@ -643,6 +766,44 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreItem(QTreeWidget *tree, const Lap *
 	new QTreeWidgetItem(tyreWearItem,
 						{"Calculated lost traction", QString("%1%").arg(lap->calculatedTotalLostTraction)});
 	return tyreWearItem;
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::recordItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto recordItem = new QTreeWidgetItem(tree, {"Record Date", lap->recordDate.toString("dd/MM/yyyy hh:mm:ss")});
+	return new QTreeWidgetItem(recordItem, {"Flashbacks", QString::number(lap->nbFlashback)});
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::driverItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto team = UdpSpecification::instance()->team(lap->driver.m_teamId);
+	return new QTreeWidgetItem(tree, {"Driver", lap->driver.m_name + QString(" (%1)").arg(team)});
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::trackItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto track = UdpSpecification::instance()->track(lap->track);
+	auto sessionType = UdpSpecification::instance()->session_type(lap->session_type);
+	return new QTreeWidgetItem(tree, {"Track", track + QString(" (%1)").arg(sessionType)});
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::weatherItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto weather = UdpSpecification::instance()->weather(lap->weather);
+	auto weatherItem = new QTreeWidgetItem(tree, {"Weather", weather});
+	new QTreeWidgetItem(weatherItem, {"Air Temp.", QString::number(lap->airTemp) + "°C"});
+	new QTreeWidgetItem(weatherItem, {"Track Temp.", QString::number(lap->trackTemp) + "°C"});
+	return weatherItem;
+}
+
+QTreeWidgetItem *CompareTelemetryWidget::tyreCompoundItem(QTreeWidget *tree, const Lap *lap) const
+{
+	auto compound = UdpSpecification::instance()->tyre(lap->tyreCompound);
+	auto visualCompound = UdpSpecification::instance()->visualTyre(lap->visualTyreCompound);
+	if(compound != visualCompound && !visualCompound.isEmpty()) {
+		compound += " - " + visualCompound;
+	}
+	return new QTreeWidgetItem(tree, {"Tyre Compound", compound});
 }
 
 float CompareTelemetryWidget::findMedian(int begin, int end, const QVector<float> &data)

@@ -1,6 +1,7 @@
 #ifndef COMPARETELEMETRYWIDGET_H
 #define COMPARETELEMETRYWIDGET_H
 
+#include "CustomTheme.h"
 #include "Lap.h"
 
 #include <QAbstractSeries>
@@ -8,7 +9,6 @@
 #include <QCheckBox>
 #include <QLineSeries>
 #include <QRadioButton>
-#include <QSettings>
 #include <QSignalMapper>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -19,6 +19,7 @@ namespace Ui
 class CompareTelemetryWidget;
 }
 
+class F1TelemetrySettings;
 class TelemetryDataTableModel;
 class TelemetryChartView;
 
@@ -30,18 +31,23 @@ class CompareTelemetryWidget : public QWidget
 	explicit CompareTelemetryWidget(const QString &unitX, QWidget *parent = nullptr);
 	virtual ~CompareTelemetryWidget();
 
-	void addTelemetryData(const QVector<TelemetryData *> &telemetry);
+	void addTelemetryData(QVector<TelemetryData *> telemetry);
 
-	void saveSettings(QSettings *settings);
-	void loadSettings(QSettings *settings);
+	void saveSettings(F1TelemetrySettings *settings);
+	void loadSettings(F1TelemetrySettings *settings);
 
 	void setDataName(const QString &name);
 
 	void setTrackIndex(int trackIndex);
 
+	void setTheme(QtCharts::QChart::ChartTheme theme);
+	void setCustomTheme(const CustomTheme &theme);
+
   private:
 	Ui::CompareTelemetryWidget *ui;
 	QString _unitX;
+	QtCharts::QChart::ChartTheme _theme = QtCharts::QChart::ChartThemeLight;
+	CustomTheme _customTheme;
 	TelemetryDataTableModel *_telemetryDataModel;
 	QList<QCheckBox *> _variableCheckboxes;
 	QList<QCheckBox *> _diffCheckboxes;
@@ -51,6 +57,7 @@ class CompareTelemetryWidget : public QWidget
 	QToolBar *_toolbar;
 	QMenu *_telemetryContextMenu;
 	int _trackIndex = -1;
+	bool _selectionHighlighted = true;
 
 	QSignalMapper *_diffCheckMapper;
 	QSignalMapper *_statsCheckMapper;
@@ -63,8 +70,11 @@ class CompareTelemetryWidget : public QWidget
 							  bool diff,
 							  bool stats,
 							  QList<QColor> colors);
-	QtCharts::QAbstractSeries *
-	createTelemetryLine(TelemetryData *data, int varIndex, const TelemetryData *refData, bool diff, const QColor &color);
+	QtCharts::QAbstractSeries *createTelemetryLine(TelemetryData *data,
+												   int varIndex,
+												   const TelemetryData *refData,
+												   bool diff,
+												   const QColor &color);
 	QtCharts::QAbstractSeries *createTelemetryStat(TelemetryData *data, int varIndex, const QColor &color);
 
 	void setTelemetry(const QVector<TelemetryData *> &telemetry);
@@ -79,6 +89,11 @@ class CompareTelemetryWidget : public QWidget
 	int ceilToDigit(int num, int roundFactor = 2) const;
 	int floorToDigit(int num, int roundFactor = 2) const;
 
+	void highlight(int lapIndex);
+	void refreshHighlighting();
+
+	QList<QColor> themeColors(QtCharts::QChart::ChartTheme theme) const;
+
   protected slots:
 	virtual void browseData() {}
 
@@ -92,6 +107,11 @@ class CompareTelemetryWidget : public QWidget
 	QTreeWidgetItem *setupItem(QTreeWidget *tree, const Lap *lap) const;
 	QTreeWidgetItem *tyreTempItem(QTreeWidget *tree, const Lap *lap) const;
 	QTreeWidgetItem *tyreItem(QTreeWidget *tree, const Lap *lap, double divisor = 1.0) const;
+	QTreeWidgetItem *recordItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *driverItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *trackItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *weatherItem(QTreeWidget *tree, const Lap *lap) const;
+	QTreeWidgetItem *tyreCompoundItem(QTreeWidget *tree, const Lap *lap) const;
 
 	bool eventFilter(QObject *obj, QEvent *event);
 
@@ -109,6 +129,7 @@ class CompareTelemetryWidget : public QWidget
 	void changeReferenceData();
 	void removeData();
 	void showTrackLayout(bool value);
+	void changeColor();
 };
 
 #endif // COMPARETELEMETRYWIDGET_H

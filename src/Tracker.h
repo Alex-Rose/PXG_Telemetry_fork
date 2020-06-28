@@ -22,10 +22,11 @@ class Tracker : public QObject, public F1PacketInterface
 	virtual ~Tracker() override {}
 
 	void setDataDirectory(const QString &dirPath);
-	void trackDriver(int index);
+	void trackDriver(int index, bool raceOnly = false);
 	void trackPlayer();
 	void trackTeammate();
 	void trackAllCars();
+	void trackAllRace();
 	void untrackDriver(int index);
 	void clearTrackedDrivers();
 
@@ -44,6 +45,7 @@ class Tracker : public QObject, public F1PacketInterface
 	bool _addPlayerTrackingOnStart = false;
 	bool _addTeammateTrackingOnStart = false;
 	bool _addAllCarsTrackingOnStart = false;
+	bool _addAllRaceCarsTrackingOnStart = false;
 	bool _isRunning = false;
 	bool _autoStart = false;
 	PacketParticipantsData _participants;

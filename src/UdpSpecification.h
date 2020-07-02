@@ -20,8 +20,8 @@ class UdpSpecification
 		CarSetup = 5,
 		CarTelemetry = 6,
 		CarStatus = 7,
-		FinalClassification = 7,
-		LobbyInfo = 8
+		FinalClassification = 8,
+		LobbyInfo = 9
 	};
 
 	static UdpSpecification *instance()

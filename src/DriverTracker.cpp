@@ -648,6 +648,12 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 	qDebug() << "Event Received : " << data.m_eventStringCode << int(data.event);
 }
 
+void DriverTracker::finalClassificationData(const PacketHeader &header, const PacketFinalClassificationData &data)
+{
+	Q_UNUSED(header)
+	Q_UNUSED(data)
+}
+
 void DriverTracker::onSessionEnd()
 {
 	if(_previousLapData.m_lapDistance > _currentSessionData.m_trackLength - 5 && _previousLapData.m_pitStatus == 0) {

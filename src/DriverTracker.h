@@ -28,6 +28,7 @@ class DriverTracker : public F1PacketInterface
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
 	void motionData(const PacketHeader &header, const PacketMotionData &data) override;
 	void eventData(const PacketHeader &header, const PacketEventData &data) override;
+	void finalClassificationData(const PacketHeader &header, const PacketFinalClassificationData &data) override;
 
 	int getDriverIndex() const { return _driverIndex; }
 

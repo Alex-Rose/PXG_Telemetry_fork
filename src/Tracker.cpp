@@ -287,3 +287,9 @@ void Tracker::eventData(const PacketHeader &header, const PacketEventData &data)
 		driver->eventData(header, data);
 	}
 }
+
+void Tracker::finalClassificationData(const PacketHeader &header, const PacketFinalClassificationData &data)
+{
+	Q_UNUSED(header)
+	Q_UNUSED(data)
+}

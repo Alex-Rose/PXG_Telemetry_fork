@@ -3,7 +3,7 @@
 #include <QtDebug>
 
 
-template <typename T> void readDataList(QDataStream &in, QVector<T> &list, int nb = 20)
+template <typename T> void readDataList(QDataStream &in, QVector<T> &list, int nb = 22)
 {
 	list.reserve(nb);
 	for(auto i = 0; i < nb; ++i) {
@@ -28,15 +28,17 @@ QList<QPair<int, double>> UdpSpecification::turns(int trackIndex) const
 
 UdpSpecification::UdpSpecification()
 {
-	packetExpectedLengths[PacketType::Header] = 23;
-	packetExpectedLengths[PacketType::Motion] = 1320;
-	packetExpectedLengths[PacketType::Session] = 126;
-	packetExpectedLengths[PacketType::LapData] = 820;
-	packetExpectedLengths[PacketType::Event] = 9;
-	packetExpectedLengths[PacketType::Participants] = 1081;
-	packetExpectedLengths[PacketType::CarSetup] = 820;
-	packetExpectedLengths[PacketType::CarTelemetry] = 1324;
-	packetExpectedLengths[PacketType::CarStatus] = 1120;
+	packetExpectedLengths[PacketType::Header] = 24;
+	packetExpectedLengths[PacketType::Motion] = 1440;
+	packetExpectedLengths[PacketType::Session] = 227;
+	packetExpectedLengths[PacketType::LapData] = 1166;
+	packetExpectedLengths[PacketType::Event] = 11;
+	packetExpectedLengths[PacketType::Participants] = 1189;
+	packetExpectedLengths[PacketType::CarSetup] = 1078;
+	packetExpectedLengths[PacketType::CarTelemetry] = 1283;
+	packetExpectedLengths[PacketType::CarStatus] = 1320;
+	packetExpectedLengths[PacketType::FinalClassification] = 815;
+	packetExpectedLengths[PacketType::LobbyInfo] = 1145;
 
 	teams = QStringList({"Mercedes",
 						 "Ferrari",
@@ -228,7 +230,7 @@ QDataStream &operator>>(QDataStream &in, PacketHeader &packet)
 {
 	in >> packet.m_packetFormat >> packet.m_gameMajorVersion >> packet.m_gameMinorVersion >> packet.m_packetVersion >>
 		packet.m_packetId >> packet.m_sessionUID >> packet.m_sessionTime >> packet.m_frameIdentifier >>
-		packet.m_playerCarIndex;
+		packet.m_playerCarIndex >> packet.m_secondaryPlayerCarIndex;
 
 	return in;
 }
@@ -276,11 +278,14 @@ QDataStream &operator>>(QDataStream &in, PacketParticipantsData &packet)
 
 QDataStream &operator>>(QDataStream &in, LapData &packet)
 {
-	in >> packet.m_lastLapTime >> packet.m_currentLapTime >> packet.m_bestLapTime >> packet.m_sector1Time >>
-		packet.m_sector2Time >> packet.m_lapDistance >> packet.m_totalDistance >> packet.m_safetyCarDelta >>
-		packet.m_carPosition >> packet.m_currentLapNum >> packet.m_pitStatus >> packet.m_sector >>
-		packet.m_currentLapInvalid >> packet.m_penalties >> packet.m_gridPosition >> packet.m_driverStatus >>
-		packet.m_resultStatus;
+	in >> packet.m_lastLapTime >> packet.m_currentLapTime >> packet.m_sector1TimeInMS >> packet.m_sector2TimeInMS >>
+		packet.m_bestLapTime >> packet.m_bestLapNum >> packet.m_bestLapSector1TimeInMS >>
+		packet.m_bestLapSector2TimeInMS >> packet.m_bestLapSector3TimeInMS >> packet.m_bestOverallSector1TimeInMS >>
+		packet.m_bestOverallSector1LapNum >> packet.m_bestOverallSector2TimeInMS >> packet.m_bestOverallSector2LapNum >>
+		packet.m_bestOverallSector3TimeInMS >> packet.m_bestOverallSector3LapNum >> packet.m_lapDistance >>
+		packet.m_totalDistance >> packet.m_safetyCarDelta >> packet.m_carPosition >> packet.m_currentLapNum >>
+		packet.m_pitStatus >> packet.m_sector >> packet.m_currentLapInvalid >> packet.m_penalties >>
+		packet.m_gridPosition >> packet.m_driverStatus >> packet.m_resultStatus;
 
 	return in;
 }
@@ -313,7 +318,8 @@ QDataStream &operator>>(QDataStream &in, CarTelemetryData &packet)
 QDataStream &operator>>(QDataStream &in, PacketCarTelemetryData &packet)
 {
 	readDataList<CarTelemetryData>(in, packet.m_carTelemetryData);
-	in >> packet.m_buttonStatus;
+	in >> packet.m_buttonStatus >> packet.m_mfdPanelIndex >> packet.m_mfdPanelIndexSecondaryPlayer >>
+		packet.m_suggestedGear;
 	return in;
 }
 
@@ -323,8 +329,8 @@ QDataStream &operator>>(QDataStream &in, CarSetupData &packet)
 		packet.m_frontCamber >> packet.m_rearCamber >> packet.m_frontToe >> packet.m_rearToe >>
 		packet.m_frontSuspension >> packet.m_rearSuspension >> packet.m_frontAntiRollBar >> packet.m_rearAntiRollBar >>
 		packet.m_frontSuspensionHeight >> packet.m_rearSuspensionHeight >> packet.m_brakePressure >>
-		packet.m_brakeBias >> packet.m_frontTyrePressure >> packet.m_rearTyrePressure >> packet.m_ballast >>
-		packet.m_fuelLoad;
+		packet.m_brakeBias >> packet.m_rearLeftTyrePressure >> packet.m_rearRightTyrePressure >>
+		packet.m_frontLeftTyrePressure >> packet.m_frontRightTyrePressure >> packet.m_ballast >> packet.m_fuelLoad;
 	return in;
 }
 
@@ -334,8 +340,8 @@ QDataStream &operator<<(QDataStream &out, const CarSetupData &packet)
 		<< packet.m_frontCamber << packet.m_rearCamber << packet.m_frontToe << packet.m_rearToe
 		<< packet.m_frontSuspension << packet.m_rearSuspension << packet.m_frontAntiRollBar << packet.m_rearAntiRollBar
 		<< packet.m_frontSuspensionHeight << packet.m_rearSuspensionHeight << packet.m_brakePressure
-		<< packet.m_brakeBias << packet.m_frontTyrePressure << packet.m_rearTyrePressure << packet.m_ballast
-		<< packet.m_fuelLoad;
+		<< packet.m_brakeBias << packet.m_rearLeftTyrePressure << packet.m_rearRightTyrePressure
+		<< packet.m_frontLeftTyrePressure << packet.m_frontRightTyrePressure << packet.m_ballast << packet.m_fuelLoad;
 	return out;
 }
 
@@ -352,6 +358,15 @@ QDataStream &operator>>(QDataStream &in, MarshalZone &packet)
 	return in;
 }
 
+QDataStream &operator>>(QDataStream &in, WeatherForecastSample &packet)
+{
+	in >> packet.m_sessionType >> packet.m_timeOffset >> packet.m_weather >> packet.m_trackTemperature >>
+		packet.m_airTemperature;
+
+	return in;
+}
+
+
 QDataStream &operator>>(QDataStream &in, PacketSessionData &packet)
 {
 	in >> packet.m_weather >> packet.m_trackTemperature >> packet.m_airTemperature >> packet.m_totalLaps >>
@@ -359,7 +374,8 @@ QDataStream &operator>>(QDataStream &in, PacketSessionData &packet)
 		packet.m_sessionTimeLeft >> packet.m_sessionDuration >> packet.m_pitSpeedLimit >> packet.m_gamePaused >>
 		packet.m_isSpectating >> packet.m_spectatorCarIndex >> packet.m_sliProNativeSupport >> packet.m_numMarshalZones;
 	readDataList<MarshalZone>(in, packet.m_marshalZones, 21);
-	in >> packet.m_safetyCarStatus >> packet.m_networkGame;
+	in >> packet.m_safetyCarStatus >> packet.m_networkGame >> packet.m_numWeatherForecastSamples;
+	readDataList<WeatherForecastSample>(in, packet.m_weatherForecastSamples, 20);
 	return in;
 }
 
@@ -367,16 +383,17 @@ QDataStream &operator>>(QDataStream &in, CarStatusData &packet)
 {
 	in >> packet.m_tractionControl >> packet.m_antiLockBrakes >> packet.m_fuelMix >> packet.m_frontBrakeBias >>
 		packet.m_pitLimiterStatus >> packet.m_fuelInTank >> packet.m_fuelCapacity >> packet.m_fuelRemainingLaps >>
-		packet.m_maxRPM >> packet.m_idleRPM >> packet.m_maxGears >> packet.m_drsAllowed;
+		packet.m_maxRPM >> packet.m_idleRPM >> packet.m_maxGears >> packet.m_drsAllowed >>
+		packet.m_drsActivationDistance;
 	for(auto i = 0; i < 4; ++i)
 		in >> packet.m_tyresWear[i];
-	in >> packet.m_tyreCompound >> packet.m_tyreVisualCompound;
+	in >> packet.m_tyreCompound >> packet.m_tyreVisualCompound >> packet.m_tyresAgeLaps;
 	for(auto i = 0; i < 4; ++i)
 		in >> packet.m_tyresDamage[i];
 	in >> packet.m_frontLeftWingDamage >> packet.m_frontRightWingDamage >> packet.m_rearWingDamage >>
-		packet.m_engineDamage >> packet.m_gearBoxDamage >> packet.m_vehicleFiaFlags >> packet.m_ersStoreEnergy >>
-		packet.m_ersDeployMode >> packet.m_ersHarvestedThisLapMGUK >> packet.m_ersHarvestedThisLapMGUH >>
-		packet.m_ersDeployedThisLap;
+		packet.m_drsFault >> packet.m_engineDamage >> packet.m_gearBoxDamage >> packet.m_vehicleFiaFlags >>
+		packet.m_ersStoreEnergy >> packet.m_ersDeployMode >> packet.m_ersHarvestedThisLapMGUK >>
+		packet.m_ersHarvestedThisLapMGUH >> packet.m_ersDeployedThisLap;
 	return in;
 }
 
@@ -430,7 +447,7 @@ QDataStream &operator>>(QDataStream &in, PacketEventData &packet)
 	}
 
 	packet.m_eventStringCode = QString::fromUtf8(name);
-	in >> packet.details1 >> packet.details2;
+	in >> packet.details1 >> packet.details2 >> packet.details3 >> packet.details4;
 	packet.event = stringToEvent(packet.m_eventStringCode);
 	return in;
 }
@@ -455,8 +472,29 @@ Event stringToEvent(const QString str)
 		return Event::ChequeredFlag;
 	if(str.startsWith("RCWN"))
 		return Event::RaceWinner;
+	if(str.startsWith("PENA"))
+		return Event::PenaltyIssued;
+	if(str.startsWith("SPTP"))
+		return Event::SpeedTrapTrigged;
 
 	return Event::Unknown;
 }
 
 bool PacketSessionData::isRace() const { return m_sessionType == 10 || m_sessionType == 11; }
+
+QDataStream &operator>>(QDataStream &in, FinalClassificationData &packet)
+{
+	in >> packet.m_position >> packet.m_numLaps >> packet.m_gridPosition >> packet.m_points >> packet.m_numPitStops >>
+		packet.m_resultStatus >> packet.m_bestLapTime >> packet.m_totalRaceTime >> packet.m_penaltiesTime >>
+		packet.m_numPenalties >> packet.m_numTyreStints;
+	readDataList<quint8>(in, packet.m_tyreStintsActual, 8);
+	readDataList<quint8>(in, packet.m_tyreStintsVisual, 8);
+	return in;
+}
+
+QDataStream &operator>>(QDataStream &in, PacketFinalClassificationData &packet)
+{
+	in >> packet.m_numCars;
+	readDataList<FinalClassificationData>(in, packet.m_classificationData);
+	return in;
+}

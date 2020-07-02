@@ -19,7 +19,9 @@ class UdpSpecification
 		Participants = 4,
 		CarSetup = 5,
 		CarTelemetry = 6,
-		CarStatus = 7
+		CarStatus = 7,
+		FinalClassification = 7,
+		LobbyInfo = 8
 	};
 
 	static UdpSpecification *instance()
@@ -109,21 +111,25 @@ enum class Event {
 	TeammateInPits,
 	ChequeredFlag,
 	RaceWinner,
+	PenaltyIssued,
+	SpeedTrapTrigged,
 	Unknown
 };
 
 Event stringToEvent(const QString str);
 
 struct PacketHeader {
-	quint16 m_packetFormat;        // 2019
-	quint8 m_gameMajorVersion;     // Game major version - "X.00"
-	quint8 m_gameMinorVersion;     // Game minor version - "1.XX"
-	quint8 m_packetVersion;        // Version of this packet type, all start from 1
-	quint8 m_packetId;             // Identifier for the packet type, see below
-	quint64 m_sessionUID;          // Unique identifier for the session
-	float m_sessionTime;           // Session timestamp
-	quint32 m_frameIdentifier;     // Identifier for the frame the data was retrieved on
-	quint8 m_playerCarIndex = 254; // Index of player's car in the array
+	quint16 m_packetFormat;           // 2020
+	quint8 m_gameMajorVersion;        // Game major version - "X.00"
+	quint8 m_gameMinorVersion;        // Game minor version - "1.XX"
+	quint8 m_packetVersion;           // Version of this packet type, all start from 1
+	quint8 m_packetId;                // Identifier for the packet type, see below
+	quint64 m_sessionUID;             // Unique identifier for the session
+	float m_sessionTime;              // Session timestamp
+	quint32 m_frameIdentifier;        // Identifier for the frame the data was retrieved on
+	quint8 m_playerCarIndex = 254;    // Index of player's car in the array
+	quint8 m_secondaryPlayerCarIndex; // Index of secondary player's car in the array (splitscreen)
+									  // 255 if no second player
 
 	bool isValid() const { return m_playerCarIndex < 254; }
 };
@@ -147,11 +153,22 @@ struct PacketParticipantsData {
 class LapData
 {
   public:
-	float m_lastLapTime = 0;         // Last lap time in seconds
-	float m_currentLapTime = 0;      // Current time around the lap in seconds
-	float m_bestLapTime = 0;         // Best lap time of the session in seconds
-	float m_sector1Time = 0;         // Sector 1 time in seconds
-	float m_sector2Time = 0;         // Sector 2 time in seconds
+	float m_lastLapTime = 0;              // Last lap time in seconds
+	float m_currentLapTime = 0;           // Current time around the lap in seconds
+	quint16 m_sector1TimeInMS;            // Sector 1 time in milliseconds
+	quint16 m_sector2TimeInMS;            // Sector 2 time in milliseconds
+	float m_bestLapTime = 0;              // Best lap time of the session in seconds
+	quint8 m_bestLapNum;                  // Lap number best time achieved on
+	quint16 m_bestLapSector1TimeInMS;     // Sector 1 time of best lap in the session in milliseconds
+	quint16 m_bestLapSector2TimeInMS;     // Sector 2 time of best lap in the session in milliseconds
+	quint16 m_bestLapSector3TimeInMS;     // Sector 3 time of best lap in the session in milliseconds
+	quint16 m_bestOverallSector1TimeInMS; // Best overall sector 1 time of the session in milliseconds
+	quint8 m_bestOverallSector1LapNum;    // Lap number best overall sector 1 time achieved on
+	quint16 m_bestOverallSector2TimeInMS; // Best overall sector 2 time of the session in milliseconds
+	quint8 m_bestOverallSector2LapNum;    // Lap number best overall sector 2 time achieved on
+	quint16 m_bestOverallSector3TimeInMS; // Best overall sector 3 time of the session in milliseconds
+	quint8 m_bestOverallSector3LapNum;    // Lap number best overall sector 3 time achieved on
+
 	float m_lapDistance = -999999;   // Distance vehicle is around current lap in metres – could
 									 // be negative if line hasn’t been crossed yet
 	float m_totalDistance = -999999; // Total distance travelled in session in metres – could
@@ -178,27 +195,35 @@ struct PacketLapData {
 };
 
 struct CarTelemetryData {
-	quint16 m_speed;                      // Speed of car in kilometres per hour
-	float m_throttle;                     // Amount of throttle applied (0.0 to 1.0)
-	float m_steer;                        // Steering (-1.0 (full lock left) to 1.0 (full lock right))
-	float m_brake;                        // Amount of brake applied (0.0 to 1.0)
-	quint8 m_clutch;                      // Amount of clutch applied (0 to 100)
-	qint8 m_gear;                         // Gear selected (1-8, N=0, R=-1)
-	quint16 m_engineRPM;                  // Engine RPM
-	quint8 m_drs;                         // 0 = off, 1 = on
-	quint8 m_revLightsPercent;            // Rev lights indicator (percentage)
-	quint16 m_brakesTemperature[4];       // Brakes temperature (celsius)
-	quint16 m_tyresSurfaceTemperature[4]; // Tyres surface temperature (celsius)
-	quint16 m_tyresInnerTemperature[4];   // Tyres inner temperature (celsius)
-	quint16 m_engineTemperature;          // Engine temperature (celsius)
-	float m_tyresPressure[4];             // Tyres pressure (PSI)
-	quint8 m_surfaceType[4];              // Driving surface, see appendices
+	quint16 m_speed;                     // Speed of car in kilometres per hour
+	float m_throttle;                    // Amount of throttle applied (0.0 to 1.0)
+	float m_steer;                       // Steering (-1.0 (full lock left) to 1.0 (full lock right))
+	float m_brake;                       // Amount of brake applied (0.0 to 1.0)
+	quint8 m_clutch;                     // Amount of clutch applied (0 to 100)
+	qint8 m_gear;                        // Gear selected (1-8, N=0, R=-1)
+	quint16 m_engineRPM;                 // Engine RPM
+	quint8 m_drs;                        // 0 = off, 1 = on
+	quint8 m_revLightsPercent;           // Rev lights indicator (percentage)
+	quint16 m_brakesTemperature[4];      // Brakes temperature (celsius)
+	quint8 m_tyresSurfaceTemperature[4]; // Tyres surface temperature (celsius)
+	quint8 m_tyresInnerTemperature[4];   // Tyres inner temperature (celsius)
+	quint16 m_engineTemperature;         // Engine temperature (celsius)
+	float m_tyresPressure[4];            // Tyres pressure (PSI)
+	quint8 m_surfaceType[4];             // Driving surface, see appendices
 };
 
 struct PacketCarTelemetryData {
 	QVector<CarTelemetryData> m_carTelemetryData;
 	quint32 m_buttonStatus; // Bit flags specifying which buttons are being
 							// pressed currently - see appendices
+
+	quint8 m_mfdPanelIndex;                // Index of MFD panel open - 255 = MFD closed
+										   // Single player, race – 0 = Car setup, 1 = Pits
+										   // 2 = Damage, 3 =  Engine, 4 = Temperatures
+										   // May vary depending on game mode
+	quint8 m_mfdPanelIndexSecondaryPlayer; // See above
+	qint8 m_suggestedGear;                 // Suggested gear for the player (1-8)
+										   // 0 if no gear suggested
 };
 
 struct CarSetupData {
@@ -218,8 +243,10 @@ struct CarSetupData {
 	quint8 m_rearSuspensionHeight = 0;  // Rear ride height
 	quint8 m_brakePressure = 0;         // Brake pressure (percentage)
 	quint8 m_brakeBias = 0;             // Brake bias (percentage)
-	float m_frontTyrePressure = 0.0;    // Front tyre pressure (PSI)
-	float m_rearTyrePressure = 0.0;     // Rear tyre pressure (PSI)
+	float m_rearLeftTyrePressure;       // Rear left tyre pressure (PSI)
+	float m_rearRightTyrePressure;      // Rear right tyre pressure (PSI)
+	float m_frontLeftTyrePressure;      // Front left tyre pressure (PSI)
+	float m_frontRightTyrePressure;     // Front right tyre pressure (PSI)
 	quint8 m_ballast = 0;               // Ballast
 	float m_fuelLoad = 0.0;             // Fuel load
 };
@@ -231,6 +258,17 @@ struct PacketCarSetupData {
 struct MarshalZone {
 	float m_zoneStart; // Fraction (0..1) of way through the lap the marshal zone starts
 	qint8 m_zoneFlag;  // -1 = invalid/unknown, 0 = none, 1 = green, 2 = blue, 3 = yellow, 4 = red
+};
+
+struct WeatherForecastSample {
+	quint8 m_sessionType;     // 0 = unknown, 1 = P1, 2 = P2, 3 = P3, 4 = Short P, 5 = Q1
+							  // 6 = Q2, 7 = Q3, 8 = Short Q, 9 = OSQ, 10 = R, 11 = R2
+							  // 12 = Time Trial
+	quint8 m_timeOffset;      // Time in minutes the forecast is for
+	quint8 m_weather;         // Weather - 0 = clear, 1 = light cloud, 2 = overcast
+							  // 3 = light rain, 4 = heavy rain, 5 = storm
+	qint8 m_trackTemperature; // Track temp. in degrees celsius
+	qint8 m_airTemperature;   // Air temp. in degrees celsius
 };
 
 struct PacketSessionData {
@@ -257,23 +295,29 @@ struct PacketSessionData {
 	quint8 m_safetyCarStatus;            // 0 = no safety car, 1 = full safety car
 										 // 2 = virtual safety car
 	quint8 m_networkGame;                // 0 = offline, 1 = online
+	quint8 m_numWeatherForecastSamples;  // Number of weather samples to follow
+	QVector<WeatherForecastSample> m_weatherForecastSamples; // Array of weather forecast samples
 
 	bool isRace() const;
 };
 
 struct CarStatusData {
-	quint8 m_tractionControl;        // 0 (off) - 2 (high)
-	quint8 m_antiLockBrakes;         // 0 (off) - 1 (on)
-	quint8 m_fuelMix;                // Fuel mix - 0 = lean, 1 = standard, 2 = rich, 3 = max
-	quint8 m_frontBrakeBias;         // Front brake bias (percentage)
-	quint8 m_pitLimiterStatus;       // Pit limiter status - 0 = off, 1 = on
-	float m_fuelInTank;              // Current fuel mass
-	float m_fuelCapacity;            // Fuel capacity
-	float m_fuelRemainingLaps;       // Fuel remaining in terms of laps (value on MFD)
-	quint16 m_maxRPM;                // Cars max RPM, point of rev limiter
-	quint16 m_idleRPM;               // Cars idle RPM
-	quint8 m_maxGears;               // Maximum number of gears
-	quint8 m_drsAllowed;             // 0 = not allowed, 1 = allowed, -1 = unknown
+	quint8 m_tractionControl;  // 0 (off) - 2 (high)
+	quint8 m_antiLockBrakes;   // 0 (off) - 1 (on)
+	quint8 m_fuelMix;          // Fuel mix - 0 = lean, 1 = standard, 2 = rich, 3 = max
+	quint8 m_frontBrakeBias;   // Front brake bias (percentage)
+	quint8 m_pitLimiterStatus; // Pit limiter status - 0 = off, 1 = on
+	float m_fuelInTank;        // Current fuel mass
+	float m_fuelCapacity;      // Fuel capacity
+	float m_fuelRemainingLaps; // Fuel remaining in terms of laps (value on MFD)
+	quint16 m_maxRPM;          // Cars max RPM, point of rev limiter
+	quint16 m_idleRPM;         // Cars idle RPM
+	quint8 m_maxGears;         // Maximum number of gears
+	quint8 m_drsAllowed;       // 0 = not allowed, 1 = allowed, -1 = unknown
+
+	quint16 m_drsActivationDistance; // 0 = DRS not available, non-zero - DRS will be available
+									 // in [X] metres
+
 	quint8 m_tyresWear[4];           // Tyre wear percentage
 	quint8 m_tyreCompound;           // F1 Modern - 16 = C5, 17 = C4, 18 = C3, 19 = C2, 20 = C1
 									 // 7 = inter, 8 = wet
@@ -284,10 +328,12 @@ struct CarStatusData {
 									 // 16 = soft, 17 = medium, 18 = hard, 7 = inter, 8 = wet
 									 // F1 Classic – same as above
 									 // F2 – same as above
+	quint8 m_tyresAgeLaps;           // Age in laps of the current set of tyres
 	quint8 m_tyresDamage[4];         // Tyre damage (percentage)
 	quint8 m_frontLeftWingDamage;    // Front left wing damage (percentage)
 	quint8 m_frontRightWingDamage;   // Front right wing damage (percentage)
 	quint8 m_rearWingDamage;         // Rear wing damage (percentage)
+	quint8 m_drsFault;               // Indicator for DRS fault, 0 = OK, 1 = fault
 	quint8 m_engineDamage;           // Engine damage (percentage)
 	quint8 m_gearBoxDamage;          // Gear box damage (percentage)
 	qint8 m_vehicleFiaFlags;         // -1 = invalid/unknown, 0 = none, 1 = green
@@ -351,7 +397,34 @@ struct PacketEventData {
 	QString m_eventStringCode; // Event string code, see below
 	quint8 details1;           // Vehicle index of car achieving fastest lap
 	float details2;            // Lap time is in seconds
+	quint8 details3;
+	quint8 details4;
 	Event event;
+};
+
+struct FinalClassificationData {
+	quint8 m_position;                  // Finishing position
+	quint8 m_numLaps;                   // Number of laps completed
+	quint8 m_gridPosition;              // Grid position of the car
+	quint8 m_points;                    // Number of points scored
+	quint8 m_numPitStops;               // Number of pit stops made
+	quint8 m_resultStatus;              // Result status - 0 = invalid, 1 = inactive, 2 = active
+										// 3 = finished, 4 = disqualified, 5 = not classified
+										// 6 = retired
+	float m_bestLapTime;                // Best lap time of the session in seconds
+	double m_totalRaceTime;             // Total race time in seconds without penalties
+	quint8 m_penaltiesTime;             // Total penalties accumulated in seconds
+	quint8 m_numPenalties;              // Number of penalties applied to this driver
+	quint8 m_numTyreStints;             // Number of tyres stints up to maximum
+	QVector<quint8> m_tyreStintsActual; // Actual tyres used by this driver
+	QVector<quint8> m_tyreStintsVisual; // Visual tyres used by this driver
+};
+
+struct PacketFinalClassificationData {
+	PacketHeader m_header; // Header
+
+	quint8 m_numCars; // Number of cars in the final classification
+	QVector<FinalClassificationData> m_classificationData;
 };
 
 QDataStream &operator>>(QDataStream &in, PacketHeader &packet);
@@ -365,11 +438,14 @@ QDataStream &operator>>(QDataStream &in, CarSetupData &packet);
 QDataStream &operator>>(QDataStream &in, PacketCarSetupData &packet);
 QDataStream &operator>>(QDataStream &in, MarshalZone &packet);
 QDataStream &operator>>(QDataStream &in, PacketSessionData &packet);
+QDataStream &operator>>(QDataStream &in, WeatherForecastSample &packet);
 QDataStream &operator>>(QDataStream &in, CarStatusData &packet);
 QDataStream &operator>>(QDataStream &in, PacketCarStatusData &packet);
 QDataStream &operator>>(QDataStream &in, PacketMotionData &packet);
 QDataStream &operator>>(QDataStream &in, CarMotionData &packet);
 QDataStream &operator>>(QDataStream &in, PacketEventData &packet);
+QDataStream &operator>>(QDataStream &in, FinalClassificationData &packet);
+QDataStream &operator>>(QDataStream &in, PacketFinalClassificationData &packet);
 
 QDataStream &operator<<(QDataStream &out, const CarSetupData &packet);
 QDataStream &operator<<(QDataStream &out, const ParticipantData &packet);

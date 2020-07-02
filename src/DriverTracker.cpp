@@ -261,23 +261,22 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	QString lapType;
 	if(_currentLap->isInLap && !isRace()) {
 		_currentLap->lapTime = lapData.m_currentLapTime;
-		_currentLap->sector1Time = lapData.m_sector1Time;
-		_currentLap->sector2Time = lapData.m_sector2Time;
-		_currentLap->sector3Time = lapData.m_currentLapTime - lapData.m_sector2Time - lapData.m_sector1Time;
+		_currentLap->sector1Time = lapData.m_sector1TimeInMS * 1000.0;
+		_currentLap->sector2Time = lapData.m_sector2TimeInMS * 1000.0;
+		_currentLap->sector3Time = lapData.m_currentLapTime - _currentLap->sector2Time - _currentLap->sector1Time;
 		lapType = "_(In)";
 	} else if(_currentLap->isOutLap && !isRace()) {
 		_currentLap->lapTime = _previousLapData.m_currentLapTime - _timeDiff;
-		_currentLap->sector1Time = _previousLapData.m_sector1Time;
-		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time = _previousLapData.m_currentLapTime - _timeDiff - _previousLapData.m_sector2Time -
-								   _previousLapData.m_sector1Time;
+		_currentLap->sector1Time = _previousLapData.m_sector1TimeInMS * 1000.0;
+		_currentLap->sector2Time = _previousLapData.m_sector2TimeInMS * 1000.0;
+		_currentLap->sector3Time =
+			_previousLapData.m_currentLapTime - _timeDiff - _currentLap->sector2Time - _currentLap->sector1Time;
 		lapType = "_(Out)";
 	} else {
 		_currentLap->lapTime = lapData.m_lastLapTime;
-		_currentLap->sector1Time = _previousLapData.m_sector1Time;
-		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time =
-			lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+		_currentLap->sector1Time = _previousLapData.m_sector1TimeInMS * 1000.0;
+		_currentLap->sector2Time = _previousLapData.m_sector2TimeInMS * 1000.0;
+		_currentLap->sector3Time = lapData.m_lastLapTime - _currentLap->sector2Time - _currentLap->sector1Time;
 	}
 
 	if(std::isnan(_currentLap->lapTime)) {

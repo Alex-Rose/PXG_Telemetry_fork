@@ -704,8 +704,10 @@ QTreeWidgetItem *CompareTelemetryWidget::setupItem(QTreeWidget *tree, const Lap 
 	new QTreeWidgetItem(setupItem, {"Rear height", QString::number(lap->setup.m_rearSuspensionHeight)});
 	new QTreeWidgetItem(setupItem, {"Brake Pressure", QString::number(lap->setup.m_brakePressure) + "%"});
 	new QTreeWidgetItem(setupItem, {"Brake Bias", QString::number(lap->setup.m_brakeBias) + "%"});
-	new QTreeWidgetItem(setupItem, {"Front Tyre Pressure", QString::number(lap->setup.m_frontTyrePressure)});
-	new QTreeWidgetItem(setupItem, {"Rear Tyre Pressure", QString::number(lap->setup.m_rearTyrePressure)});
+	new QTreeWidgetItem(setupItem, {"Front Left Tyre Pressure", QString::number(lap->setup.m_frontLeftTyrePressure)});
+	new QTreeWidgetItem(setupItem, {"Front Right Tyre Pressure", QString::number(lap->setup.m_frontRightTyrePressure)});
+	new QTreeWidgetItem(setupItem, {"Rear Left Tyre Pressure", QString::number(lap->setup.m_rearLeftTyrePressure)});
+	new QTreeWidgetItem(setupItem, {"Rear Right Tyre Pressure", QString::number(lap->setup.m_rearRightTyrePressure)});
 	new QTreeWidgetItem(setupItem, {"Ballast", QString::number(lap->setup.m_ballast)});
 	new QTreeWidgetItem(setupItem, {"Fuel Load", QString::number(lap->setup.m_fuelLoad) + "kg"});
 	return setupItem;

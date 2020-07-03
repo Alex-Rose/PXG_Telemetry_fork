@@ -26,7 +26,7 @@
 	<file alias="Mexico">../Ressources/TrackLayouts/Mexico.png</file>
 	<file alias="Interlagos">../Ressources/TrackLayouts/Interlagos.png</file>
 	<file alias="Abu Dhabi">../Ressources/TrackLayouts/Abu Dhabi.png</file>
-	<file alias="2andvoort">../Ressources/TrackLayouts/2andvoort.png</file>
+	<file alias="2andvoort">../Ressources/TrackLayouts/Zandvoort.png</file>
 	<file alias="Hanoi">../Ressources/TrackLayouts/Hanoi.png</file>
     </qresource>
     <qresource prefix="/themes">

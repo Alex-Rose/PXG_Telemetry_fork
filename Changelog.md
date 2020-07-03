@@ -1,6 +1,11 @@
 ## PXG F1 Telemetry Changelog
 
 
+### Version 2.0
+
+- FIRST VERSION FOR F1 2020
+
+
 ### Version 1.5
 
 - Adds a new "Race Analysis" tab. New files are produced for each driver during a race for each driver. These files can be opened in the race analysis tab to display some statistic on the race

@@ -95,25 +95,25 @@ void TrackingWidget::log(const QString &text)
 
 void TrackingWidget::showQuickInstructions()
 {
-	auto instructionText = "The PC or Console where F1 2019 is running and the PC where this application is running "
+	auto instructionText = "The PC or Console where F1 2020 is running and the PC where this application is running "
 						   "must be connected to the same local network.\n\n"
 						   "Method 1: Broadcast mode OFF\n"
-						   "   In F1 2019, open Game Options > Settings > Telemetry Settings\n"
+						   "   In F1 2020, open Game Options > Settings > Telemetry Settings\n"
 						   "      1. set UDP Telemetry to On\n"
 						   "      2. set UDP Broadcast Mode to Off\n"
 						   "      3. set UDP IP Address to the local IP address of the PC where this application is "
 						   "running (or \"127.0.0.1\" if the game and the telemetry application run on the same PC)\n"
 						   "      4. set Port to 20777 (default value)\n"
 						   "      5. set UDP Send Rate to 20Hz (default value)\n"
-						   "      6. set UDP Format to 2019 (default value)\n\n"
+						   "      6. set UDP Format to 2020 (default value)\n\n"
 						   "Method 2: Broadcast mode ON (if you want to connect multiple telemetry devices)\n"
 						   "   In F1 2019, open Game Options > Settings > Telemetry Settings\n"
 						   "      1. set UDP Telemetry to On\n"
 						   "      2. set UDP Broadcast Mode to On\n"
 						   "      3. set Port to 20777 (default value)\n"
 						   "      4. set UDP Send Rate to 20Hz (default value)\n"
-						   "      5. set UDP Format to 2019 (default value)\n\n"
-						   "Launch a session in F1 2019, when the name of the session appear, select the drivers you "
+						   "      5. set UDP Format to 2020 (default value)\n\n"
+						   "Launch a session in F1 2020, when the name of the session appear, select the drivers you "
 						   "want to track and click \"Start\".";
 
 	QMessageBox msgBox(QMessageBox::Information, "Quick Connection Instructions", instructionText, QMessageBox::Ok,

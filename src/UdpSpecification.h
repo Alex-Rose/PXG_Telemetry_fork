@@ -124,7 +124,6 @@ enum class Event {
 Event stringToEvent(const QString str);
 
 struct PacketHeader {
-	quint16 m_packetFormat;           // 2020
 	quint8 m_gameMajorVersion;        // Game major version - "X.00"
 	quint8 m_gameMinorVersion;        // Game minor version - "1.XX"
 	quint8 m_packetVersion;           // Version of this packet type, all start from 1
@@ -135,6 +134,7 @@ struct PacketHeader {
 	quint8 m_playerCarIndex = 254;    // Index of player's car in the array
 	quint8 m_secondaryPlayerCarIndex; // Index of secondary player's car in the array (splitscreen)
 									  // 255 if no second player
+	quint16 m_packetFormat;                 // 920
 
 	bool isValid() const { return m_playerCarIndex < 254; }
 };

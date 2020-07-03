@@ -40,78 +40,71 @@ UdpSpecification::UdpSpecification()
 	packetExpectedLengths[PacketType::FinalClassification] = 815;
 	packetExpectedLengths[PacketType::LobbyInfo] = 1145;
 
-	teams = QStringList({"Mercedes",
-						 "Ferrari",
-						 "Red Bull",
-						 "Williams",
-						 "Racing Point",
-						 "Renault",
-						 "Toro Rosso",
-						 "Haas",
-						 "McLaren",
-						 "Alfa Romeo", // 0-9
-						 "McLaren 1988",
-						 "McLaren 1991",
-						 "Williams 1992",
-						 "Ferrari 1995",
-						 "Williams 1996",
-						 "McLaren 1998",
-						 "Ferrari 2002",
-						 "Ferrari 2004", // 10-17
-						 "Renault 2006",
-						 "Ferrari 2007",
-						 "McLaren 2008 (deleted)",
-						 "Red Bull 2010",
-						 "Ferrari 1976", // 18-22
-						 "ART Grand Prix",
-						 "Campos Vexatec Racing",
-						 "Carlin",
-						 "Charouz Racing System",
-						 "DAMS",
-						 "Russian Time",
-						 "MP Motorsport",
-						 "Pertamina" // 23-30
-						 "Mclaren 1990",
-						 "Trident",
-						 "BWT Arden",
-						 "McLaren 1976",
-						 "Lotus 1972",
-						 "Ferrari 1979", // 31-36
-						 "McLaren 1982",
-						 "Williams 2003",
-						 "Brawn 2009",
-						 "Lotus 1978", // 37-40
-						 "",
-						 "Art GP",
-						 "Campos",
-						 "Carlin",
-						 "Sauber Junior Charouz",
-						 "Dams",
-						 "Uni-Virtuosi",
-						 "MP Motorsport",
-						 "Prema",
-						 "Trident",
-						 "Arden",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "",
-						 "", // 41-62
-						 "Ferrari 1980",
-						 "Mclaren 2010",
-						 "Ferrari 2010"}); // 63-65
+	teams = QStringList({
+		"Mercedes",
+		"Ferrari",
+		"Red Bull",
+		"Williams",
+		"Racing Point",
+		"Renault",
+		"Alpha Tauri",
+		"Haas",
+		"McLaren",
+		"Alfa Romeo", // 9
+		"McLaren 1988",
+		"McLaren 1991",
+		"Williams 1992",
+		"Ferrari 1995",
+		"Williams 1996",
+		"McLaren 1998",
+		"Ferrari 2002",
+		"Ferrari 2004", // 17
+		"Renault 2006",
+		"Ferrari 2007",
+		"McLaren 2008 (deleted)",
+		"Red Bull 2010",
+		"Ferrari 1976", // 22
+		"ART Grand Prix",
+		"Campos Vexatec Racing",
+		"Carlin",
+		"Charouz Racing System",
+		"DAMS",
+		"Russian Time",
+		"MP Motorsport",
+		"Pertamina" // 30
+		"Mclaren 1990",
+		"Trident",
+		"BWT Arden",
+		"McLaren 1976",
+		"Lotus 1972",
+		"Ferrari 1979", // 36
+		"McLaren 1982",
+		"Williams 2003",
+		"Brawn 2009",
+		"Lotus 1978", // 40
+		"F1 Generic Car",
+		"Art GP",
+		"Campos",
+		"Carlin",
+		"Sauber Junior Charouz",
+		"Dams",
+		"Uni-Virtuosi",
+		"MP Motorsport",
+		"Prema",
+		"Trident",
+		"Arden", // 51
+		"",
+		"Benetton 94",
+		"Benetton 95",
+		"Ferrari 2000",
+		"Jordan 91", // 56
+	});
 	tracks = QStringList(
-		{"Melbourne",   "Paul Ricard", "Shanghai",   "Sakir (Bahrain)", "Catalunya",         "Monaco",
-		 "Montreal",    "Silverstone", "Hockenheim", "Hungaroring",     "Spa Francorchamp",  "Monza",
-		 "Singapore",   "Suzuka",      "Abu Dhabi",  "Austin",          "Interlagos",        "Red Bull Ring",
-		 "Sochi",       "Mexico",      "Baku",       "Sakhir Short",    "Silverstone Short", "Austin Short",
-		 "Susuka Short"});
+		{"Melbourne",    "Paul Ricard", "Shanghai",   "Sakir (Bahrain)", "Catalunya",         "Monaco",
+		 "Montreal",     "Silverstone", "Hockenheim", "Hungaroring",     "Spa Francorchamp",  "Monza",
+		 "Singapore",    "Suzuka",      "Abu Dhabi",  "Austin",          "Interlagos",        "Red Bull Ring",
+		 "Sochi",        "Mexico",      "Baku",       "Sakhir Short",    "Silverstone Short", "Austin Short",
+		 "Susuka Short", "Hanoi",       "Zandvoort"});
 	raceLaps = {58, 53, 56, 57, 66, 78, 70, 52, 67, 70, 44, 53, 61, 53, 55, 56, 71, 71, 53, 71, 51, 0, 0, 0, 0};
 	weathers = QStringList({"Clear", "Light Cloud", "Overcast", "Light Rain", "Heavy Rain", "Storm"});
 	sessions = QStringList(
@@ -179,6 +172,8 @@ UdpSpecification::UdpSpecification()
 	trackTurns["Interlagos"] = {{1, 330}, {2, 420}, {4, 1370}, {7, 2050}, {8, 2315}, {10, 2730}, {12, 3225}};
 	trackTurns["Abu Dhabi"] = {{1, 410},   {5, 1315},  {7, 1515},  {8, 2770},  {11, 3785},
 							   {14, 4020}, {17, 4650}, {18, 4700}, {20, 5170}, {21, 5370}};
+	trackTurns["Hanoi"] = {};
+	trackTurns["Zandvoort"] = {};
 
 	trackMaps = QStringList({":/track/Melbourne",
 							 ":/track/Paul Ricard",
@@ -204,7 +199,9 @@ UdpSpecification::UdpSpecification()
 							 "",
 							 "",
 							 "",
-							 ""});
+							 "",
+							 ":/track/Hanoi",
+							 ":/track/2andvoort"});
 	formulaTypes = QStringList({"F1", "F1 Classic", "F2", "F1 Generic"});
 	surfaces = QStringList({"Tarmac", "Rumble strip", "Concrete", "Rock", "Gravel", "Mud", "Sand", "Grass", "Water",
 							"Cobblestone", "Metal", "Rigged"});

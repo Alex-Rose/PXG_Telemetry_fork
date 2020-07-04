@@ -842,8 +842,6 @@ int CompareTelemetryWidget::floorToDigit(int num, int roundFactor) const
 bool CompareTelemetryWidget::eventFilter(QObject *obj, QEvent *event)
 {
 	if(event->type() == QEvent::MouseMove) {
-		auto mouseEvent = static_cast<QMouseEvent *>(event);
-		auto pos = mouseEvent->pos();
 		for(const auto &chart : qAsConst(_variablesCharts)) {
 			chart->setPosLabelVisible(chart->viewport() == obj);
 		}

@@ -43,7 +43,7 @@ void Race::saveData(QDataStream &out) const
 	QDataStream outLap(&lapData, QIODevice::WriteOnly);
 	Lap::saveData(outLap);
 	out << lapData << penalties << nbSafetyCars << nbVirtualSafetyCars << pitstops << stintsLaps << stintsTyre
-		<< startedGridPosition << endPosition;
+		<< startedGridPosition << endPosition << pointScored << raceStatus;
 }
 
 void Race::loadData(QDataStream &in)
@@ -54,5 +54,5 @@ void Race::loadData(QDataStream &in)
 	Lap::loadData(inLap);
 
 	in >> penalties >> nbSafetyCars >> nbVirtualSafetyCars >> pitstops >> stintsLaps >> stintsTyre >>
-		startedGridPosition >> endPosition;
+		startedGridPosition >> endPosition >> pointScored >> raceStatus;
 }

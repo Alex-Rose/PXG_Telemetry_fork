@@ -84,8 +84,8 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		TyresData<float> wheelSpeed;
 		wheelSpeed.setArray(_currentMotionData.m_wheelSpeed);
 
-		auto velocity = sqrt(motionData.m_worldVelocityX * motionData.m_worldVelocityX +
-							 motionData.m_worldVelocityY * motionData.m_worldVelocityY);
+		//		auto velocity = sqrt(motionData.m_worldVelocityX * motionData.m_worldVelocityX +
+		//							 motionData.m_worldVelocityY * motionData.m_worldVelocityY);
 
 		TyresData<float> tyreDegradationLat =
 			(slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(motionData.m_gForceLateral);
@@ -133,8 +133,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 {
 	Q_UNUSED(header)
 	const auto &lapData = data.m_lapData[_driverIndex];
-
-	auto lastRaceLap = isLastRaceLap(lapData);
 
 	if(isRace()) {
 		auto leaderData = leaderLapData(data);
@@ -628,17 +626,10 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 {
 	Q_UNUSED(header)
 	switch(data.event) {
-		case Event::RaceWinner:
-			// Ensure the last lap is saved, event if the sessionEnd event is not raised
-			QTimer::singleShot(120 * 1000, [this]() { onSessionEnd(); });
-			_raceFinished = true;
-			break;
-		case Event::ChequeredFlag:
-			// Ensure the last lap is saved, event if the sessionEnd event is not raised
-			QTimer::singleShot(10 * 1000, [this]() { onSessionEnd(); });
-			break;
 		case Event::SessionEnded:
-			onSessionEnd();
+			if(!isRace()) {
+				onSessionEnd();
+			}
 			break;
 		default:
 			break;
@@ -651,6 +642,16 @@ void DriverTracker::finalClassificationData(const PacketHeader &header, const Pa
 {
 	Q_UNUSED(header)
 	Q_UNUSED(data)
+
+	if(isRace()) {
+		auto driverData = data.m_classificationData[_driverIndex];
+		_currentRace->endPosition = driverData.m_position;
+		_currentRace->pointScored = driverData.m_points;
+		_currentRace->raceStatus = driverData.m_resultStatus;
+	}
+
+	onSessionEnd();
+	_raceFinished = true;
 }
 
 void DriverTracker::onSessionEnd()

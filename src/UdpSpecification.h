@@ -84,6 +84,8 @@ class UdpSpecification
 	}
 	QString formula(int index) const { return formulaTypes.value(index, "Unknown"); }
 	QString surface(int index) const { return surfaces.value(index, "Unknown"); }
+	QString raceStatus(int index) const { return raceStatusValues.value(index, "Unknown"); }
+
 
   private:
 	UdpSpecification();
@@ -104,6 +106,7 @@ class UdpSpecification
 	QStringList trackMaps;
 	QStringList formulaTypes;
 	QStringList surfaces;
+	QStringList raceStatusValues;
 };
 
 enum class Event {

@@ -16,7 +16,7 @@ class F1Telemetry;
 class Tracker;
 class FileDownloader;
 class CheckUpdatesDialog;
-class TrackedCars;
+struct TrackedCars;
 
 class F1Telemetry : public QMainWindow
 {

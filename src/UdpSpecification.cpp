@@ -205,6 +205,8 @@ UdpSpecification::UdpSpecification()
 	formulaTypes = QStringList({"F1", "F1 Classic", "F2", "F1 Generic"});
 	surfaces = QStringList({"Tarmac", "Rumble strip", "Concrete", "Rock", "Gravel", "Mud", "Sand", "Grass", "Water",
 							"Cobblestone", "Metal", "Rigged"});
+	raceStatusValues =
+		QStringList({"invalid", "inactive", "active", "finished", "disqualified", "not classified", "retired"});
 }
 
 QString UdpSpecification::description(const QStringList &data) const

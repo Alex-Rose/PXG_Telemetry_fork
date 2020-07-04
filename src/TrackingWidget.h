@@ -13,12 +13,21 @@ class TrackingWidget;
 
 class F1TelemetrySettings;
 
+struct TrackedCars {
+	bool me;
+	bool teammate;
+	bool player2;
+	bool all;
+	bool allRace;
+	const QVector<int> &ids;
+};
+
 class TrackingWidget : public QWidget, public LogInterface
 {
 	Q_OBJECT
 
   signals:
-	void startTracking(bool me, bool teammate, bool all, bool allRace, const QVector<int> &driverId);
+	void startTracking(const TrackedCars &cars);
 	void stopStracking();
 	void networkInfoChanged();
 

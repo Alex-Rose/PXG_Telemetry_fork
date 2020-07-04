@@ -353,7 +353,7 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 		qDebug() << "RACE Started : " << driverDataDirectory.dirName();
 
 		initLap(_currentRace, lapData);
-		_currentRace->startedGridPosition = lapData.m_gridPosition + 1;
+		_currentRace->startedGridPosition = lapData.m_gridPosition;
 	}
 
 	float raceTime = sessionTimePassed();

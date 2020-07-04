@@ -31,6 +31,9 @@ void Tracker::updateAutoTrackedDrivers()
 	if(_addPlayerTrackingOnStart)
 		_autoTrackedIndexes << _header.m_playerCarIndex;
 
+	if(_addPlayer2TrackingOnStart && _header.hasSecondaryPlayer())
+		_autoTrackedIndexes << _header.m_secondaryPlayerCarIndex;
+
 	if(_addTeammateTrackingOnStart) {
 		const auto &playerData = _participants.m_participants[_header.m_playerCarIndex];
 		int carIndex = 0;
@@ -115,6 +118,8 @@ void Tracker::trackDriver(int index, bool raceOnly)
 
 void Tracker::trackPlayer() { _addPlayerTrackingOnStart = true; }
 
+void Tracker::trackPlayer2() { _addPlayer2TrackingOnStart = true; }
+
 void Tracker::trackTeammate() { _addTeammateTrackingOnStart = true; }
 
 void Tracker::trackAllCars() { _addAllCarsTrackingOnStart = true; }
@@ -138,6 +143,7 @@ void Tracker::clearTrackedDrivers()
 	_trackedDrivers.clear();
 	_trackedIndexes.clear();
 	_addPlayerTrackingOnStart = false;
+	_addPlayer2TrackingOnStart = false;
 	_addTeammateTrackingOnStart = false;
 	_addAllCarsTrackingOnStart = false;
 	_addAllRaceCarsTrackingOnStart = false;

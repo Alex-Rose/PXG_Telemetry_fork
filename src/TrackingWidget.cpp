@@ -107,7 +107,7 @@ void TrackingWidget::showQuickInstructions()
 						   "      5. set UDP Send Rate to 20Hz (default value)\n"
 						   "      6. set UDP Format to 2020 (default value)\n\n"
 						   "Method 2: Broadcast mode ON (if you want to connect multiple telemetry devices)\n"
-						   "   In F1 2019, open Game Options > Settings > Telemetry Settings\n"
+						   "   In F1 2020, open Game Options > Settings > Telemetry Settings\n"
 						   "      1. set UDP Telemetry to On\n"
 						   "      2. set UDP Broadcast Mode to On\n"
 						   "      3. set Port to 20777 (default value)\n"
@@ -164,8 +164,9 @@ void TrackingWidget::startStop()
 			if(_driverCheckBoxes[i]->isChecked())
 				trackedId << i;
 		}
-		emit startTracking(ui->player->isChecked(), ui->teammate->isChecked(), ui->allcars->isChecked(),
-						   ui->allRace->isChecked(), trackedId);
+		TrackedCars cars{ui->player->isChecked(),  ui->teammate->isChecked(), ui->player2->isChecked(),
+						 ui->allcars->isChecked(), ui->allRace->isChecked(),  trackedId};
+		emit startTracking(cars);
 	} else {
 		emit stopStracking();
 	}
@@ -210,7 +211,7 @@ void TrackingWidget::editServer()
 	bool ok = false;
 	server = QInputDialog::getText(
 		ui->btnEditServer, "Listened IP address",
-		"Enter the IP address of the computer where F1 2019 is running.\n(Leave empty to listen to any IP address)",
+		"Enter the IP address of the computer where F1 2020 is running.\n(Leave empty to listen to any IP address)",
 		QLineEdit::Normal, server, &ok);
 	if(ok) {
 		if(!server.isEmpty() && QHostAddress(server).isNull()) {

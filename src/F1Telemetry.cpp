@@ -137,22 +137,20 @@ void F1Telemetry::closeEvent(QCloseEvent *event)
 	QMainWindow::closeEvent(event);
 }
 
-void F1Telemetry::startTracking(bool trackPlayer,
-								bool trackTeammate,
-								bool trackAllCars,
-								bool trackAllRace,
-								const QVector<int> &trackedDriverIds)
+void F1Telemetry::startTracking(const TrackedCars &cars)
 {
 	_tracker->clearTrackedDrivers();
-	if(trackPlayer)
+	if(cars.me)
 		_tracker->trackPlayer();
-	if(trackTeammate)
+	if(cars.player2)
+		_tracker->trackPlayer2();
+	if(cars.teammate)
 		_tracker->trackTeammate();
-	if(trackAllCars)
+	if(cars.all)
 		_tracker->trackAllCars();
-	if(trackAllRace)
+	if(cars.allRace)
 		_tracker->trackAllRace();
-	for(auto id : trackedDriverIds)
+	for(auto id : cars.ids)
 		_tracker->trackDriver(id);
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
 	_tracker->start();

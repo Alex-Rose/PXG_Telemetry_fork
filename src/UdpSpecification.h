@@ -124,19 +124,20 @@ enum class Event {
 Event stringToEvent(const QString str);
 
 struct PacketHeader {
-	quint8 m_gameMajorVersion;        // Game major version - "X.00"
-	quint8 m_gameMinorVersion;        // Game minor version - "1.XX"
-	quint8 m_packetVersion;           // Version of this packet type, all start from 1
-	quint8 m_packetId;                // Identifier for the packet type, see below
-	quint64 m_sessionUID;             // Unique identifier for the session
-	float m_sessionTime;              // Session timestamp
-	quint32 m_frameIdentifier;        // Identifier for the frame the data was retrieved on
-	quint8 m_playerCarIndex = 254;    // Index of player's car in the array
-	quint8 m_secondaryPlayerCarIndex; // Index of secondary player's car in the array (splitscreen)
-									  // 255 if no second player
 	quint16 m_packetFormat;                 // 920
+	quint8 m_gameMajorVersion;              // Game major version - "X.00"
+	quint8 m_gameMinorVersion;              // Game minor version - "1.XX"
+	quint8 m_packetVersion;                 // Version of this packet type, all start from 1
+	quint8 m_packetId;                      // Identifier for the packet type, see below
+	quint64 m_sessionUID;                   // Unique identifier for the session
+	float m_sessionTime;                    // Session timestamp
+	quint32 m_frameIdentifier;              // Identifier for the frame the data was retrieved on
+	quint8 m_playerCarIndex = 254;          // Index of player's car in the array
+	quint8 m_secondaryPlayerCarIndex = 255; // Index of secondary player's car in the array (splitscreen)
+											// 255 if no second player
 
 	bool isValid() const { return m_playerCarIndex < 254; }
+	bool hasSecondaryPlayer() { return m_secondaryPlayerCarIndex < 255; }
 };
 
 struct ParticipantData {

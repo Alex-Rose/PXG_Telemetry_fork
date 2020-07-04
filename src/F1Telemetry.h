@@ -16,6 +16,7 @@ class F1Telemetry;
 class Tracker;
 class FileDownloader;
 class CheckUpdatesDialog;
+class TrackedCars;
 
 class F1Telemetry : public QMainWindow
 {
@@ -48,11 +49,7 @@ class F1Telemetry : public QMainWindow
 
   private slots:
 	void buildListener();
-	void startTracking(bool trackPlayer,
-					   bool trackTeammate,
-					   bool trackAllCars,
-					   bool trackAllRace,
-					   const QVector<int> &trackedDriverIds);
+	void startTracking(const TrackedCars &cars);
 
 	void checkUpdates();
 	void fileDownloaded(int type, const QByteArray &data);

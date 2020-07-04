@@ -125,6 +125,8 @@ bool F1Telemetry::isGreaterVersion(const QString &version)
 	for(int i = 0; i < nbElement; ++i) {
 		if(newVersion.value(i, "0").toInt() > oldVersion.value(i, "0").toInt()) {
 			return true;
+		} else if(newVersion.value(i, "0").toInt() < oldVersion.value(i, "0").toInt()) {
+			return false;
 		}
 	}
 

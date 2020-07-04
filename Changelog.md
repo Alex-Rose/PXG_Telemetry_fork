@@ -4,6 +4,8 @@
 ### Version 2.0
 
 - FIRST VERSION FOR F1 2020
+- Adds tracking of the second player for splitscreen
+- Records the number of points scored and the final status of a race
 
 
 ### Version 1.5

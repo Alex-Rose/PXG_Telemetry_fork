@@ -43,14 +43,31 @@ class TelemetryData
 		int index,
 		const std::function<float(float)> &preprocess = [](auto value) { return value; }) const;
 
+	void save(const QString &filename) const;
+	void load(const QString &filename);
+
   protected:
 	QVector<float> _xValues;
 	QVector<QVector<float>> _data;
 	QVector<TelemetryInfo> _telemetryInfo;
 
 	// Saving - Loading
-	void save(QDataStream &out) const;
-	void load(QDataStream &in);
+	virtual void saveData(QDataStream &out) const;
+	virtual void loadData(QDataStream &in);
+
+	template <class T> QByteArray saveGenericData(const T &data) const
+	{
+		QByteArray outData;
+		QDataStream outStream(&outData, QIODevice::WriteOnly);
+		outStream << data;
+		return outData;
+	}
+
+	template <class T> void loadGenericData(T &data, QByteArray &inData) const
+	{
+		QDataStream inStream(&inData, QIODevice::ReadOnly);
+		inStream >> data;
+	}
 };
 
 QDataStream &operator>>(QDataStream &in, TelemetryInfo &data);

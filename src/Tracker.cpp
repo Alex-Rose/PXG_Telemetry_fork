@@ -298,4 +298,8 @@ void Tracker::finalClassificationData(const PacketHeader &header, const PacketFi
 {
 	Q_UNUSED(header)
 	Q_UNUSED(data)
+
+	for(auto &driver : qAsConst(_trackedDrivers)) {
+		driver->finalClassificationData(header, data);
+	}
 }

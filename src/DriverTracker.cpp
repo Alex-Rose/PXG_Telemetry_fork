@@ -33,6 +33,10 @@ void DriverTracker::init(const QDir &directory)
 void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data)
 {
 	Q_UNUSED(header)
+	if(_currentMotionData.m_carMotionData.count() < _driverIndex) {
+		return;
+	}
+
 	const auto &driverData = data.m_carTelemetryData[_driverIndex];
 	const auto &motionData = _currentMotionData.m_carMotionData[_driverIndex];
 
@@ -272,8 +276,8 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 		lapType = "_(Out)";
 	} else {
 		_currentLap->lapTime = lapData.m_lastLapTime;
-		_currentLap->sector1Time = _previousLapData.m_sector1TimeInMS * 1000.0;
-		_currentLap->sector2Time = _previousLapData.m_sector2TimeInMS * 1000.0;
+		_currentLap->sector1Time = _previousLapData.m_sector1TimeInMS / 1000.0;
+		_currentLap->sector2Time = _previousLapData.m_sector2TimeInMS / 1000.0;
 		_currentLap->sector3Time = lapData.m_lastLapTime - _currentLap->sector2Time - _currentLap->sector1Time;
 	}
 

@@ -473,8 +473,8 @@ Event stringToEvent(const QString str)
 		return Event::RaceWinner;
 	if(str.startsWith("PENA"))
 		return Event::PenaltyIssued;
-	if(str.startsWith("SPTP"))
-		return Event::SpeedTrapTrigged;
+	//	if(str.startsWith("SPTP"))
+	//		return Event::SpeedTrapTrigged;
 
 	return Event::Unknown;
 }

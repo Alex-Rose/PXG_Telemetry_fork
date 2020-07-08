@@ -68,11 +68,9 @@ Lap *Lap::fromFile(const QString &filename)
 
 void Lap::saveData(QDataStream &out) const
 {
-	out << track << session_type << trackTemp << airTemp << weather << invalid;
-	saveGenericData(driver);
-	out << recordDate << averageStartTyreWear << averageEndTyreWear;
-	saveGenericData(setup);
-	out << setup << comment << lapTime << sector1Time << sector2Time << sector3Time;
+	out << track << session_type << trackTemp << airTemp << weather << invalid << saveGenericData(driver);
+	out << recordDate << averageStartTyreWear << averageEndTyreWear << saveGenericData(setup);
+	out << comment << lapTime << sector1Time << sector2Time << sector3Time;
 
 	QByteArray telemetryData;
 	QDataStream outTelemetry(&telemetryData, QIODevice::WriteOnly);

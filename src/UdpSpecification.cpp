@@ -133,7 +133,7 @@ UdpSpecification::UdpSpecification()
 	visualTyres = QStringList({"Hyper Soft", "Ultra Soft", "Super Soft", "Soft", "Medium", "Hard", "Super Hard",
 							   "Inter", "Full Wet", "Dry (Classic)", "Wet (Classic)", "Super Soft (F2)", "Soft (F2)",
 							   "Medium (F2)", "Hard (F2)", "Wet (F2)", "Soft", "Medium", "Hard"});
-	ersModes = QStringList({"None", "Low", "Medium", "High", "Overtake", "Hotlap"});
+	ersModes = QStringList({"None", "Medium", "Overtake", "Hotlap"});
 	fuelMixes = QStringList({"Lean", "Standard", "Rich", "Max"});
 	trackTurns["Melbourne"] = {{1, 370},   {3, 1110},  {4, 1280},  {6, 1900},  {9, 2560},
 							   {11, 3385}, {13, 4170}, {14, 4420}, {15, 4700}, {16, 4830}};

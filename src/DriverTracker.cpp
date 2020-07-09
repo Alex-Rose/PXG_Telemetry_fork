@@ -34,6 +34,7 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 {
 	Q_UNUSED(header)
 	if(_currentMotionData.m_carMotionData.count() < _driverIndex) {
+		qWarning() << "INVALID MOTION DATA ...." << driverDataDirectory.dirName();
 		return;
 	}
 

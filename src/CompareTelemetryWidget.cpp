@@ -704,10 +704,10 @@ QTreeWidgetItem *CompareTelemetryWidget::setupItem(QTreeWidget *tree, const Lap 
 	new QTreeWidgetItem(setupItem, {"Rear height", QString::number(lap->setup.m_rearSuspensionHeight)});
 	new QTreeWidgetItem(setupItem, {"Brake Pressure", QString::number(lap->setup.m_brakePressure) + "%"});
 	new QTreeWidgetItem(setupItem, {"Brake Bias", QString::number(lap->setup.m_brakeBias) + "%"});
-	new QTreeWidgetItem(setupItem, {"Front Left Tyre Pressure", QString::number(lap->setup.m_frontLeftTyrePressure)});
 	new QTreeWidgetItem(setupItem, {"Front Right Tyre Pressure", QString::number(lap->setup.m_frontRightTyrePressure)});
-	new QTreeWidgetItem(setupItem, {"Rear Left Tyre Pressure", QString::number(lap->setup.m_rearLeftTyrePressure)});
+	new QTreeWidgetItem(setupItem, {"Front Left Tyre Pressure", QString::number(lap->setup.m_frontLeftTyrePressure)});
 	new QTreeWidgetItem(setupItem, {"Rear Right Tyre Pressure", QString::number(lap->setup.m_rearRightTyrePressure)});
+	new QTreeWidgetItem(setupItem, {"Rear Left Tyre Pressure", QString::number(lap->setup.m_rearLeftTyrePressure)});
 	new QTreeWidgetItem(setupItem, {"Ballast", QString::number(lap->setup.m_ballast)});
 	new QTreeWidgetItem(setupItem, {"Fuel Load", QString::number(lap->setup.m_fuelLoad) + "kg"});
 	return setupItem;
@@ -724,17 +724,17 @@ QTreeWidgetItem *CompareTelemetryWidget::tyreTempItem(QTreeWidget *tree, const L
 	auto tempItem = new QTreeWidgetItem(tree, {"Tyre Temperature", QString::number(int(averageTemp)) + "°C (+/- " +
 																	   QString::number(int(averageDev)) + "°C)"});
 	new QTreeWidgetItem(tempItem,
-						{"Front Left", QString::number(int(lap->innerTemperatures.frontLeft.mean)) + "°C (+/- " +
-										   QString::number(int(lap->innerTemperatures.frontLeft.deviation)) + "°C)"});
-	new QTreeWidgetItem(tempItem,
 						{"Front Right", QString::number(int(lap->innerTemperatures.frontRight.mean)) + "°C (+/- " +
 											QString::number(int(lap->innerTemperatures.frontRight.deviation)) + "°C)"});
 	new QTreeWidgetItem(tempItem,
-						{"Rear Left", QString::number(int(lap->innerTemperatures.rearLeft.mean)) + "°C (+/- " +
-										  QString::number(int(lap->innerTemperatures.rearLeft.deviation)) + "°C)"});
+						{"Front Left", QString::number(int(lap->innerTemperatures.frontLeft.mean)) + "°C (+/- " +
+										   QString::number(int(lap->innerTemperatures.frontLeft.deviation)) + "°C)"});
 	new QTreeWidgetItem(tempItem,
 						{"Rear Right", QString::number(int(lap->innerTemperatures.rearRight.mean)) + "°C (+/- " +
 										   QString::number(int(lap->innerTemperatures.rearRight.deviation)) + "°C)"});
+	new QTreeWidgetItem(tempItem,
+						{"Rear Left", QString::number(int(lap->innerTemperatures.rearLeft.mean)) + "°C (+/- " +
+										  QString::number(int(lap->innerTemperatures.rearLeft.deviation)) + "°C)"});
 	return tempItem;
 }
 

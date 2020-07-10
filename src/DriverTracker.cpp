@@ -314,8 +314,8 @@ void DriverTracker::addLapToStint(Lap *lap)
 	auto values = {lap->lapTime, float(lap->averageEndTyreWear - _currentStint->averageStartTyreWear),
 				   //				   float(lap->calculatedTyreDegradation),
 				   float(lap->calculatedTotalLostTraction), float(lap->fuelOnEnd), float(lap->energy / 1000.0),
-				   float(lap->innerTemperatures.frontLeft.mean), float(lap->innerTemperatures.frontRight.mean),
-				   float(lap->innerTemperatures.rearLeft.mean), float(lap->innerTemperatures.rearRight.mean)};
+				   float(lap->innerTemperatures.frontRight.mean), float(lap->innerTemperatures.frontLeft.mean),
+				   float(lap->innerTemperatures.rearRight.mean), float(lap->innerTemperatures.rearLeft.mean)};
 	_currentStint->addData(_currentStint->countData() + 1, values);
 	_currentStint->recordDate = QDateTime::currentDateTime();
 	_currentStint->endTyreWear = lap->endTyreWear;

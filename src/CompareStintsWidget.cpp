@@ -61,21 +61,21 @@ void CompareStintsWidget::fillInfoTree(QTreeWidget *tree, const TelemetryData *d
 					   stint->calculatedTyreWear.rearLeft + stint->calculatedTyreWear.rearRight) /
 					  4.0;
 	auto calcTyreWearItem = new QTreeWidgetItem(tree, {"Tyre Wear (per lap)", QString("%1%").arg(avgLapWear)});
-	new QTreeWidgetItem(calcTyreWearItem, {"Front Left", QString("%1%").arg(stint->calculatedTyreWear.frontLeft)});
 	new QTreeWidgetItem(calcTyreWearItem, {"Front Right", QString("%1%").arg(stint->calculatedTyreWear.frontRight)});
-	new QTreeWidgetItem(calcTyreWearItem, {"Rear Left", QString("%1%").arg(stint->calculatedTyreWear.rearLeft)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Front Left", QString("%1%").arg(stint->calculatedTyreWear.frontLeft)});
 	new QTreeWidgetItem(calcTyreWearItem, {"Rear Right", QString("%1%").arg(stint->calculatedTyreWear.rearRight)});
+	new QTreeWidgetItem(calcTyreWearItem, {"Rear Left", QString("%1%").arg(stint->calculatedTyreWear.rearLeft)});
 	new QTreeWidgetItem(calcTyreWearItem, {"Estimated Life (40%)", QString("%1 Laps").arg(40.0 / maxWear, 0, 'f', 1)});
 	calcTyreWearItem->setExpanded(true);
 
 	auto maxTemp = std::max({stint->innerTemperatures.frontLeft.max, stint->innerTemperatures.frontRight.max,
 							 stint->innerTemperatures.rearLeft.max, stint->innerTemperatures.rearRight.max});
 	auto tempItem = new QTreeWidgetItem(tree, {"Max Tyre Temperature", QString::number(int(maxTemp)) + "°C"});
-	new QTreeWidgetItem(tempItem, {"Front Left", QString::number(int(stint->innerTemperatures.frontLeft.max)) + "°C"});
 	new QTreeWidgetItem(tempItem,
 						{"Front Right", QString::number(int(stint->innerTemperatures.frontRight.max)) + "°C "});
-	new QTreeWidgetItem(tempItem, {"Rear Left", QString::number(int(stint->innerTemperatures.rearLeft.max)) + "°C"});
+	new QTreeWidgetItem(tempItem, {"Front Left", QString::number(int(stint->innerTemperatures.frontLeft.max)) + "°C"});
 	new QTreeWidgetItem(tempItem, {"Rear Right", QString::number(int(stint->innerTemperatures.rearRight.max)) + "°C"});
+	new QTreeWidgetItem(tempItem, {"Rear Left", QString::number(int(stint->innerTemperatures.rearLeft.max)) + "°C"});
 
 	auto fuel = stint->fuelOnStart - stint->fuelOnEnd;
 	auto fuelItem =

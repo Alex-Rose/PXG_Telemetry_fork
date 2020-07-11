@@ -3,6 +3,7 @@
 #include "CheckUpdatesDialog.h"
 #include "F1TelemetrySettings.h"
 #include "FileDownloader.h"
+#include "PreferencesDialog.h"
 #include "ThemeDialog.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
@@ -97,8 +98,9 @@ void F1Telemetry::initDefaultSettings()
 
 void F1Telemetry::initMenu()
 {
-	auto viewMenu = ui->menuBar->addMenu("&View");
-	viewMenu->addAction("Theme...", this, &F1Telemetry::editTheme);
+	auto prefMenu = ui->menuBar->addMenu("&Preferences");
+	prefMenu->addAction("Charts Theme...", this, &F1Telemetry::editTheme);
+	prefMenu->addAction("User Preferences...", this, &F1Telemetry::editPreferences);
 
 	auto helpMenu = ui->menuBar->addMenu("&Help");
 
@@ -275,4 +277,10 @@ void F1Telemetry::updateTheme()
 		ui->compareStintsWidget->setTheme(theme);
 		ui->compareRaceWidget->setTheme(theme);
 	}
+}
+
+void F1Telemetry::editPreferences()
+{
+	PreferencesDialog dialog(this);
+	dialog.exec();
 }

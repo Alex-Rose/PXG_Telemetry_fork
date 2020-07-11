@@ -32,12 +32,7 @@ class UdpSpecification
 
 	int expectedPacketLength(PacketType type) const;
 
-	QString team(int index) const
-	{
-		if(index == 255)
-			return "My Team";
-		return teams.value(index);
-	}
+	QString team(int index) const;
 	QString track(int index) const { return tracks.value(index); }
 	QString weather(int index) const { return weathers.value(index); }
 	QString session_type(int index) const { return sessions.value(index); }

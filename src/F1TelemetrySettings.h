@@ -37,6 +37,9 @@ class F1TelemetrySettings : public ApplicationSettings
 
 	QString server() const;
 	void setServer(const QString &address);
+
+	QString myTeamName() const;
+	void setMyTeamName(const QString &name);
 };
 
 #endif // F1TELEMETRYSETTINGS_H

@@ -58,6 +58,7 @@ class F1Telemetry : public QMainWindow
 	void contact();
 	void editTheme();
 	void updateTheme();
+	void editPreferences();
 };
 
 #endif // F1TELEMETRY_H

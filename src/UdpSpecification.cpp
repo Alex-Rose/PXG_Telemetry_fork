@@ -1,4 +1,5 @@
 #include "UdpSpecification.h"
+#include "F1TelemetrySettings.h"
 
 #include <QtDebug>
 
@@ -16,6 +17,14 @@ template <typename T> void readDataList(QDataStream &in, QVector<T> &list, int n
 int UdpSpecification::expectedPacketLength(UdpSpecification::PacketType type) const
 {
 	return packetExpectedLengths[type];
+}
+
+QString UdpSpecification::team(int index) const
+{
+	if(index == 255) {
+		return F1TelemetrySettings().myTeamName();
+	}
+	return teams.value(index);
 }
 
 QList<QPair<int, double>> UdpSpecification::turns(int trackIndex) const

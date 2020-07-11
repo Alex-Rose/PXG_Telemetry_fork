@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>655</width>
-    <height>647</height>
+    <height>668</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -272,34 +272,10 @@
       <property name="horizontalSpacing">
        <number>42</number>
       </property>
-      <item row="14" column="1">
-       <widget class="QCheckBox" name="driver20">
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="player2">
         <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="1">
-       <widget class="QCheckBox" name="driver18">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="16" column="0" colspan="2">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="player">
-        <property name="text">
-         <string>Me</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>2nd Player (splitscreen)</string>
         </property>
        </widget>
       </item>
@@ -319,99 +295,15 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="Line" name="line">
+      <item row="17" column="0" colspan="2">
+       <widget class="Line" name="line_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
-       <widget class="QCheckBox" name="driver16">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QCheckBox" name="driver15">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="driver3">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QCheckBox" name="driver7">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="QCheckBox" name="driver6">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="driver2">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="17" column="0" colspan="2">
-       <widget class="QCheckBox" name="allRace">
-        <property name="text">
-         <string>Record race data for all drivers</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="driver1">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QCheckBox" name="driver13">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QCheckBox" name="driver14">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
-       <widget class="QCheckBox" name="driver17">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="QCheckBox" name="driver4">
-        <property name="text">
-         <string>CheckBox</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QCheckBox" name="driver19">
+      <item row="14" column="0">
+       <widget class="QCheckBox" name="driver10">
         <property name="text">
          <string>CheckBox</string>
         </property>
@@ -424,15 +316,53 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="driver11">
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="teammate">
         <property name="text">
-         <string>CheckBox</string>
+         <string>Teammate</string>
         </property>
        </widget>
       </item>
       <item row="9" column="0">
        <widget class="QCheckBox" name="driver5">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QCheckBox" name="driver4">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="driver2">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="allcars">
+        <property name="text">
+         <string>All drivers (recommended for Time Trial)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="player">
+        <property name="text">
+         <string>Me</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="driver1">
         <property name="text">
          <string>CheckBox</string>
         </property>
@@ -445,38 +375,122 @@
         </property>
        </widget>
       </item>
-      <item row="14" column="0">
-       <widget class="QCheckBox" name="driver10">
+      <item row="11" column="0">
+       <widget class="QCheckBox" name="driver7">
         <property name="text">
          <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="4" column="0" colspan="2">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="0" colspan="2">
+       <widget class="QCheckBox" name="allRace">
+        <property name="text">
+         <string>Record race data for all drivers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="driver3">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QCheckBox" name="driver6">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="0">
+       <widget class="QCheckBox" name="driver11">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
        <widget class="QCheckBox" name="driver12">
         <property name="text">
          <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="teammate">
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="driver13">
         <property name="text">
-         <string>Teammate</string>
+         <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QCheckBox" name="allcars">
+      <item row="7" column="1">
+       <widget class="QCheckBox" name="driver14">
         <property name="text">
-         <string>All drivers (recommended for Time Trial)</string>
+         <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="player2">
+      <item row="8" column="1">
+       <widget class="QCheckBox" name="driver15">
         <property name="text">
-         <string>2nd Player (splitscreen)</string>
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QCheckBox" name="driver16">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QCheckBox" name="driver17">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QCheckBox" name="driver18">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QCheckBox" name="driver19">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="1">
+       <widget class="QCheckBox" name="driver20">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QCheckBox" name="driver21">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="1">
+       <widget class="QCheckBox" name="driver22">
+        <property name="text">
+         <string>CheckBox</string>
         </property>
        </widget>
       </item>

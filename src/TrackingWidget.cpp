@@ -19,7 +19,7 @@ TrackingWidget::TrackingWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Tr
 	_driverCheckBoxes << ui->driver1 << ui->driver2 << ui->driver3 << ui->driver4 << ui->driver5 << ui->driver6
 					  << ui->driver7 << ui->driver8 << ui->driver9 << ui->driver10 << ui->driver11 << ui->driver12
 					  << ui->driver13 << ui->driver14 << ui->driver15 << ui->driver16 << ui->driver17 << ui->driver18
-					  << ui->driver19 << ui->driver20;
+					  << ui->driver19 << ui->driver20 << ui->driver21 << ui->driver22;
 	connect(ui->btnTrack, &QPushButton::clicked, this, &TrackingWidget::startStop);
 	connect(ui->btnBrowse, &QPushButton::clicked, this, &TrackingWidget::browseDataDirectory);
 	connect(ui->btnQuickInstructions, &QPushButton::clicked, this, &TrackingWidget::showQuickInstructions);

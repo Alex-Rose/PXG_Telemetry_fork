@@ -416,7 +416,8 @@ struct FinalClassificationData {
 										// 3 = finished, 4 = disqualified, 5 = not classified
 										// 6 = retired
 	float m_bestLapTime;                // Best lap time of the session in seconds
-	double m_totalRaceTime;             // Total race time in seconds without penalties
+	float m_totalRaceTime;              // Total race time in seconds without penalties
+	float m_totalRaceTime2;             // Hack to support the double type
 	quint8 m_penaltiesTime;             // Total penalties accumulated in seconds
 	quint8 m_numPenalties;              // Number of penalties applied to this driver
 	quint8 m_numTyreStints;             // Number of tyres stints up to maximum

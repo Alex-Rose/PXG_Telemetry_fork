@@ -495,8 +495,8 @@ bool PacketSessionData::isRace() const { return m_sessionType == 10 || m_session
 QDataStream &operator>>(QDataStream &in, FinalClassificationData &packet)
 {
 	in >> packet.m_position >> packet.m_numLaps >> packet.m_gridPosition >> packet.m_points >> packet.m_numPitStops >>
-		packet.m_resultStatus >> packet.m_bestLapTime >> packet.m_totalRaceTime >> packet.m_penaltiesTime >>
-		packet.m_numPenalties >> packet.m_numTyreStints;
+		packet.m_resultStatus >> packet.m_bestLapTime >> packet.m_totalRaceTime >> packet.m_totalRaceTime2 >>
+		packet.m_penaltiesTime >> packet.m_numPenalties >> packet.m_numTyreStints;
 	readDataList<quint8>(in, packet.m_tyreStintsActual, 8);
 	readDataList<quint8>(in, packet.m_tyreStintsVisual, 8);
 	return in;

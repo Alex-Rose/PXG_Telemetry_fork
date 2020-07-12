@@ -55,8 +55,6 @@ const QVector<TelemetryInfo> TelemetryDefinitions::EXTENDED_TELEMETRY_INFO = {
 	TelemetryInfo{
 		"Suspension R/L",
 		"Right / Left suspension balance (>0: the car tilt toward the right, <0: the car tilt toward the left)", "mm"},
-	TelemetryInfo{"Rear Suspension", "Front / Rear suspension position", "mm"},
-	TelemetryInfo{"Front Suspension", "Front suspension balance position", "mm"},
 };
 
 const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_STINT_INFO = {

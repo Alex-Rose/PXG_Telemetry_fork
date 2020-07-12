@@ -70,7 +70,7 @@ UdpSpecification::UdpSpecification()
 		"Ferrari 2004", // 17
 		"Renault 2006",
 		"Ferrari 2007",
-		"McLaren 2008 (deleted)",
+		"McLaren 2008",
 		"Red Bull 2010",
 		"Ferrari 1976", // 22
 		"ART Grand Prix",
@@ -80,7 +80,7 @@ UdpSpecification::UdpSpecification()
 		"DAMS",
 		"Russian Time",
 		"MP Motorsport",
-		"Pertamina" // 30
+		"Pertamina", // 30
 		"Mclaren 1990",
 		"Trident",
 		"BWT Arden",
@@ -217,7 +217,7 @@ UdpSpecification::UdpSpecification()
 	surfaces = QStringList({"Tarmac", "Rumble strip", "Concrete", "Rock", "Gravel", "Mud", "Sand", "Grass", "Water",
 							"Cobblestone", "Metal", "Rigged"});
 	raceStatusValues =
-		QStringList({"invalid", "inactive", "active", "finished", "disqualified", "not classified", "retired"});
+		QStringList({"Invalid", "Inactive", "Active", "Finished", "Disqualified", "Not Classified", "Retired"});
 }
 
 QString UdpSpecification::description(const QStringList &data) const

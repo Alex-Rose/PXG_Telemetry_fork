@@ -3,6 +3,7 @@
 #include "CheckUpdatesDialog.h"
 #include "F1TelemetrySettings.h"
 #include "FileDownloader.h"
+#include "PreferencesDialog.h"
 #include "ThemeDialog.h"
 #include "Tracker.h"
 #include "ui_F1Telemetry.h"
@@ -97,8 +98,9 @@ void F1Telemetry::initDefaultSettings()
 
 void F1Telemetry::initMenu()
 {
-	auto viewMenu = ui->menuBar->addMenu("&View");
-	viewMenu->addAction("Theme...", this, &F1Telemetry::editTheme);
+	auto prefMenu = ui->menuBar->addMenu("&Preferences");
+	prefMenu->addAction("Charts Theme...", this, &F1Telemetry::editTheme);
+	prefMenu->addAction("User Preferences...", this, &F1Telemetry::editPreferences);
 
 	auto helpMenu = ui->menuBar->addMenu("&Help");
 
@@ -125,6 +127,8 @@ bool F1Telemetry::isGreaterVersion(const QString &version)
 	for(int i = 0; i < nbElement; ++i) {
 		if(newVersion.value(i, "0").toInt() > oldVersion.value(i, "0").toInt()) {
 			return true;
+		} else if(newVersion.value(i, "0").toInt() < oldVersion.value(i, "0").toInt()) {
+			return false;
 		}
 	}
 
@@ -137,22 +141,20 @@ void F1Telemetry::closeEvent(QCloseEvent *event)
 	QMainWindow::closeEvent(event);
 }
 
-void F1Telemetry::startTracking(bool trackPlayer,
-								bool trackTeammate,
-								bool trackAllCars,
-								bool trackAllRace,
-								const QVector<int> &trackedDriverIds)
+void F1Telemetry::startTracking(const TrackedCars &cars)
 {
 	_tracker->clearTrackedDrivers();
-	if(trackPlayer)
+	if(cars.me)
 		_tracker->trackPlayer();
-	if(trackTeammate)
+	if(cars.player2)
+		_tracker->trackPlayer2();
+	if(cars.teammate)
 		_tracker->trackTeammate();
-	if(trackAllCars)
+	if(cars.all)
 		_tracker->trackAllCars();
-	if(trackAllRace)
+	if(cars.allRace)
 		_tracker->trackAllRace();
-	for(auto id : trackedDriverIds)
+	for(auto id : cars.ids)
 		_tracker->trackDriver(id);
 	_tracker->setDataDirectory(ui->trackingWidget->getDataDirectory());
 	_tracker->start();
@@ -275,4 +277,10 @@ void F1Telemetry::updateTheme()
 		ui->compareStintsWidget->setTheme(theme);
 		ui->compareRaceWidget->setTheme(theme);
 	}
+}
+
+void F1Telemetry::editPreferences()
+{
+	PreferencesDialog dialog(this);
+	dialog.exec();
 }

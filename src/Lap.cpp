@@ -57,31 +57,6 @@ void Lap::removeTelemetryFrom(float distance)
 	}
 }
 
-void Lap::save(const QString &filename) const
-{
-	QFile file(filename);
-	if(file.open(QIODevice::WriteOnly)) {
-		QDataStream out(&file);
-		out.setByteOrder(QDataStream::LittleEndian);
-		out.setFloatingPointPrecision(QDataStream::SinglePrecision);
-		saveData(out);
-
-		qDebug() << "LAP saved " << filename;
-	} else {
-		qDebug() << "LAP saving failed in " << filename;
-	}
-}
-
-void Lap::load(const QString &filename)
-{
-	QFile file(filename);
-	if(file.open(QIODevice::ReadOnly)) {
-		QDataStream in(&file);
-		in.setByteOrder(QDataStream::LittleEndian);
-		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
-		loadData(in);
-	}
-}
 
 Lap *Lap::fromFile(const QString &filename)
 {
@@ -93,10 +68,15 @@ Lap *Lap::fromFile(const QString &filename)
 
 void Lap::saveData(QDataStream &out) const
 {
-	out << track << session_type << trackTemp << airTemp << weather << invalid << driver << recordDate
-		<< averageStartTyreWear << averageEndTyreWear << setup << comment << lapTime << sector1Time << sector2Time
-		<< sector3Time;
-	TelemetryData::save(out);
+	out << track << session_type << trackTemp << airTemp << weather << invalid << saveGenericData(driver);
+	out << recordDate << averageStartTyreWear << averageEndTyreWear << saveGenericData(setup);
+	out << comment << lapTime << sector1Time << sector2Time << sector3Time;
+
+	QByteArray telemetryData;
+	QDataStream outTelemetry(&telemetryData, QIODevice::WriteOnly);
+	TelemetryData::saveData(outTelemetry);
+	out << telemetryData;
+
 	out << tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd << ers << energy
 		<< harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance << startTyreWear
 		<< endTyreWear << isInLap << isOutLap << visualTyreCompound << meanBalance << energyBalance
@@ -105,10 +85,19 @@ void Lap::saveData(QDataStream &out) const
 
 void Lap::loadData(QDataStream &in)
 {
-	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver >> recordDate >>
-		averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >>
+	QByteArray driverData, setupData;
+	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driverData >> recordDate >>
+		averageStartTyreWear >> averageEndTyreWear >> setupData >> comment >> lapTime >> sector1Time >> sector2Time >>
 		sector3Time;
-	TelemetryData::load(in);
+
+	loadGenericData(driver, driverData);
+	loadGenericData(setup, setupData);
+
+	QByteArray telemetryData;
+	in >> telemetryData;
+	QDataStream inTelemetry(&telemetryData, QIODevice::ReadOnly);
+	TelemetryData::loadData(inTelemetry);
+
 	in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
 		harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
 		endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>

@@ -64,10 +64,10 @@ const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_STINT_INFO = {
 	TelemetryInfo{"Calculated Total Lost Traction", "Cumulated estimated total traction lost over each lap", "%"},
 	TelemetryInfo{"Fuel", "Remaining fuel in the car", "kg"},
 	TelemetryInfo{"Stored Enegery", "Energy remaining in the battery", "kJ"},
-	TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
 	TelemetryInfo{"Front Right Tyre Temperature", "", "°C"},
-	TelemetryInfo{"Rear Left Tyre Temperature", "", "°C"},
+	TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
 	TelemetryInfo{"Rear Right Tyre Temperature", "", "°C"},
+	TelemetryInfo{"Rear Left Tyre Temperature", "", "°C"},
 };
 
 const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_RACE_INFO = {

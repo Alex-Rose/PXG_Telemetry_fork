@@ -75,9 +75,29 @@ double TelemetryData::integrateTelemetry(int index, const std::function<float(fl
 	return sum / lapDistance;
 }
 
-void TelemetryData::save(QDataStream &out) const { out << _telemetryInfo << _xValues << _data; }
+void TelemetryData::save(const QString &filename) const
+{
+	QFile file(filename);
+	if(file.open(QIODevice::WriteOnly)) {
+		QDataStream out(&file);
+		saveData(out);
+	} else {
+		qDebug() << "Data saving failed in " << filename;
+	}
+}
 
-void TelemetryData::load(QDataStream &in) { in >> _telemetryInfo >> _xValues >> _data; }
+void TelemetryData::load(const QString &filename)
+{
+	QFile file(filename);
+	if(file.open(QIODevice::ReadOnly)) {
+		QDataStream in(&file);
+		loadData(in);
+	}
+}
+
+void TelemetryData::saveData(QDataStream &out) const { out << _telemetryInfo << _xValues << _data; }
+
+void TelemetryData::loadData(QDataStream &in) { in >> _telemetryInfo >> _xValues >> _data; }
 
 QDataStream &operator>>(QDataStream &in, TelemetryInfo &data)
 {

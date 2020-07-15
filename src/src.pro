@@ -29,6 +29,7 @@ SOURCES += \
     CustomTheme.cpp \
     F1TelemetrySettings.cpp \
     FileDownloader.cpp \
+    PreferencesDialog.cpp \
     Race.cpp \
     TTGhostsTracker.cpp \
     TelemetryChartView.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     F1Listener.h \
     F1TelemetrySettings.h \
     FileDownloader.h \
+    PreferencesDialog.h \
     Race.h \
     TTGhostsTracker.h \
     TelemetryChartView.h \
@@ -89,6 +91,7 @@ FORMS += \
     CheckUpdatesDialog.ui \
     CustomThemeWidget.ui \
         F1Telemetry.ui \
+    PreferencesDialog.ui \
     ThemeDialog.ui \
     TrackingWidget.ui \
     CompareTelemetryWidget.ui \

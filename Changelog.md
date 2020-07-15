@@ -1,6 +1,18 @@
 ## PXG F1 Telemetry Changelog
 
 
+### Version 2.0
+
+- FIRST VERSION FOR F1 2020
+- Adds tracking of the second player for splitscreen
+- Records the number of points scored and the final status of a race
+- Adds a preference dialog to select the displayed name of "My Team"
+
+#### Known issues:
+
+- Ghosts are not recorded in time trial (this is an issue with F1 2020)
+
+
 ### Version 1.5
 
 - Adds a new "Race Analysis" tab. New files are produced for each driver during a race for each driver. These files can be opened in the race analysis tab to display some statistic on the race
@@ -9,11 +21,11 @@
 - Adds the possibility to change the theme of the telemetry charts from the menu "View > Theme"
 - Highlights the line of the selected data
 - Adds the possibility to change the color of a single line in the chart
-- LAST VERSION FOR F1 2019
+- LAST VERSION FOR F1 2019 (compatible with F12020 by choosing the F12019 udp format in the game settings)
 
 #### Known issues:
 
-- In time trial the telemetry data of ghosts are not properly recorded (this is an issue with the game)
+- In time trial the telemetry data of ghosts are not properly recorded (this is an issue with F1 2019)
 
 ### Version 1.4
 

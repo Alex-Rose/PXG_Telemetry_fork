@@ -33,6 +33,11 @@ void DriverTracker::init(const QDir &directory)
 void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTelemetryData &data)
 {
 	Q_UNUSED(header)
+	if(_currentMotionData.m_carMotionData.count() <= _driverIndex) {
+		qWarning() << "INVALID MOTION DATA ...." << driverDataDirectory.dirName();
+		return;
+	}
+
 	const auto &driverData = data.m_carTelemetryData[_driverIndex];
 	const auto &motionData = _currentMotionData.m_carMotionData[_driverIndex];
 
@@ -84,8 +89,8 @@ void DriverTracker::telemetryData(const PacketHeader &header, const PacketCarTel
 		TyresData<float> wheelSpeed;
 		wheelSpeed.setArray(_currentMotionData.m_wheelSpeed);
 
-		auto velocity = sqrt(motionData.m_worldVelocityX * motionData.m_worldVelocityX +
-							 motionData.m_worldVelocityY * motionData.m_worldVelocityY);
+		//		auto velocity = sqrt(motionData.m_worldVelocityX * motionData.m_worldVelocityX +
+		//							 motionData.m_worldVelocityY * motionData.m_worldVelocityY);
 
 		TyresData<float> tyreDegradationLat =
 			(slip * 0.01f) + 1.0f * driverData.m_speed * qAbs(motionData.m_gForceLateral);
@@ -133,8 +138,6 @@ void DriverTracker::lapData(const PacketHeader &header, const PacketLapData &dat
 {
 	Q_UNUSED(header)
 	const auto &lapData = data.m_lapData[_driverIndex];
-
-	auto lastRaceLap = isLastRaceLap(lapData);
 
 	if(isRace()) {
 		auto leaderData = leaderLapData(data);
@@ -261,23 +264,22 @@ void DriverTracker::saveCurrentLap(const LapData &lapData)
 	QString lapType;
 	if(_currentLap->isInLap && !isRace()) {
 		_currentLap->lapTime = lapData.m_currentLapTime;
-		_currentLap->sector1Time = lapData.m_sector1Time;
-		_currentLap->sector2Time = lapData.m_sector2Time;
-		_currentLap->sector3Time = lapData.m_currentLapTime - lapData.m_sector2Time - lapData.m_sector1Time;
+		_currentLap->sector1Time = lapData.m_sector1TimeInMS * 1000.0;
+		_currentLap->sector2Time = lapData.m_sector2TimeInMS * 1000.0;
+		_currentLap->sector3Time = lapData.m_currentLapTime - _currentLap->sector2Time - _currentLap->sector1Time;
 		lapType = "_(In)";
 	} else if(_currentLap->isOutLap && !isRace()) {
 		_currentLap->lapTime = _previousLapData.m_currentLapTime - _timeDiff;
-		_currentLap->sector1Time = _previousLapData.m_sector1Time;
-		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time = _previousLapData.m_currentLapTime - _timeDiff - _previousLapData.m_sector2Time -
-								   _previousLapData.m_sector1Time;
+		_currentLap->sector1Time = _previousLapData.m_sector1TimeInMS * 1000.0;
+		_currentLap->sector2Time = _previousLapData.m_sector2TimeInMS * 1000.0;
+		_currentLap->sector3Time =
+			_previousLapData.m_currentLapTime - _timeDiff - _currentLap->sector2Time - _currentLap->sector1Time;
 		lapType = "_(Out)";
 	} else {
 		_currentLap->lapTime = lapData.m_lastLapTime;
-		_currentLap->sector1Time = _previousLapData.m_sector1Time;
-		_currentLap->sector2Time = _previousLapData.m_sector2Time;
-		_currentLap->sector3Time =
-			lapData.m_lastLapTime - _previousLapData.m_sector2Time - _previousLapData.m_sector1Time;
+		_currentLap->sector1Time = _previousLapData.m_sector1TimeInMS / 1000.0;
+		_currentLap->sector2Time = _previousLapData.m_sector2TimeInMS / 1000.0;
+		_currentLap->sector3Time = lapData.m_lastLapTime - _currentLap->sector2Time - _currentLap->sector1Time;
 	}
 
 	if(std::isnan(_currentLap->lapTime)) {
@@ -312,8 +314,8 @@ void DriverTracker::addLapToStint(Lap *lap)
 	auto values = {lap->lapTime, float(lap->averageEndTyreWear - _currentStint->averageStartTyreWear),
 				   //				   float(lap->calculatedTyreDegradation),
 				   float(lap->calculatedTotalLostTraction), float(lap->fuelOnEnd), float(lap->energy / 1000.0),
-				   float(lap->innerTemperatures.frontLeft.mean), float(lap->innerTemperatures.frontRight.mean),
-				   float(lap->innerTemperatures.rearLeft.mean), float(lap->innerTemperatures.rearRight.mean)};
+				   float(lap->innerTemperatures.frontRight.mean), float(lap->innerTemperatures.frontLeft.mean),
+				   float(lap->innerTemperatures.rearRight.mean), float(lap->innerTemperatures.rearLeft.mean)};
 	_currentStint->addData(_currentStint->countData() + 1, values);
 	_currentStint->recordDate = QDateTime::currentDateTime();
 	_currentStint->endTyreWear = lap->endTyreWear;
@@ -354,7 +356,7 @@ void DriverTracker::addLapToRace(Lap *lap, const LapData &lapData)
 		qDebug() << "RACE Started : " << driverDataDirectory.dirName();
 
 		initLap(_currentRace, lapData);
-		_currentRace->startedGridPosition = lapData.m_gridPosition + 1;
+		_currentRace->startedGridPosition = lapData.m_gridPosition;
 	}
 
 	float raceTime = sessionTimePassed();
@@ -629,23 +631,32 @@ void DriverTracker::eventData(const PacketHeader &header, const PacketEventData 
 {
 	Q_UNUSED(header)
 	switch(data.event) {
-		case Event::RaceWinner:
-			// Ensure the last lap is saved, event if the sessionEnd event is not raised
-			QTimer::singleShot(120 * 1000, [this]() { onSessionEnd(); });
-			_raceFinished = true;
-			break;
-		case Event::ChequeredFlag:
-			// Ensure the last lap is saved, event if the sessionEnd event is not raised
-			QTimer::singleShot(10 * 1000, [this]() { onSessionEnd(); });
-			break;
 		case Event::SessionEnded:
-			onSessionEnd();
+			if(!isRace()) {
+				onSessionEnd();
+			}
 			break;
 		default:
 			break;
 	}
 
 	qDebug() << "Event Received : " << data.m_eventStringCode << int(data.event);
+}
+
+void DriverTracker::finalClassificationData(const PacketHeader &header, const PacketFinalClassificationData &data)
+{
+	Q_UNUSED(header)
+	Q_UNUSED(data)
+
+	if(isRace()) {
+		auto driverData = data.m_classificationData[_driverIndex];
+		_currentRace->endPosition = driverData.m_position;
+		_currentRace->pointScored = driverData.m_points;
+		_currentRace->raceStatus = driverData.m_resultStatus;
+	}
+
+	onSessionEnd();
+	_raceFinished = true;
 }
 
 void DriverTracker::onSessionEnd()

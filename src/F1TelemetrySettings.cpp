@@ -18,6 +18,8 @@ const constexpr char *CUSTOM_THEME_USED = "customTheme/used";
 const constexpr char *LINE_WIDTH = "lines/width";
 const constexpr char *SELECTED_LINE_WIDTH = "lines/selectedWidth";
 
+const constexpr char *MY_TEAM_NAME = "preferences/myteam";
+
 
 } // namespace SettingsKeys
 
@@ -29,6 +31,7 @@ const CustomTheme CUSTOM_THEME = CustomTheme::defaultTheme();
 const constexpr bool CUSTOM_THEME_USED = false;
 const constexpr int LINE_WIDTH = 2;
 const constexpr int SELECTED_LINE_WIDTH = 4;
+const constexpr char *MY_TEAM_NAME = "My Team";
 } // namespace SettingsDefaultValues
 
 F1TelemetrySettings::F1TelemetrySettings() : ApplicationSettings() {}
@@ -68,6 +71,13 @@ void F1TelemetrySettings::setPort(int value) { setValue(SettingsKeys::PORT, valu
 
 QString F1TelemetrySettings::server() const { return value(SettingsKeys::SERVER).toString(); }
 void F1TelemetrySettings::setServer(const QString &address) { setValue(SettingsKeys::SERVER, address); }
+
+QString F1TelemetrySettings::myTeamName() const
+{
+	return value(SettingsKeys::MY_TEAM_NAME, SettingsDefaultValues::MY_TEAM_NAME).toString();
+}
+
+void F1TelemetrySettings::setMyTeamName(const QString &name) { setValue(SettingsKeys::MY_TEAM_NAME, name); }
 
 CustomTheme F1TelemetrySettings::customTheme() const
 {

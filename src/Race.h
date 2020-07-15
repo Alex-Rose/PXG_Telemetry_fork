@@ -27,6 +27,8 @@ class Race : public Lap
 	QVector<int> stintsTyre;
 	int startedGridPosition = 0;
 	int endPosition = 0;
+	int pointScored = 0;
+	int raceStatus = -1;
 
   protected:
 	virtual void saveData(QDataStream &out) const;

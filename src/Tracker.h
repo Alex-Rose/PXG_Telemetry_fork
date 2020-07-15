@@ -24,6 +24,7 @@ class Tracker : public QObject, public F1PacketInterface
 	void setDataDirectory(const QString &dirPath);
 	void trackDriver(int index, bool raceOnly = false);
 	void trackPlayer();
+	void trackPlayer2();
 	void trackTeammate();
 	void trackAllCars();
 	void trackAllRace();
@@ -43,6 +44,7 @@ class Tracker : public QObject, public F1PacketInterface
 	QSet<int> _trackedIndexes;
 	QSet<int> _autoTrackedIndexes;
 	bool _addPlayerTrackingOnStart = false;
+	bool _addPlayer2TrackingOnStart = false;
 	bool _addTeammateTrackingOnStart = false;
 	bool _addAllCarsTrackingOnStart = false;
 	bool _addAllRaceCarsTrackingOnStart = false;
@@ -65,6 +67,7 @@ class Tracker : public QObject, public F1PacketInterface
 	void participant(const PacketHeader &header, const PacketParticipantsData &data) override;
 	void motionData(const PacketHeader &header, const PacketMotionData &data) override;
 	void eventData(const PacketHeader &header, const PacketEventData &data) override;
+	void finalClassificationData(const PacketHeader &header, const PacketFinalClassificationData &data) override;
 
 	QString sessionName(const PacketSessionData &data) const;
 	QStringList availableDrivers(const PacketParticipantsData &data) const;

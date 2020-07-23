@@ -1,4 +1,5 @@
 #include "TelemetryDefinitions.h"
+#include "UdpSpecification.h"
 
 int TelemetryDefinitions::indexOfLapTelemetry(const QString &name)
 {
@@ -35,6 +36,8 @@ const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_INFO = {
 	TelemetryInfo{"Time", "", "s"},
 	TelemetryInfo{"Max Tyre Surface Temp.", "Surface temperature of the hotter tyre", "°C"},
 	TelemetryInfo{"ERS Balance", "Energy harvested - energy deployed", "kJ"},
+	TelemetryInfo{"ERS Mode", UdpSpecification::instance()->ersModesDescription(), ""},
+	TelemetryInfo{"Fuel Mix", UdpSpecification::instance()->fuelMixesDescription(), ""},
 	TelemetryInfo{"Lateral G-Force", "", "g"},
 	TelemetryInfo{"Longitudinal G-Force", "", "g"},
 };
@@ -58,11 +61,25 @@ const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_STINT_INFO = {
 	TelemetryInfo{"Lap Times", "", "s"},
 	TelemetryInfo{"Tyres Life", "Average remaing life of the tyres", "%"},
 	// TelemetryInfo{"Calculated Tyres Degradation", "Cumulated estimated tyre degradation over each lap", ""},
-	TelemetryInfo{"Calculated Total Lost Traction", "Cumulated estimated total traction lost over each lap", ""},
+	TelemetryInfo{"Calculated Total Lost Traction", "Cumulated estimated total traction lost over each lap", "%"},
 	TelemetryInfo{"Fuel", "Remaining fuel in the car", "kg"},
 	TelemetryInfo{"Stored Enegery", "Energy remaining in the battery", "kJ"},
-	TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
 	TelemetryInfo{"Front Right Tyre Temperature", "", "°C"},
-	TelemetryInfo{"Rear Left Tyre Temperature", "", "°C"},
+	TelemetryInfo{"Front Left Tyre Temperature", "", "°C"},
 	TelemetryInfo{"Rear Right Tyre Temperature", "", "°C"},
+	TelemetryInfo{"Rear Left Tyre Temperature", "", "°C"},
+};
+
+const QVector<TelemetryInfo> TelemetryDefinitions::TELEMETRY_RACE_INFO = {
+	TelemetryInfo{"Position", "", ""},
+	TelemetryInfo{"Race Time", "", "s"},
+	TelemetryInfo{"Lap Times", "", "s"},
+	TelemetryInfo{"Tyres Life", "Average remaing life of the tyres", "%"},
+	TelemetryInfo{"Fuel", "Remaining fuel in the car", "kg"},
+	TelemetryInfo{"Stored Enegery", "Energy remaining in the battery", "kJ"},
+	TelemetryInfo{"Weather",
+				  "Weather - 0 = clear, 1 = light cloud, 2 = overcast, 3 = light rain, 4 = heavy rain, 5 = storm", ""},
+	TelemetryInfo{"Track Temperature", "", "°C"},
+	TelemetryInfo{"Air Temperature", "", "°C"},
+	TelemetryInfo{"Front Wing Damage", "", "%"},
 };

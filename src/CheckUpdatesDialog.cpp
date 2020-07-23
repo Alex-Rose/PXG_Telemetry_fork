@@ -26,7 +26,21 @@ void CheckUpdatesDialog::setAvailableVersion(const QString &version)
 	ui->lblText->setText(text);
 }
 
-void CheckUpdatesDialog::setChangeLog(const QString &changelog) { ui->textEdit->setMarkdown(changelog); }
+void CheckUpdatesDialog::setChangeLog(const QString &changelog)
+{
+	auto css = "h2 {text-align: center;}"
+			   "h3 {margin-top: 30px;}";
+	ui->textEdit->document()->setDefaultStyleSheet(css); // Not working
+	ui->textEdit->document()->setMarkdown(changelog);
+
+	// Trick to make the css work with markdown
+	auto html = ui->textEdit->document()->toHtml();
+	auto simplifyRegexp = QRegExp("style=\".*\"");
+	simplifyRegexp.setMinimal(true);
+	html.remove(simplifyRegexp);
+	ui->textEdit->document()->setHtml(html);
+	ui->textEdit->moveCursor(QTextCursor::Start);
+}
 
 void CheckUpdatesDialog::openDownloadPage()
 {

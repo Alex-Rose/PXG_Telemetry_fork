@@ -1,8 +1,8 @@
 #include "Ers.h"
 
-ErsData::ErsData() { clear(); }
+ModeData::ModeData() { clear(); }
 
-void ErsData::addValue(int mode, double lapDistance)
+void ModeData::addValue(int mode, double lapDistance)
 {
 	if(_currentMode < 0)
 		_currentMode = mode;
@@ -16,22 +16,22 @@ void ErsData::addValue(int mode, double lapDistance)
 	}
 }
 
-void ErsData::finalize(double lapDistance) { addValue(-1, lapDistance); }
+void ModeData::finalize(double lapDistance) { addValue(-1, lapDistance); }
 
-void ErsData::clear()
+void ModeData::clear()
 {
 	distancesPerMode.clear();
 	_currentMode = -1;
 	_startedModeDistance = 0;
 }
 
-QDataStream &operator<<(QDataStream &out, const ErsData &data)
+QDataStream &operator<<(QDataStream &out, const ModeData &data)
 {
 	out << data.distancesPerMode;
 	return out;
 }
 
-QDataStream &operator>>(QDataStream &in, ErsData &data)
+QDataStream &operator>>(QDataStream &in, ModeData &data)
 {
 	in >> data.distancesPerMode;
 	return in;

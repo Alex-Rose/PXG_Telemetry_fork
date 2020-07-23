@@ -7,6 +7,8 @@
 
 TelemetryData::TelemetryData(const QVector<TelemetryInfo> &dataInfo) : _telemetryInfo(dataInfo) {}
 
+QVariant TelemetryData::autoSortData() const { return description(); }
+
 void TelemetryData::addData(float x, const QVector<float> &dataValues)
 {
 	_xValues.append(x);
@@ -25,8 +27,10 @@ int TelemetryData::countData() const { return _data.count(); }
 
 void TelemetryData::removeLastData()
 {
-	_xValues.removeLast();
-	_data.removeLast();
+	if(hasData()) {
+		_xValues.removeLast();
+		_data.removeLast();
+	}
 }
 
 QVector<float> TelemetryData::xValues() const { return _xValues; }
@@ -42,6 +46,8 @@ QVector<float> TelemetryData::data(int index) const
 
 	return dataValues;
 }
+
+QVector<float> TelemetryData::lastRecordedData() const { return _data.last(); }
 
 void TelemetryData::setTelemetryInfo(const QVector<TelemetryInfo> &dataNames) { _telemetryInfo = dataNames; }
 
@@ -69,9 +75,29 @@ double TelemetryData::integrateTelemetry(int index, const std::function<float(fl
 	return sum / lapDistance;
 }
 
-void TelemetryData::save(QDataStream &out) const { out << _telemetryInfo << _xValues << _data; }
+void TelemetryData::save(const QString &filename) const
+{
+	QFile file(filename);
+	if(file.open(QIODevice::WriteOnly)) {
+		QDataStream out(&file);
+		saveData(out);
+	} else {
+		qDebug() << "Data saving failed in " << filename;
+	}
+}
 
-void TelemetryData::load(QDataStream &in) { in >> _telemetryInfo >> _xValues >> _data; }
+void TelemetryData::load(const QString &filename)
+{
+	QFile file(filename);
+	if(file.open(QIODevice::ReadOnly)) {
+		QDataStream in(&file);
+		loadData(in);
+	}
+}
+
+void TelemetryData::saveData(QDataStream &out) const { out << _telemetryInfo << _xValues << _data; }
+
+void TelemetryData::loadData(QDataStream &in) { in >> _telemetryInfo >> _xValues >> _data; }
 
 QDataStream &operator>>(QDataStream &in, TelemetryInfo &data)
 {

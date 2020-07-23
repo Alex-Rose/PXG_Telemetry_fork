@@ -18,8 +18,9 @@ class Lap : public TelemetryData
 
 	virtual QString description() const;
     virtual void exportData(const QString path) const override;
+	virtual void resetData();
+	QVariant autoSortData() const;
 
-	void resetData();
 	void removeTelemetryFrom(float distance);
 
 	// Metadata
@@ -48,7 +49,8 @@ class Lap : public TelemetryData
 	int visualTyreCompound = -1;
 	double fuelOnStart = 0;
 	double fuelOnEnd = 0;
-	ErsData ers;
+	ModeData ers;
+	ModeData fuelMix;
 	double energy = 0;
 	double harvestedEnergy = 0;
 	double deployedEnergy = 0;
@@ -65,8 +67,6 @@ class Lap : public TelemetryData
 	double calculatedTotalLostTraction = 0.0;
 
 	// Saving - Loading
-	void save(const QString &filename) const;
-	void load(const QString &filename);
 	static Lap *fromFile(const QString &filename);
 
   protected:

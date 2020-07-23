@@ -16,7 +16,7 @@ Qt for open source at [https://www.qt.io/download-open-source#obligations](https
 
 ## Compilation
 
-- Download and install Qt 5.14.1 or higher from www.qt.io
+- Download and install the open source version of Qt 5.14.1 or higher from www.qt.io
 - Open "F1Telemetry.pro" with Qt creator and compile the project
 
 ## Deployment
@@ -31,6 +31,7 @@ Qt for open source at [https://www.qt.io/download-open-source#obligations](https
  - Command: %QTDIR%/bin/windeployqt.exe
  - Arguments: "src\release\PXG F1 Telemetry.exe" --dir package
 - Copy "PXG F1 Telemetry.exe" in the package directory
+- Install and copy the OpenSSL dll inside the package directory
 
 ## Original author
 Thibaud Rabillard

@@ -25,10 +25,15 @@ void Lap::resetData()
 {
 	clearData();
 	ers.clear();
+	fuelMix.clear();
 	innerTemperatures.frontLeft.clear();
 	innerTemperatures.frontRight.clear();
 	innerTemperatures.rearLeft.clear();
 	innerTemperatures.rearRight.clear();
+	startTyreWear.frontLeft = 0.0;
+	startTyreWear.frontRight = 0.0;
+	startTyreWear.rearLeft = 0.0;
+	startTyreWear.rearRight = 0.0;
 	nbFlashback = 0;
 	isOutLap = false;
 	isInLap = false;
@@ -37,6 +42,7 @@ void Lap::resetData()
 	calculatedTotalLostTraction = 0.0;
 }
 
+QVariant Lap::autoSortData() const { return recordDate; }
 
 void Lap::removeTelemetryFrom(float distance)
 {
@@ -51,31 +57,6 @@ void Lap::removeTelemetryFrom(float distance)
 	}
 }
 
-void Lap::save(const QString &filename) const
-{
-	QFile file(filename);
-	if(file.open(QIODevice::WriteOnly)) {
-		QDataStream out(&file);
-		out.setByteOrder(QDataStream::LittleEndian);
-		out.setFloatingPointPrecision(QDataStream::SinglePrecision);
-		saveData(out);
-
-		qDebug() << "LAP saved " << filename;
-	} else {
-		qDebug() << "LAP saving failed in " << filename;
-	}
-}
-
-void Lap::load(const QString &filename)
-{
-	QFile file(filename);
-	if(file.open(QIODevice::ReadOnly)) {
-		QDataStream in(&file);
-		in.setByteOrder(QDataStream::LittleEndian);
-		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
-		loadData(in);
-	}
-}
 
 Lap *Lap::fromFile(const QString &filename)
 {
@@ -87,24 +68,40 @@ Lap *Lap::fromFile(const QString &filename)
 
 void Lap::saveData(QDataStream &out) const
 {
-	out << track << session_type << trackTemp << airTemp << weather << invalid << driver << recordDate << averageStartTyreWear
-		<< averageEndTyreWear << setup << comment << lapTime << sector1Time << sector2Time << sector3Time;
-	TelemetryData::save(out);
+	out << track << session_type << trackTemp << airTemp << weather << invalid << saveGenericData(driver);
+	out << recordDate << averageStartTyreWear << averageEndTyreWear << saveGenericData(setup);
+	out << comment << lapTime << sector1Time << sector2Time << sector3Time;
+
+	QByteArray telemetryData;
+	QDataStream outTelemetry(&telemetryData, QIODevice::WriteOnly);
+	TelemetryData::saveData(outTelemetry);
+	out << telemetryData;
+
 	out << tyreCompound << maxSpeed << maxSpeedErsMode << maxSpeedFuelMix << fuelOnStart << fuelOnEnd << ers << energy
 		<< harvestedEnergy << deployedEnergy << innerTemperatures << nbFlashback << trackDistance << startTyreWear
 		<< endTyreWear << isInLap << isOutLap << visualTyreCompound << meanBalance << energyBalance
-		<< calculatedTyreDegradation << calculatedTotalLostTraction;
+		<< calculatedTyreDegradation << calculatedTotalLostTraction << fuelMix;
 }
 
 void Lap::loadData(QDataStream &in)
 {
-	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver >> recordDate >>
-	averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >> sector3Time;
-	TelemetryData::load(in);
+	QByteArray driverData, setupData;
+	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driverData >> recordDate >>
+		averageStartTyreWear >> averageEndTyreWear >> setupData >> comment >> lapTime >> sector1Time >> sector2Time >>
+		sector3Time;
+
+	loadGenericData(driver, driverData);
+	loadGenericData(setup, setupData);
+
+	QByteArray telemetryData;
+	in >> telemetryData;
+	QDataStream inTelemetry(&telemetryData, QIODevice::ReadOnly);
+	TelemetryData::loadData(inTelemetry);
+
 	in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
-	harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
-	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
-	calculatedTyreDegradation >> calculatedTotalLostTraction;
+		harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
+		endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
+		calculatedTyreDegradation >> calculatedTotalLostTraction >> fuelMix;
 }
 
 void Lap::exportData(const QString path) const

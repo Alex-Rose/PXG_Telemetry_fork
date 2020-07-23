@@ -2,7 +2,6 @@
 #define TRACKINGWIDGET_H
 
 #include <QCheckBox>
-#include <QSettings>
 #include <QWidget>
 
 #include "Logger.h"
@@ -12,12 +11,23 @@ namespace Ui
 class TrackingWidget;
 }
 
+class F1TelemetrySettings;
+
+struct TrackedCars {
+	bool me;
+	bool teammate;
+	bool player2;
+	bool all;
+	bool allRace;
+	const QVector<int> &ids;
+};
+
 class TrackingWidget : public QWidget, public LogInterface
 {
 	Q_OBJECT
 
   signals:
-	void startTracking(bool me, bool teammate, bool all, const QVector<int> &driverId);
+	void startTracking(const TrackedCars &cars);
 	void stopStracking();
 	void networkInfoChanged();
 
@@ -25,8 +35,8 @@ class TrackingWidget : public QWidget, public LogInterface
 	explicit TrackingWidget(QWidget *parent = nullptr);
 	virtual ~TrackingWidget() override;
 
-	void saveSettings(QSettings *settings);
-	void loadSettings(QSettings *settings);
+	void saveSettings(F1TelemetrySettings *settings);
+	void loadSettings(F1TelemetrySettings *settings);
 
 	QString getDataDirectory() const;
 

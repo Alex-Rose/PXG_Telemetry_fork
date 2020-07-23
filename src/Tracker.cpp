@@ -31,6 +31,9 @@ void Tracker::updateAutoTrackedDrivers()
 	if(_addPlayerTrackingOnStart)
 		_autoTrackedIndexes << _header.m_playerCarIndex;
 
+	if(_addPlayer2TrackingOnStart && _header.hasSecondaryPlayer())
+		_autoTrackedIndexes << _header.m_secondaryPlayerCarIndex;
+
 	if(_addTeammateTrackingOnStart) {
 		const auto &playerData = _participants.m_participants[_header.m_playerCarIndex];
 		int carIndex = 0;
@@ -54,6 +57,15 @@ void Tracker::updateAutoTrackedDrivers()
 	for(auto carIndex : _autoTrackedIndexes) {
 		if(!_trackedIndexes.contains(carIndex))
 			trackDriver(carIndex);
+	}
+
+	if(_addAllRaceCarsTrackingOnStart && _session.isRace()) {
+		for(int carIndex = 0; carIndex < 20; ++carIndex) {
+			if(!_participants.m_participants[carIndex].m_name.isEmpty() && !_trackedIndexes.contains(carIndex)) {
+				trackDriver(carIndex, true);
+				_autoTrackedIndexes.insert(carIndex);
+			}
+		}
 	}
 }
 
@@ -97,18 +109,22 @@ void Tracker::stop()
 	emit statusChanged("", false);
 }
 
-void Tracker::trackDriver(int index)
+void Tracker::trackDriver(int index, bool raceOnly)
 {
-	auto driver = std::make_shared<DriverTracker>(index);
+	auto driver = std::make_shared<DriverTracker>(index, raceOnly);
 	_trackedDrivers.append(driver);
 	_trackedIndexes.insert(index);
 }
 
 void Tracker::trackPlayer() { _addPlayerTrackingOnStart = true; }
 
+void Tracker::trackPlayer2() { _addPlayer2TrackingOnStart = true; }
+
 void Tracker::trackTeammate() { _addTeammateTrackingOnStart = true; }
 
 void Tracker::trackAllCars() { _addAllCarsTrackingOnStart = true; }
+
+void Tracker::trackAllRace() { _addAllRaceCarsTrackingOnStart = true; }
 
 void Tracker::untrackDriver(int index)
 {
@@ -127,8 +143,10 @@ void Tracker::clearTrackedDrivers()
 	_trackedDrivers.clear();
 	_trackedIndexes.clear();
 	_addPlayerTrackingOnStart = false;
+	_addPlayer2TrackingOnStart = false;
 	_addTeammateTrackingOnStart = false;
 	_addAllCarsTrackingOnStart = false;
+	_addAllRaceCarsTrackingOnStart = false;
 }
 
 QStringList Tracker::availableDrivers(const PacketParticipantsData &data) const
@@ -273,5 +291,15 @@ void Tracker::eventData(const PacketHeader &header, const PacketEventData &data)
 
 	for(auto &driver : qAsConst(_trackedDrivers)) {
 		driver->eventData(header, data);
+	}
+}
+
+void Tracker::finalClassificationData(const PacketHeader &header, const PacketFinalClassificationData &data)
+{
+	Q_UNUSED(header)
+	Q_UNUSED(data)
+
+	for(auto &driver : qAsConst(_trackedDrivers)) {
+		driver->finalClassificationData(header, data);
 	}
 }

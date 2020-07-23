@@ -12,7 +12,8 @@ F1Listener::F1Listener(F1PacketInterface *interface, const QString &address, int
 	if(host.isNull()) {
 		Logger::instance()->log(QString("Error: The listened address %1 is invalid!").arg(host.toString()));
 	} else if(!_listener->bind(host, port)) {
-		Logger::instance()->log(QString("Error: The connection to %1 (port %2) failed!").arg(host.toString()).arg(port));
+		Logger::instance()->log(
+			QString("Error: The connection to %1 (port %2) failed!").arg(host.toString()).arg(port));
 	} else if(!address.isEmpty()) {
 		Logger::instance()->log(QString("Listening to %1 ... (port %2)").arg(host.toString()).arg(port));
 	} else {
@@ -98,6 +99,13 @@ bool F1Listener::tryRead()
 				stream >> packet;
 				if(_interface)
 					_interface->eventData(_lastHeader, packet);
+				break;
+			}
+			case UdpSpecification::PacketType::FinalClassification: {
+				auto packet = PacketFinalClassificationData();
+				stream >> packet;
+				if(_interface)
+					_interface->finalClassificationData(_lastHeader, packet);
 				break;
 			}
 			default:

@@ -4,10 +4,10 @@
 #include <QDataStream>
 #include <QMap>
 
-class ErsData
+class ModeData
 {
   public:
-	ErsData();
+	ModeData();
 
 	QMap<int, double> distancesPerMode;
 
@@ -20,7 +20,7 @@ class ErsData
 	double _startedModeDistance = 0;
 };
 
-QDataStream &operator>>(QDataStream &in, ErsData &data);
-QDataStream &operator<<(QDataStream &out, const ErsData &data);
+QDataStream &operator>>(QDataStream &in, ModeData &data);
+QDataStream &operator<<(QDataStream &out, const ModeData &data);
 
 #endif // ERS_H

@@ -66,12 +66,12 @@ class Lap : public TelemetryData
 
 	// Saving - Loading
 	void save(const QString &filename) const;
-	void load(const QString &filename);
+    void load(const QString &filename);
 	static Lap *fromFile(const QString &filename);
 
   protected:
 	virtual void saveData(QDataStream &out) const;
-	virtual void loadData(QDataStream &in);
+    virtual void loadData(QDataStream &in, bool hasVersionTag);
 };
 
 #endif // LAP_H

@@ -67,12 +67,12 @@ void Stint::saveData(QDataStream &out) const
     out << lapData << lapTimes << calculatedTyreWear << laps;
 }
 
-void Stint::loadData(QDataStream &in)
+void Stint::loadData(QDataStream &in, bool hasVersionTag)
 {
 	QByteArray lapData;
 	in >> lapData;
 	QDataStream inLap(&lapData, QIODevice::ReadOnly);
-	Lap::loadData(inLap);
+    Lap::loadData(inLap, hasVersionTag);
 
     in >> lapTimes >> calculatedTyreWear >> laps;
 }

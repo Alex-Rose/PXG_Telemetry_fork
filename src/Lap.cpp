@@ -3,6 +3,11 @@
 #include <QFile>
 #include <QtDebug>
 
+// Version history:
+// 1: Add version
+constexpr uint32_t c_currentFileVersion = 1;
+constexpr auto c_fileVersionTag = "FILE_VER";
+
 Lap::Lap(const QVector<TelemetryInfo> &dataInfo) : TelemetryData(dataInfo) {}
 
 QString Lap::description() const
@@ -70,10 +75,25 @@ void Lap::load(const QString &filename)
 {
 	QFile file(filename);
 	if(file.open(QIODevice::ReadOnly)) {
+
+        char buffer[sizeof(c_fileVersionTag)];
+        file.peek(buffer, sizeof(c_fileVersionTag));
+
+
 		QDataStream in(&file);
 		in.setByteOrder(QDataStream::LittleEndian);
 		in.setFloatingPointPrecision(QDataStream::SinglePrecision);
-		loadData(in);
+
+        bool hasVersionTag = true;
+        QString fileVersionTag;
+        in >> fileVersionTag;
+        if (fileVersionTag.compare(c_fileVersionTag) != 0)
+        {
+            hasVersionTag = false;
+            file.seek(0);
+        }
+
+        loadData(in, hasVersionTag);
 	}
 }
 
@@ -87,6 +107,7 @@ Lap *Lap::fromFile(const QString &filename)
 
 void Lap::saveData(QDataStream &out) const
 {
+    out << c_fileVersionTag << c_currentFileVersion;
 	out << track << session_type << trackTemp << airTemp << weather << invalid << driver << recordDate << averageStartTyreWear
 		<< averageEndTyreWear << setup << comment << lapTime << sector1Time << sector2Time << sector3Time;
 	TelemetryData::save(out);
@@ -96,15 +117,25 @@ void Lap::saveData(QDataStream &out) const
 		<< calculatedTyreDegradation << calculatedTotalLostTraction;
 }
 
-void Lap::loadData(QDataStream &in)
+void Lap::loadData(QDataStream &in, bool hasVersionTag)
 {
-	in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver >> recordDate >>
-	averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >> sector3Time;
-	TelemetryData::load(in);
-	in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
-	harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
-	endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
-	calculatedTyreDegradation >> calculatedTotalLostTraction;
+    uint32_t version = 0;
+
+    if (hasVersionTag)
+    {
+        in >> version;
+    }
+
+    if (version == 0 || version == 1)
+    {
+        in >> track >> session_type >> trackTemp >> airTemp >> weather >> invalid >> driver >> recordDate >>
+        averageStartTyreWear >> averageEndTyreWear >> setup >> comment >> lapTime >> sector1Time >> sector2Time >> sector3Time;
+        TelemetryData::load(in);
+        in >> tyreCompound >> maxSpeed >> maxSpeedErsMode >> maxSpeedFuelMix >> fuelOnStart >> fuelOnEnd >> ers >> energy >>
+        harvestedEnergy >> deployedEnergy >> innerTemperatures >> nbFlashback >> trackDistance >> startTyreWear >>
+        endTyreWear >> isInLap >> isOutLap >> visualTyreCompound >> meanBalance >> energyBalance >>
+        calculatedTyreDegradation >> calculatedTotalLostTraction;
+    }
 }
 
 void Lap::exportData(const QString path) const

@@ -76,7 +76,7 @@ class Stint : public Lap
 
   protected:
 	virtual void saveData(QDataStream &out) const;
-	virtual void loadData(QDataStream &in);
+    virtual void loadData(QDataStream &in, bool hasVersionTag);
 
   private:
     QVector<Telemetry::LapData> laps;
